@@ -281,7 +281,6 @@ end
 -- Função de copiar Discord (já estava ok)
 local function copyDiscordLink()
     setclipboard("https://discord.gg/YmNCGj3h8b")
-    -- Opcional: print ou notificação no jogo
     print("Discord copiado: https://discord.gg/YmNCGj3h8b")
 end
 
