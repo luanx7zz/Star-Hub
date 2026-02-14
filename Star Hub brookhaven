@@ -138,7 +138,7 @@ Stroke.Parent = Avatar
 
 local angle = 0
 RunService.RenderStepped:Connect(function(dt)
-	angle = dt * 45
+	angle += dt * 45
 	LogoFrame.Rotation = angle % 360
 end)
 
@@ -253,86 +253,36 @@ Window:AddMinimizeButton({
 	}
 })
 
--- ============================================
--- CONFIGURAÇÃO DE NOME, BIO E LIMPEZA (CORRIGIDO)
--- ============================================
+-- Muda o RP Name
+local argsName = {
+    [1] = "RolePlayName",
+    [2] = "[ Star Hub User]"   -- ou "Star Hub User" sem colchetes se preferir
+}
 
--- Aguarda o jogo carregar completamente
-task.wait(2)
-
--- Função para definir nome e bio de forma segura
-local function setPlayerInfo()
-    local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
-    if not RE then 
-        warn("❌ Pasta RE não encontrada!")
-        return 
-    end
-    
-    -- ===== CONFIGURAR NOME =====
-    local nameRemote = RE:FindFirstChild("1RPNam1eTex1t")
-    if nameRemote then
-        local success = pcall(function()
-            nameRemote:FireServer("RolePlayName", "[ Star Hub User]")
-        end)
-        if success then
-            print("✅ Nome configurado com sucesso!")
-        else
-            warn("⚠️ Erro ao configurar nome")
-        end
-    else
-        warn("ℹ️ Remote de nome não encontrado (continuando...)")
-    end
-    
-    -- ===== CONFIGURAR BIO =====
-    -- Primeiro tenta remote específico de bio
-    local bioRemote = RE:FindFirstChild("1RPBi1oTex1t") 
-                    or RE:FindFirstChild("RPBioText")
-                    or RE:FindFirstChild("ChangeRPBio")
-                    or nameRemote -- fallback para o mesmo remote do nome
-    
-    if bioRemote then
-        local success = pcall(function()
-            bioRemote:FireServer("RolePlayBio", "O melhor script de Brookhaven 💫 | Star Hub by Luan")
-        end)
-        if success then
-            print("✅ Bio configurada com sucesso!")
-        else
-            warn("⚠️ Erro ao configurar bio")
-        end
-    else
-        warn("ℹ️ Remote de bio não encontrado (continuando...)")
-    end
-end
-
--- Executa a função
-setPlayerInfo()
-
--- Também executa quando o personagem mudar (respawn)
-game.Players.LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(2)
-    setPlayerInfo()
-end)
-
--- ===== LIMPAR FERRAMENTAS (CORRIGIDO) =====
-task.wait(1)
-local clearRemote = RE and RE:FindFirstChild("1Clea1rTool1s")
-if clearRemote then
-    local success = pcall(function()
-        clearRemote:FireServer("ClearAllTools")
-    end)
-    if success then
-        print("🧹 Ferramentas limpas!")
-    else
-        warn("⚠️ Erro ao limpar ferramentas")
-    end
+local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1RPNam1eTex1t")
+if remote then
+    remote:FireServer(unpack(argsName))
 else
-    print("ℹ️ Remote de limpeza não encontrado")
+    warn("Remote '1RPNam1eTex1t' não encontrado!")
 end
 
--- Função de copiar Discord
+-- Muda o RP Bio (Info)
+local argsBio = {
+    [1] = "RolePlayBio",
+    [2] = "O melhor script de Brookhaven 💫 | Star Hub by Luan"
+}
+
+if remote then
+    remote:FireServer(unpack(argsBio))
+else
+    warn("Remote '1RPNam1eTex1t' não encontrado para Bio!")
+end
+
+-- Função de copiar Discord (já estava ok)
 local function copyDiscordLink()
     setclipboard("https://discord.gg/YmNCGj3h8b")
-    print("📋 Discord copiado: https://discord.gg/YmNCGj3h8b")
+    -- Opcional: print ou notificação no jogo
+    print("Discord copiado: https://discord.gg/YmNCGj3h8b")
 end
 
 --[[
@@ -733,7 +683,7 @@ task.spawn(function()
         local formatado = string.format("%02d:%02d:%02d", horas, minutos, segundos)
         tempoTrack:Set("  " .. formatado)
 
-        tempoAtual = Config.statusUpdateInterval
+        tempoAtual += Config.statusUpdateInterval
         task.wait(Config.statusUpdateInterval)
     end
 end)
@@ -745,8 +695,8 @@ local frameCount = 0
 local currentFPS = 0
 
 RunService.RenderStepped:Connect(function(dt)
-      frameCount = 1
-      lastUpdate = dt
+      frameCount += 1
+      lastUpdate += dt
 
     if lastUpdate >= 1 then
         currentFPS = frameCount
@@ -2953,7 +2903,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
         local total = 0
         for _, c in ipairs({player.Backpack, player.Character}) do
             for _, tool in ipairs(c:GetChildren()) do
-                if tool:IsA("Tool") then total = 1 end
+                if tool:IsA("Tool") then total += 1 end
             end
         end
         return total
@@ -2965,7 +2915,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
             local rows = CHAR_MAP[c]
             if rows then
                 for _, row in ipairs(rows) do
-                    total = row:gsub("0", ""):len()
+                    total += row:gsub("0", ""):len()
                 end
             else
                 warn("Invalid character:", c)
@@ -3048,12 +2998,12 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
                                     startPos.Y + (y - 1) * pixelSize.Y,
                                     startPos.Z
                                 )
-                                toolIndex = 1
+                                toolIndex += 1
                             end
                         end
                     end
                 end
-                offsetX = #map[1] + 1
+                offsetX += #map[1] + 1
             end
         end
 
@@ -3213,7 +3163,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total = 1 end
+                    if tool:IsA("Tool") then total += 1 end
                 end
             end
             return total
@@ -3225,7 +3175,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total = 1 end
+                    if tool:IsA("Tool") then total += 1 end
                 end
             end
             return total
@@ -3300,7 +3250,7 @@ Tabs.JJ:AddButton({
                             startPos.Y + (y - 1) * pixelSize.Y,
                             startPos.Z
                         )
-                        toolIndex = 1
+                        toolIndex += 1
                     end
                 end
             end
@@ -3464,7 +3414,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total = 1 end
+                    if tool:IsA("Tool") then total += 1 end
                 end
             end
             return total
@@ -3476,7 +3426,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total = 1 end
+                    if tool:IsA("Tool") then total += 1 end
                 end
             end
             return total
@@ -4104,76 +4054,27 @@ Tabs.TT:AddToggle({
     Description = Translator:traduzir("Acompanha o jogador com a câmera"),
     Default = false,
     Callback = function(value)
-        -- Variável local para controle
-        local isViewing = value
-        
-        -- Função para resetar a câmera
-        local function resetCamera()
-            pcall(function()
-                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-                    Camera.CameraSubject = LocalPlayer.Character.Humanoid
-                end
-            end)
+                local function UpdateCamera()
+            local targetPlayer = value and Players:FindFirstChild(selectedPlayer)
+            local subject = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+            
+            if targetPlayer and targetPlayer.Character then
+                subject = targetPlayer.Character:FindFirstChild("Humanoid")
+            end
+            
+            if subject then Camera.CameraSubject = subject end
         end
-        
-        -- Função principal de atualização
-        local function cameraUpdate()
-            -- Se não estiver mais ativo, sai
-            if not isViewing then return end
-            
-            -- Verifica se há jogador selecionado
-            if not selectedPlayer then
-                resetCamera()
-                return
+
+        if value then
+            if not getgenv().CameraConnection then
+                getgenv().CameraConnection = RunService.Heartbeat:Connect(UpdateCamera)
             end
-            
-            -- Tenta encontrar o jogador
-            local targetPlayer = Players:FindFirstChild(selectedPlayer)
-            if not targetPlayer then
-                resetCamera()
-                return
-            end
-            
-            -- Tenta encontrar o humanoid do alvo
-            local success, targetHumanoid = pcall(function()
-                if targetPlayer.Character then
-                    return targetPlayer.Character:FindFirstChild("Humanoid")
-                end
-                return nil
-            end)
-            
-            if success and targetHumanoid then
-                -- Define a câmera para seguir o alvo
-                Camera.CameraSubject = targetHumanoid
-            else
-                -- Se não conseguir, volta ao normal
-                resetCamera()
-            end
-        end
-        
-        -- Limpa conexão anterior
-        if getgenv().CameraConnection then
-            getgenv().CameraConnection:Disconnect()
-            getgenv().CameraConnection = nil
-        end
-        
-        -- Ativa nova visualização
-        if isViewing then
-            -- Verifica se tem jogador selecionado
-            if not selectedPlayer then
-                notify("Erro", "Selecione um jogador primeiro!", 3)
-                -- Aqui você precisaria desmarcar o toggle
-                -- Depende da sua lib como fazer isso
-                return
-            end
-            
-            -- Cria nova conexão
-            getgenv().CameraConnection = RunService.Heartbeat:Connect(cameraUpdate)
-            notify("Visualizar", "Observando: " .. selectedPlayer, 3)
         else
-            -- Reseta a câmera
-            resetCamera()
-            notify("Visualizar", "Câmera normal", 3)
+            if getgenv().CameraConnection then
+                getgenv().CameraConnection:Disconnect()
+                getgenv().CameraConnection = nil
+            end
+            UpdateCamera()
         end
     end
 })
@@ -4550,8 +4451,8 @@ local function toggleBlackHole(v)
         task.spawn(function()
             local rotationSpeed, pulseTime = 0,0
             while blackHoleActive and blackHoleModel.Parent do
-                rotationSpeed = math.rad(1.5)
-                pulseTime = 0.02
+                rotationSpeed += math.rad(1.5)
+                pulseTime += 0.02
                 for i,disk in pairs(diskLayers) do
                     if disk and disk.Parent then
                         local diskSpeed = rotationSpeed*(1+i*0.2)
@@ -5214,7 +5115,7 @@ local function KillPlayerCouch()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle = 50
+            angle += 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -5305,7 +5206,7 @@ local function BringPlayerLLL()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle = 50
+            angle += 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -5350,10 +5251,8 @@ local function BringWithCouch()
         return
     end
 
-    local clearRemote = ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s")
-if clearRemote then
-    clearRemote:FireServer("ClearAllTools")
-end
+    local args = { [1] = "ClearAllTools" }
+    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(args))
     local args = { [1] = "PickingTools", [2] = "Couch" }
     ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
 
@@ -5648,7 +5547,7 @@ local function jailcouch()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle = 50
+            angle += 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -6104,7 +6003,7 @@ local function FlingBall(target)
 
                 local position = Vector3.new(pos_x, pos_y, pos_z)
                 Ball.CFrame = CFrame.new(position)
-                Ball.Orientation = Vector3.new(45, 60, 30)
+                Ball.Orientation += Vector3.new(45, 60, 30)
                 else
                 for i, v in pairs(tchar:GetChildren()) do
                 if v:IsA("BasePart") and v.CanCollide and not v.Anchored then
@@ -6907,11 +6806,11 @@ local Button = Tabs.TT:AddButton({Translator:traduzir("Joga bola <Todos>"), func
                     while t < 3 and player.Character and player.Character:FindFirstChild("Humanoid") do
                         if wasFlinged(player) then break end
                         task.wait(0.2)
-                        t = 0.2
+                        t += 0.2
                     end
 
                     if wasFlinged(player) then
-                        flingCount = 1
+                        flingCount += 1
                     end
                 end
             end
@@ -7707,7 +7606,7 @@ local function FlingBall(target)
 		
 			local altura = math.sin(tempo * 7) * 2
 			Ball.CFrame = CFrame.new(pos.X, pos.Y + altura, pos.Z)
-			Ball.Orientation = Vector3.new(45, 60, 30)
+			Ball.Orientation += Vector3.new(45, 60, 30)
 
 			task.wait(1 / 5000)
 		until troot.Velocity.Magnitude > 1000 or thum.Health <= 0 or not tchar:IsDescendantOf(mundo) or target.Parent ~= jogadores
