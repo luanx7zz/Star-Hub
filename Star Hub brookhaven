@@ -253,36 +253,86 @@ Window:AddMinimizeButton({
 	}
 })
 
--- Muda o RP Name
-local argsName = {
-    [1] = "RolePlayName",
-    [2] = "[ Star Hub User]"   -- ou "Star Hub User" sem colchetes se preferir
-}
+-- ============================================
+-- CONFIGURAÇÃO DE NOME, BIO E LIMPEZA (CORRIGIDO)
+-- ============================================
 
-local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1RPNam1eTex1t")
-if remote then
-    remote:FireServer(unpack(argsName))
-else
-    warn("Remote '1RPNam1eTex1t' não encontrado!")
+-- Aguarda o jogo carregar completamente
+task.wait(2)
+
+-- Função para definir nome e bio de forma segura
+local function setPlayerInfo()
+    local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
+    if not RE then 
+        warn("❌ Pasta RE não encontrada!")
+        return 
+    end
+    
+    -- ===== CONFIGURAR NOME =====
+    local nameRemote = RE:FindFirstChild("1RPNam1eTex1t")
+    if nameRemote then
+        local success = pcall(function()
+            nameRemote:FireServer("RolePlayName", "[ Star Hub User]")
+        end)
+        if success then
+            print("✅ Nome configurado com sucesso!")
+        else
+            warn("⚠️ Erro ao configurar nome")
+        end
+    else
+        warn("ℹ️ Remote de nome não encontrado (continuando...)")
+    end
+    
+    -- ===== CONFIGURAR BIO =====
+    -- Primeiro tenta remote específico de bio
+    local bioRemote = RE:FindFirstChild("1RPBi1oTex1t") 
+                    or RE:FindFirstChild("RPBioText")
+                    or RE:FindFirstChild("ChangeRPBio")
+                    or nameRemote -- fallback para o mesmo remote do nome
+    
+    if bioRemote then
+        local success = pcall(function()
+            bioRemote:FireServer("RolePlayBio", "O melhor script de Brookhaven 💫 | Star Hub by Luan")
+        end)
+        if success then
+            print("✅ Bio configurada com sucesso!")
+        else
+            warn("⚠️ Erro ao configurar bio")
+        end
+    else
+        warn("ℹ️ Remote de bio não encontrado (continuando...)")
+    end
 end
 
--- Muda o RP Bio (Info)
-local argsBio = {
-    [1] = "RolePlayBio",
-    [2] = "O melhor script de Brookhaven 💫 | Star Hub by Luan"
-}
+-- Executa a função
+setPlayerInfo()
 
-if remote then
-    remote:FireServer(unpack(argsBio))
+-- Também executa quando o personagem mudar (respawn)
+game.Players.LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(2)
+    setPlayerInfo()
+end)
+
+-- ===== LIMPAR FERRAMENTAS (CORRIGIDO) =====
+task.wait(1)
+local clearRemote = RE and RE:FindFirstChild("1Clea1rTool1s")
+if clearRemote then
+    local success = pcall(function()
+        clearRemote:FireServer("ClearAllTools")
+    end)
+    if success then
+        print("🧹 Ferramentas limpas!")
+    else
+        warn("⚠️ Erro ao limpar ferramentas")
+    end
 else
-    warn("Remote '1RPNam1eTex1t' não encontrado para Bio!")
+    print("ℹ️ Remote de limpeza não encontrado")
 end
 
--- Função de copiar Discord (já estava ok)
+-- Função de copiar Discord
 local function copyDiscordLink()
     setclipboard("https://discord.gg/YmNCGj3h8b")
-    -- Opcional: print ou notificação no jogo
-    print("Discord copiado: https://discord.gg/YmNCGj3h8b")
+    print("📋 Discord copiado: https://discord.gg/YmNCGj3h8b")
 end
 
 --[[
@@ -9497,28 +9547,141 @@ local MusicsAleatorio = {
     ["Hoodtrap"] = "73685038553576"
 }
 
+-- ========== FUNÇÃO PARA EQUIPAR RÁDIO ==========
+local function equipBoombox()
+    local success = pcall(function()
+        local RE = game:GetService("ReplicatedStorage"):WaitForChild("RE", 5)
+        if not RE then return false end
+        
+        -- Limpar ferramentas antigas
+        local clearRemote = RE:FindFirstChild("1Clea1rTool1s")
+        if clearRemote then
+            clearRemote:FireServer("ClearAllTools")
+        end
+        
+        task.wait(0.3)
+        
+        -- Equipar Boombox
+        local toolRemote = RE:FindFirstChild("1Too1l")
+        if toolRemote then
+            toolRemote:InvokeServer("PickingTools", "Boombox")
+        end
+        
+        task.wait(0.5)
+        
+        -- Mover para o personagem
+        local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+        if backpack then
+            local boombox = backpack:FindFirstChild("Boombox")
+            if boombox then
+                boombox.Parent = game.Players.LocalPlayer.Character
+                return true
+            end
+        end
+        return false
+    end)
+    
+    if success then
+        print("✅ Boombox equipado!")
+        notify("Rádio", "Boombox equipado!", 3)
+    else
+        print("❌ Falha ao equipar Boombox")
+    end
+    
+    return success
+end
+
 -- ========== FUNÇÃO PRINCIPAL: TOCAR MÚSICA (Multi-Remote) ==========
 local function playMusic(id)
-    if not id or id == "" then return end
+    if not id or id == "" then 
+        notify("Erro", "ID inválido!", 3)
+        return 
+    end
+    
     id = tostring(id)
-    local RE = game:GetService("ReplicatedStorage"):WaitForChild("RE", 5)
-    if not RE then warn("RE não encontrado!"); return end
+    
+    local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
+    if not RE then 
+        warn("❌ RE não encontrado!")
+        notify("Erro", "Sistema de música não encontrado", 3)
+        return 
+    end
 
+    print("🎵 Tocando música ID:", id)
+    
+    -- Se for ID 0, para todas as músicas
+    if id == "0" then
+        -- Rádio / Tool
+        pcall(function() 
+            local remote = RE:FindFirstChild("PlayerToolEvent")
+            if remote then remote:FireServer("ToolMusicText", "0") end
+        end)
+        -- Casa
+        pcall(function() 
+            local remote = RE:FindFirstChild("1Player1sHous1e")
+            if remote then remote:FireServer("PickHouseMusicText", "0") end
+        end)
+        -- Carro
+        pcall(function() 
+            local remote = RE:FindFirstChild("1Player1sCa1r")
+            if remote then remote:FireServer("PickingVehicleMusicText", "0") end
+        end)
+        -- Moto
+        pcall(function() 
+            local remote = RE:FindFirstChild("1NoMoto1rVehicle1s")
+            if remote then remote:FireServer("PickingScooterMusicText", "0") end
+        end)
+        
+        notify("Música", "Todas as músicas paradas!", 3)
+        return
+    end
+
+    -- Tocar música em todos os dispositivos
+    
     -- Rádio / Tool
-    pcall(function() RE:WaitForChild("PlayerToolEvent", 3):FireServer("ToolMusicText", id) end)
+    pcall(function() 
+        local remote = RE:FindFirstChild("PlayerToolEvent")
+        if remote then 
+            remote:FireServer("ToolMusicText", id)
+            print("✅ Rádio: OK")
+        end
+    end)
+    
     -- Casa
-    pcall(function() RE:WaitForChild("1Player1sHous1e", 3):FireServer("PickHouseMusicText", id) end)
-    -- Carro
-    pcall(function() RE:WaitForChild("1Player1sCa1r", 3):FireServer("VehicleMusicPlay", id) end)
+    pcall(function() 
+        local remote = RE:FindFirstChild("1Player1sHous1e")
+        if remote then 
+            remote:FireServer("PickHouseMusicText", id)
+            print("✅ Casa: OK")
+        end
+    end)
+    
+    -- Carro (CORRIGIDO)
+    pcall(function() 
+        local remote = RE:FindFirstChild("1Player1sCa1r")
+        if remote then 
+            remote:FireServer("PickingVehicleMusicText", id)
+            print("✅ Carro: OK")
+        end
+    end)
+    
     -- Moto
-    pcall(function() RE:WaitForChild("1NoMoto1rVehicle1s", 3):FireServer("PickingScooterMusicText", id) end)
+    pcall(function() 
+        local remote = RE:FindFirstChild("1NoMoto1rVehicle1s")
+        if remote then 
+            remote:FireServer("PickingScooterMusicText", id)
+            print("✅ Moto: OK")
+        end
+    end)
+    
+    notify("Música", "ID " .. id .. " tocando!", 3)
 end
 
 -- ========== FUNÇÃO PARA CRIAR DROPDOWNS ==========
 local function makeMusicDropdown(name, data)
     local options = {}
     for k in pairs(data) do table.insert(options, k) end
-    table.sort(options)  -- Ordena por nome
+    table.sort(options)
 
     Tabs.AD:AddDropdown({
         Name = name,
@@ -9526,7 +9689,9 @@ local function makeMusicDropdown(name, data)
         Default = "Escolha uma...",
         Callback = function(Value)
             local id = data[Value]
-            if id then playMusic(id) end
+            if id then 
+                playMusic(id)
+            end
         end
     })
 end
@@ -9547,31 +9712,30 @@ Tabs.AD:AddTextBox({
     PlaceholderText = "Ex: 123456789012345",
     ClearTextOnFocus = false,
     Callback = function(text)
-        CustomMusicID = text:match("%d+") or ""  -- Só números válidos
+        CustomMusicID = text:match("%d+") or ""
     end
 })
 
 Tabs.AD:AddButton({
     Name = "▶ Tocar ID Digitado",
     Callback = function()
-        if CustomMusicID \~= "" then
+        if CustomMusicID ~= "" and CustomMusicID ~= "0" then
             playMusic(CustomMusicID)
+        elseif CustomMusicID == "0" then
+            playMusic("0")
         else
-            -- Notificação simples (se redzlib suportar)
-            print("❌ Digite um ID válido!")
+            notify("Erro", "Digite um ID válido!", 3)
         end
     end
 })
 
 -- ========== BOTÕES ÚTEIS ==========
 Tabs.AD:AddSection({Translator:traduzir("Ferramentas Rápidas")})
+
 Tabs.AD:AddButton({
     Name = "📻 Equipar Boombox / Rádio",
     Callback = function()
-        local args = { [1] = "PickingTools", [2] = "Boombox" }
-        pcall(function()
-            game:GetService("ReplicatedStorage").RE:WaitForChild("1Too1l", 5):InvokeServer(unpack(args))
-        end)
+        equipBoombox()
     end
 })
 
@@ -9579,6 +9743,46 @@ Tabs.AD:AddButton({
     Name = "⏹️ Parar Toda Música",
     Callback = function()
         playMusic("0")
+    end
+})
+
+-- Botão extra para testar remotes
+Tabs.AD:AddButton({
+    Name = "🔍 Verificar Remotes de Música",
+    Callback = function()
+        local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
+        if not RE then 
+            notify("Erro", "RE não encontrado!", 3)
+            return
+        end
+        
+        local remotes = {
+            "PlayerToolEvent",
+            "1Player1sHous1e",
+            "1Player1sCa1r",
+            "1NoMoto1rVehicle1s",
+            "1Too1l",
+            "1Clea1rTool1s"
+        }
+        
+        local found = {}
+        local missing = {}
+        
+        for _, name in ipairs(remotes) do
+            if RE:FindFirstChild(name) then
+                table.insert(found, name)
+            else
+                table.insert(missing, name)
+            end
+        end
+        
+        local msg = "✅ Encontrados: " .. #found .. "\n❌ Faltando: " .. #missing
+        notify("Verificação de Remotes", msg, 5)
+        
+        print("=== REMOTES ENCONTRADOS ===")
+        for _, name in ipairs(found) do print("✅", name) end
+        print("=== REMOTES FALTANDO ===")
+        for _, name in ipairs(missing) do print("❌", name) end
     end
 })
 
