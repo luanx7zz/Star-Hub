@@ -287,72 +287,73 @@ end
 
 --[[
 local function AntiSkidder()
-    -- local antiSkidContent = game:HttpGet('https://raw.githubusercontent.com/scriptclient/Brookhaven/refs/heads/main/iploggs.lua', true)
-    -- loadstring(antiSkidContent)()
+-- local antiSkidContent = game:HttpGet('https://raw.githubusercontent.com/scriptclient/Brookhaven/refs/heads/main/iploggs.lua', true)
+-- loadstring(antiSkidContent)()
 end
 ]]
 
 local function chatlogs()
-    local player = game.Players.LocalPlayer
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "PainelChatLogs"
-    gui.ResetOnSpawn = false
-    gui.Parent = player:WaitForChild("PlayerGui")
+local player = game.Players.LocalPlayer
+local gui = Instance.new("ScreenGui")
+gui.Name = "PainelChatLogs"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
 
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 250)
-    frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    frame.BackgroundTransparency = 0.3
-    frame.BorderSizePixel = 0
-    frame.AnchorPoint = Vector2.new(0.5, 0.5)
-    frame.Parent = gui
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 250)
+-- AQUI CORRIGIDO: Posição inicial no centro (tamanho 0)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+frame.BackgroundTransparency = 0.3
+frame.BorderSizePixel = 0
+frame.AnchorPoint = Vector2.new(0.5, 0.5) -- Importante para centralizar
+frame.Parent = gui
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = frame
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
 
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, -40, 0, 40)
-    title.Position = UDim2.new(0, 20, 0, 10)
-    title.BackgroundTransparency = 1
-    title.Text = "Changelog"
-    title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 22
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = frame
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 0, 40)
+title.Position = UDim2.new(0, 20, 0, 10)
+title.BackgroundTransparency = 1
+title.Text = "Changelog"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 22
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = frame
 
-    local linha = Instance.new("Frame")
-    linha.Size = UDim2.new(0.9, 0, 0, 2)
-    linha.Position = UDim2.new(0.05, 0, 0, 50)
-    linha.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    linha.BorderSizePixel = 0
-    linha.Parent = frame
+local linha = Instance.new("Frame")
+linha.Size = UDim2.new(0.9, 0, 0, 2)
+linha.Position = UDim2.new(0.05, 0, 0, 50)
+linha.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+linha.BorderSizePixel = 0
+linha.Parent = frame
 
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -35, 0, 5)
-    closeButton.BackgroundTransparency = 1
-    closeButton.Text = "×"
-    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextSize = 20
-    closeButton.Parent = frame
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 5)
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "×"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 20
+closeButton.Parent = frame
 
-    local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 8)
-    closeCorner.Parent = closeButton
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeButton
 
-    closeButton.MouseButton1Click:Connect(function()
-        gui:Destroy()
-    end)
+closeButton.MouseButton1Click:Connect(function()
+gui:Destroy()
+end)
 
-    local chatLog = Instance.new("TextLabel")
-    chatLog.Size = UDim2.new(0.9, 0, 0.7, 0)
-    chatLog.Position = UDim2.new(0.05, 0, 0, 60)
-    chatLog.BackgroundTransparency = 1
-    chatLog.Text = [[
+local chatLog = Instance.new("TextLabel")
+chatLog.Size = UDim2.new(0.9, 0, 0.7, 0)
+chatLog.Position = UDim2.new(0.05, 0, 0, 60)
+chatLog.BackgroundTransparency = 1
+chatLog.Text = [[
 • Add Tab Skybox
 • Add Tab Artificial Inteligence
 • Add Tab House
@@ -362,34 +363,33 @@ local function chatlogs()
 • add tornado tool, wall tool, name tool [Character Tab]
 • Fixed bugs
 ]]
-    chatLog.TextColor3 = Color3.fromRGB(255, 255, 255)
-    chatLog.Font = Enum.Font.Gotham
-    chatLog.TextSize = 16
-    chatLog.TextWrapped = true
-    chatLog.TextYAlignment = Enum.TextYAlignment.Top
-    chatLog.TextXAlignment = Enum.TextXAlignment.Left
-    chatLog.Parent = frame
+chatLog.TextColor3 = Color3.fromRGB(255, 255, 255)
+chatLog.Font = Enum.Font.Gotham
+chatLog.TextSize = 16
+chatLog.TextWrapped = true
+chatLog.TextYAlignment = Enum.TextYAlignment.Top
+chatLog.TextXAlignment = Enum.TextXAlignment.Left
+chatLog.Parent = frame
 
-    local TweenService = game:GetService("TweenService")
-    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local TweenService = game:GetService("TweenService")
+local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
-    local tween = TweenService:Create(frame, tweenInfo, {
-        Size = UDim2.new(0, 400, 0, 250),
-        Position = UDim2.new(0.5, 0, 0.5, 0)
-    })
+local tween = TweenService:Create(frame, tweenInfo, {
+Size = UDim2.new(0, 400, 0, 250),
+Position = UDim2.new(0.5, 0, 0.5, 0)
+})
 
-    tween:Play()
+tween:Play()
 end
-
 Window:Dialog({
-    Title = Translator:traduzir("Seja Bem-Vindo(a)"),
-    Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
+Title = Translator:traduzir("Seja Bem-Vindo(a)"),
+Text = Translator:traduzir("E aí! Você acaba de dar o play no REDz HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
     Options = {
         {"Discord", function()
             copyDiscordLink()
         end},
         {"Open", function()
-            -- AntiSkidder()  -- Descomente se quiser usar
+            AntiSkidder()
         end},
         {"logs", function() 
             chatlogs()
@@ -397,7 +397,6 @@ Window:Dialog({
         }
     }
 })
-
 local Tabs = {
     M = Window:MakeTab({Translator:traduzir("informações"), "Info"}),
     H = Window:MakeTab({Translator:traduzir("Início"), "coffee"}),
@@ -9324,369 +9323,147 @@ Toggle:Callback(function(Value)
     toggleAntiAudio(Value)
 end)
 
--- ========== ABA MÚSICA COMPLETA & CORRIGIDA (Star Hub by Luan - 2026) ==========
--- Integração perfeita: Sua lista original + categorias novas + IDs working 2026
--- Funciona em: Rádio/Boombox/Casa/Carro/Moto (multi-remote)
--- Testado: Precisa Game Pass de Música. IDs atualizados de compilações BR recentes.
+Tabs.AD:AddSection({Translator:traduzir("Música no Rádio <Game Pass>")})
+-- Variável para armazenar o ID escrito no Input
+local selectedMusicIdManual = ""
+local selectedMusicDrip = ""
 
-Tabs.AD:AddSection({Translator:traduzir("🎧 Música no Rádio / Boombox / Casa / Carro <Game Pass>")})
+local MusicsListDrip = {
+    { Name = "confession", Id =  92992163303925 },
+    { Name = "Pac Man Phonk", Id = 120889371113999 },
+    { Name = "Trying To finde", Id = 132643763204246 },
+    { Name = "Batalla de bombas", Id = 71995582569283 },
+    { Name = "Another hiit", Id = 99731755429975 },
+    { Name = "Mtg uh uh ha ha", Id = 122697381252723 },
+    { Name = "fa3 renitch", Id = 128934903242385 },
+    { Name = "Kawaii", Id = 13067828528278 },
+    { Name = "Feeling", Id = 120764084521465 },	
+    { Name = "Aura + Egp", Id = 97841988407875 },	
+    { Name = "Mtg Balada", Id = 83797836818857 },	
+    { Name = "tomagi mo tão", Id = 111668097052966 },	
+    { Name = "mtg terra bela funk", Id = 134770548505933 },	
+    { Name = "Hard tuff fye", Id = 92979002969874 },
+    { Name = "The Twelve", Id = 126153082683694 },
+    { Name = "beats", Id = 16190782181 },
+    { Name = "Samba", Id = 1836175030 },
+    { Name = "Samba2", Id = 1838888602 },
+    { Name = "Carro de Ovos", Id = 3148329638 },
+    { Name = "Banka", Id = 16190784229 },
+    { Name = "Essa é Antiga", Id = 90999978343771 },
+    { Name = "Essa Aqui é Braba", Id = 120833520065453 },
+    { Name = "Help Me Phonk", Id = 72458292563094 },
+    { Name = "Envolve A Tropa", Id = 88094479399489 },
+    { Name = "No Pick Mulher", Id = 92893359226454 },
+    { Name = "Mídia", Id = 105832154444494 },
+    { Name = "Phonk Version", Id = 103409297553965 },
+    { Name = "Phonk louco", Id = 73140398421340 },
+    { Name = "Slowed Vapo No Vapo", Id = 106317184644394 },
+    { Name = "Phonk Brasil", Id = 111281710445018 },
+    { Name = "No Solinho", Id = 72440232513341 },
+    { Name = "Phonk Inglês", Id = 14145624031 },
+    { Name = "Ultra Slowed", Id = 84733736048142 },
+    { Name = "Ritmada", Id = 104541292443133 },
+    { Name = "Hoje Vou Ser Tua Mulher", Id = 90844637105538},
+    { Name = "Ritmada Novinha", Id = 94718473830640 },
+    { Name = "So de te olha", Id = 74187181906707 },
+    { Name = "Não Estou louco", Id = 74366765967475 },
+    { Name = "Manda Meu Passinho", Id = 77741294709660 },
+    { Name = "Cenário Selvagem", Id = 117562011395992 },
+    { Name = "Want To Love", Id = 104846670980072 },
+    { Name = "Melodia Virtual", Id = 139147474886402 },
+    { Name = "Signora Funk", Id = 123394392737234 },
+    { Name = "Blassed Mane", Id = 16831108393 },
+    { Name = "Onichan", Id = 17422156627 },
+    { Name = "hoodtrap", Id = 73685038553576 },
+    { Name = "I love you so", Id = 98364034458260 },
+    { Name = "Poze Cv", Id = 124244582950595 },
+    { Name = "Trap", Id = 131582258401093 },
+    { Name = "Oruan - Sou Teu fã", Id = 85342086082111 },
+    { Name = "Soldado Guerreiro", Id = 71590664026646 },
+    { Name = "Fuga Na Viatura", Id = 131891110268352 },
+    { Name = "forró ja cansou", Id = 74812784884330},
+    { Name = "gol contra", Id =  122114766584918},
+    { Name = "Anxiety", Id = 101483901475189 },
+    { Name = "Grelo So fé", Id = 72200166265935 },
+    { Name = "Phonk sexoagressivo", Id = 111995323199676 },
+    { Name = "forró da resenha", Id = 120973520531216 },
+    { Name = "escolha certa", Id = 107088620814881 },
+    { Name = "lembro ate hoje", Id = 71531533552899 },
+    { Name = "chinese phonk", Id = 134713831368801 },
+    { Name = "Nooo", Id = 73685038553576 },
+    { Name = "tuber 93", Id = 1839246711 }
+}
 
--- Aviso
-Tabs.AD:AddParagraph({
-    Title = "💡 Dicas Rápidas",
-    Content = "1. Equipe Boombox primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Teste no jogo e reporte se não tocar!"
+local DripRadio = {}
+local MusicIds = {}
+
+for _, music in ipairs(MusicsListDrip) do
+    table.insert(DripRadio, music.Name)
+    if music.Id then
+        MusicIds[music.Name] = music.Id
+    end
+end
+
+-- Dropdown
+local Dropdown = Tabs.AD:AddDropdown({
+    Name = Translator:traduzir("Selecionar Música"),
+    Description = Translator:traduzir("Toca no rádio via ToolMusicText"),
+    Options = DripRadio,
+    Default = "Escolha uma música",
+    Callback = function(Value)
+        selectedMusicDrip = Value
+    end
 })
 
--- ========== LISTAS DE MÚSICAS ATUALIZADAS 2026 ==========
-local MusicsFunk = {
-    ["Raspa o Cabelo Dela"] = "106866829236727",
-    ["Bata Essa Aqui"] = "99250885177756",
-    ["Mico"] = "78352220341424",
-    ["Violen"] = "104767744632555",
-    ["Em Bora"] = "131847084942844",
-    ["Pancadão"] = "76312991186384",
-    ["M4 A1"] = "109403817807062",
-    ["Vovô Tá Casado"] = "103336395794625",
-    ["Meno"] = "124899151072996",
-    ["Naruto Funk"] = "89473100926016",
-    ["Querendo"] = "110877994245293",
-    ["Ei Moça"] = "138830667342178",
-    ["Empina na Onda"] = "104621031886653",
-    ["Berimbau"] = "77712236704085",
-    ["Bonde da Peixaria"] = "135355953783002",
-    ["Deixa o Portão Aberto"] = "125323304808942",
-    ["Funk da Hora"] = "106958630419629",
-    ["Funk Pesadão"] = "72720721570850",
-    ["MTG Funk"] = "81384105684889",
-    ["Vapo Vapo"] = "135903820233276",
-    ["Pesadelo"] = "82016192638562",
-    ["Ponto"] = "130758596227702",
-    ["Fino"] = "107481584214750",
-    ["Boneco"] = "122747553795687",
-    ["Seu Fã"] = "85342086082111",
-    ["Grelô So Fé"] = "72200166265935",
-    ["Senta"] = "124085422276732",
-    ["Zum Zum Zum"] = "92446612272052",
-    ["Sombria Hahaha"] = "72855385972818",
-    ["Quem é o Louco"] = "106958630419629",
-    ["Coração"] = "102705292327383",
-    ["Rave Favela"] = "127013133418864",
-    ["V7"] = "80348640826643",
-    ["Se Apaixona"] = "135662066137645",
-    ["Melodia Virtual"] = "139147474886402",
-    ["Pixel"] = "93928823862203",
-    ["Viagem Sonora"] = "79349174602261",
-    ["Sequência"] = "121187736532042",
-    ["Penélope"] = "97011217688307",
-    ["Eu Já Tava Bem 😭"] = "93590122047380",
-    ["Melodia Funk"] = "83064304128519",
-    ["Montagem Enlouquecer"] = "121703297529684",
-    ["Montagem Bailão"] = "129071695986627"
-}
-
-local MusicsPhonk = {
-    ["Entre Clxy"] = "110274202819990",
-    ["Montagem Encanta"] = "74258284867725",
-    ["Montagem Speed"] = "120342836549924",
-    ["Montagem Nova Geração"] = "119293698405737",
-    ["Montagem Senta Senta"] = "83656625240780",
-    ["Montagem Boa Não Sei o Nome"] = "105663768150465",
-    ["Montagem Risada Sombria"] = "93556552625864",
-    ["Montagem do Karma"] = "79148752172118",
-    ["Kobal"] = "79381341943021",
-    ["Estourada"] = "92175624643620",
-    ["Estourada 2"] = "108099943758978",
-    ["Montagem no Money"] = "133498664318216",
-    ["Montagem Emote"] = "121803455304591",
-    ["Vamo Agressiva"] = "82680101995105",
-    ["Perdi o Nome"] = "113494161114548",
-    ["MTG Phonk"] = "77148331286853",
-    ["Potencial"] = "102333287500691",
-    ["Passo Bem Solto"] = "127388462601694",
-    ["Montagem Diamante"] = "113208690604605",
-    ["Montagem Lualua"] = "759649143831591",
-    ["Montagem Ma"] = "98337901681441",
-    ["Montagem Relacionamento"] = "113072044238343",
-    ["Montagem Você Sabe a Diferença?"] = "107260053679799",
-    ["Montagem Um Pouco Mais"] = "81665575945119",
-    ["Montagem Link 30!"] = "120189561947098",
-    ["Chinese Phonk"] = "134713831368801",
-    ["Ultra Slowed"] = "84733736048142",
-    ["Phonk Louco"] = "73140398421340",
-    ["Phonk Sexo Agressivo"] = "111995323199676",
-    ["Help Me Phonk"] = "72458292563094"
-}
-
-local MusicsForro = {
-    ["Forró da Resenha"] = "120973520531216",
-    ["Forró Já Cansou"] = "74812784884330",
-    ["Cenário Selvagem"] = "117562011395992",
-    ["Manda Meu Passinho"] = "77741294709660",
-    ["Forró da Resenha 2"] = "134770548505933",
-    ["Gol Contra"] = "122114766584918"
-}
-
-local MusicsAleatorio = {
-    ["I Love You So"] = "98364034458260",
-    ["Poze Cv"] = "124244582950595",
-    ["Trap"] = "131582258401093",
-    ["Soldado Guerreiro"] = "71590664026646",
-    ["Fuga Na Viatura"] = "131891110268352",
-    ["Anxiety"] = "101483901475189",
-    ["Nooo"] = "73685038553576",
-    ["Tuber 93"] = "1839246711",
-    ["Beats"] = "16190782181",
-    ["Samba"] = "1836175030",
-    ["Carro de Ovos"] = "3148329638",
-    ["Banka"] = "16190784229",
-    ["Want To Love"] = "104846670980072",
-    ["Signora Funk"] = "123394392737234",
-    ["Blassed Mane"] = "16831108393",
-    ["Onichan"] = "17422156627",
-    ["Hoodtrap"] = "73685038553576"
-}
-
--- ========== FUNÇÃO PARA EQUIPAR RÁDIO ==========
-local function equipBoombox()
-    local success = pcall(function()
-        local RE = game:GetService("ReplicatedStorage"):WaitForChild("RE", 5)
-        if not RE then return false end
-        
-        -- Limpar ferramentas antigas
-        local clearRemote = RE:FindFirstChild("1Clea1rTool1s")
-        if clearRemote then
-            clearRemote:FireServer("ClearAllTools")
-        end
-        
-        task.wait(0.3)
-        
-        -- Equipar Boombox
-        local toolRemote = RE:FindFirstChild("1Too1l")
-        if toolRemote then
-            toolRemote:InvokeServer("PickingTools", "Boombox")
-        end
-        
-        task.wait(0.5)
-        
-        -- Mover para o personagem
-        local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
-        if backpack then
-            local boombox = backpack:FindFirstChild("Boombox")
-            if boombox then
-                boombox.Parent = game.Players.LocalPlayer.Character
-                return true
-            end
-        end
-        return false
-    end)
-    
-    if success then
-        print("✅ Boombox equipado!")
-        notify("Rádio", "Boombox equipado!", 3)
-    else
-        print("❌ Falha ao equipar Boombox")
-    end
-    
-    return success
-end
-
--- ========== FUNÇÃO PRINCIPAL: TOCAR MÚSICA (Multi-Remote) ==========
-local function playMusic(id)
-    if not id or id == "" then 
-        notify("Erro", "ID inválido!", 3)
-        return 
-    end
-    
-    id = tostring(id)
-    
-    local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
-    if not RE then 
-        warn("❌ RE não encontrado!")
-        notify("Erro", "Sistema de música não encontrado", 3)
-        return 
-    end
-
-    print("🎵 Tocando música ID:", id)
-    
-    -- Se for ID 0, para todas as músicas
-    if id == "0" then
-        -- Rádio / Tool
-        pcall(function() 
-            local remote = RE:FindFirstChild("PlayerToolEvent")
-            if remote then remote:FireServer("ToolMusicText", "0") end
-        end)
-        -- Casa
-        pcall(function() 
-            local remote = RE:FindFirstChild("1Player1sHous1e")
-            if remote then remote:FireServer("PickHouseMusicText", "0") end
-        end)
-        -- Carro
-        pcall(function() 
-            local remote = RE:FindFirstChild("1Player1sCa1r")
-            if remote then remote:FireServer("PickingVehicleMusicText", "0") end
-        end)
-        -- Moto
-        pcall(function() 
-            local remote = RE:FindFirstChild("1NoMoto1rVehicle1s")
-            if remote then remote:FireServer("PickingScooterMusicText", "0") end
-        end)
-        
-        notify("Música", "Todas as músicas paradas!", 3)
-        return
-    end
-
-    -- Tocar música em todos os dispositivos
-    
-    -- Rádio / Tool
-    pcall(function() 
-        local remote = RE:FindFirstChild("PlayerToolEvent")
-        if remote then 
-            remote:FireServer("ToolMusicText", id)
-            print("✅ Rádio: OK")
-        end
-    end)
-    
-    -- Casa
-    pcall(function() 
-        local remote = RE:FindFirstChild("1Player1sHous1e")
-        if remote then 
-            remote:FireServer("PickHouseMusicText", id)
-            print("✅ Casa: OK")
-        end
-    end)
-    
-    -- Carro (CORRIGIDO)
-    pcall(function() 
-        local remote = RE:FindFirstChild("1Player1sCa1r")
-        if remote then 
-            remote:FireServer("PickingVehicleMusicText", id)
-            print("✅ Carro: OK")
-        end
-    end)
-    
-    -- Moto
-    pcall(function() 
-        local remote = RE:FindFirstChild("1NoMoto1rVehicle1s")
-        if remote then 
-            remote:FireServer("PickingScooterMusicText", id)
-            print("✅ Moto: OK")
-        end
-    end)
-    
-    notify("Música", "ID " .. id .. " tocando!", 3)
-end
-
--- ========== FUNÇÃO PARA CRIAR DROPDOWNS ==========
-local function makeMusicDropdown(name, data)
-    local options = {}
-    for k in pairs(data) do table.insert(options, k) end
-    table.sort(options)
-
-    Tabs.AD:AddDropdown({
-        Name = name,
-        Options = options,
-        Default = "Escolha uma...",
-        Callback = function(Value)
-            local id = data[Value]
-            if id then 
-                playMusic(id)
-            end
-        end
-    })
-end
-
--- ========== DROPDOWNS POR CATEGORIA ==========
-Tabs.AD:AddSection({Translator:traduzir("Categorias de Música")})
-makeMusicDropdown("🔥 Funk", MusicsFunk)
-makeMusicDropdown("💨 Phonk", MusicsPhonk)
-makeMusicDropdown("🎶 Forró", MusicsForro)
-makeMusicDropdown("🎧 Aleatórios / Outros", MusicsAleatorio)
-
--- ========== ID PERSONALIZADO ==========
-Tabs.AD:AddSection({Translator:traduzir("🎵 ID Personalizado (Qualquer Música)")})
-local CustomMusicID = ""
-
+-- NOVO: INPUT DE ID MANUAL
 Tabs.AD:AddTextBox({
-    Name = "Digite o ID",
-    PlaceholderText = "Ex: 123456789012345",
-    ClearTextOnFocus = false,
-    Callback = function(text)
-        CustomMusicID = text:match("%d+") or ""
+    Title = Translator:traduzir("ID da Música"),
+    Description = Translator:traduzir("Deixe vazio para usar o Dropdown"),
+    PlaceholderText = "ID",
+    ClearText = false,
+    Callback = function(Value)
+        selectedMusicIdManual = Value
     end
 })
 
-Tabs.AD:AddButton({
-    Name = "▶ Tocar ID Digitado",
-    Callback = function()
-        if CustomMusicID ~= "" and CustomMusicID ~= "0" then
-            playMusic(CustomMusicID)
-        elseif CustomMusicID == "0" then
-            playMusic("0")
-        else
-            notify("Erro", "Digite um ID válido!", 3)
-        end
+-- Botão Atualizado (Lógica de Prioridade)
+Tabs.AD:AddButton({Name = Translator:traduzir("Tocar Música no Rádio <FM>"), Callback = function()
+    local finalId = nil
+    
+    -- 1. Verifica se tem algo escrito no Input Manual
+    if selectedMusicIdManual and selectedMusicIdManual ~= "" and selectedMusicIdManual ~= " " then
+        finalId = selectedMusicIdManual
+    -- 2. Se não, usa a música selecionada no Dropdown
+    else
+        finalId = MusicIds[selectedMusicDrip]
     end
-})
-
--- ========== BOTÕES ÚTEIS ==========
-Tabs.AD:AddSection({Translator:traduzir("Ferramentas Rápidas")})
-
-Tabs.AD:AddButton({
-    Name = "📻 Equipar Boombox / Rádio",
-    Callback = function()
-        equipBoombox()
-    end
-})
-
-Tabs.AD:AddButton({
-    Name = "⏹️ Parar Toda Música",
-    Callback = function()
-        playMusic("0")
-    end
-})
-
--- Botão extra para testar remotes
-Tabs.AD:AddButton({
-    Name = "🔍 Verificar Remotes de Música",
-    Callback = function()
-        local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
-        if not RE then 
-            notify("Erro", "RE não encontrado!", 3)
-            return
-        end
-        
-        local remotes = {
-            "PlayerToolEvent",
-            "1Player1sHous1e",
-            "1Player1sCa1r",
-            "1NoMoto1rVehicle1s",
-            "1Too1l",
-            "1Clea1rTool1s"
+    
+    if finalId then
+        local args = {
+            [1] = "ToolMusicText",
+            [2] = tostring(finalId)
         }
-        
-        local found = {}
-        local missing = {}
-        
-        for _, name in ipairs(remotes) do
-            if RE:FindFirstChild(name) then
-                table.insert(found, name)
-            else
-                table.insert(missing, name)
-            end
-        end
-        
-        local msg = "✅ Encontrados: " .. #found .. "\n❌ Faltando: " .. #missing
-        notify("Verificação de Remotes", msg, 5)
-        
-        print("=== REMOTES ENCONTRADOS ===")
-        for _, name in ipairs(found) do print("✅", name) end
-        print("=== REMOTES FALTANDO ===")
-        for _, name in ipairs(missing) do print("❌", name) end
+        game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("PlayerToolEvent", 9e9):FireServer(unpack(args))
     end
-})
+end })
 
-print("✅ ABA MÚSICA COMPLETA CARREGADA! (Star Hub by Luan - Areal-RJ 💫)")
+Tabs.AD:AddButton({Translator:traduzir("Pegar Rádio <FM>"), function()
+	local args = {
+    [1] = "PickingTools";
+    [2] = "Boombox";
+}
 
+game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("1Too1l", 9e9):InvokeServer(unpack(args))
+end })
+
+Tabs.AD:AddButton({Translator:traduzir("Parar Música do Rádio <FM>"), function()
+	local args = {
+		[1] = "ToolMusicStop",
+		[2] = "" 
+	}
+	game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("PlayerToolEvent", 9e9):FireServer(unpack(args))
+end })
+end
 -----------------///////TABS - AVT///////-----------------
 do
 Tabs.AVT:AddSection({Translator:traduzir("Animação & Reset")})
@@ -11751,10 +11528,10 @@ Tabs.CFG:AddToggle({
 })
 print([[
 =====================================================
-|                  STAR HUB                      |
+|                  REDz HUB                      |
 =====================================================
 | API Status:              Online                   |
-| Script Name:            STAR HUB                  |
+| Script Name:            REDz HUB                  |
 | API Drip:                Online                   |
 | Version:                 4.0.2                    |
 =====================================================
