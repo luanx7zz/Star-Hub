@@ -383,7 +383,7 @@ tween:Play()
 end
 Window:Dialog({
 Title = Translator:traduzir("Seja Bem-Vindo(a)"),
-Text = Translator:traduzir("E aí! Você acaba de dar o play no REDz HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
+Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
     Options = {
         {"Discord", function()
             copyDiscordLink()
@@ -8948,7 +8948,6 @@ function AudioManager.new()
         local sound = createSound(audioId)
         if sound then
             sound:Play()
-
             sound.Ended:Connect(function()
                 sound:Destroy()
             end)
@@ -8967,7 +8966,6 @@ function AudioManager.new()
         if sound then
             sound.Looped = false
             sound:Play()
-            
             task.spawn(function()
                 task.wait(1)
                 if sound and sound.Parent then
@@ -8982,7 +8980,6 @@ function AudioManager.new()
             warn("Nenhum áudio de troll selecionado")
             return
         end
-        
         self.trollLoop = true
         task.spawn(function()
             while self.trollLoop do
@@ -9001,7 +8998,6 @@ function AudioManager.new()
             warn("Nenhum áudio estourado selecionado")
             return
         end
-        
         self.loudLoop = true
         task.spawn(function()
             while self.loudLoop do
@@ -9061,7 +9057,6 @@ local function findAudioById(audioList, name)
 end
 
 local audioManager = AudioManager.new()
-
 local trollAudioNames = extractAudioNames(TROLL_AUDIOS)
 local loudAudioNames = extractAudioNames(LOUD_AUDIOS)
 
@@ -9161,7 +9156,6 @@ Tabs.AD:AddToggle({
     Default = false,
     Callback = function(value)
         getgenv().Audio_All_loop_fast = value
-        
         if value then
             audioManager:startFastLoop()
         else
@@ -9169,6 +9163,8 @@ Tabs.AD:AddToggle({
         end
     end
 })
+
+-- ========== ANTI-ÁUDIO ==========
 local antiAudioEnabled = false
 local connections = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9192,7 +9188,6 @@ local blockedAudioIDs = {
     108494476595033, 2496367477, 270145703, 18131809532, 130759239, 7705506391,
     103440368630269
 }
-
 local blockedIDsLookup = {}
 for _, id in ipairs(blockedAudioIDs) do
     blockedIDsLookup[tostring(id)] = true
@@ -9201,7 +9196,6 @@ end
 
 local function handleSound(sound)
     if not sound or not sound:IsA("Sound") then return end
-    
     local soundId = sound.SoundId
     if soundId then
         local id = soundId:match("(%d+)")
@@ -9213,7 +9207,6 @@ local function handleSound(sound)
             return true
         end
     end
-    
     return false
 end
 
@@ -9221,7 +9214,6 @@ local function interceptAudioRemote()
     task.spawn(function()
         local gunSoundEvent
         local attempts = 0
-        
         repeat
             local RE = ReplicatedStorage:FindFirstChild("RE")
             if RE then
@@ -9230,7 +9222,6 @@ local function interceptAudioRemote()
             attempts = attempts + 1
             task.wait(0.5)
         until gunSoundEvent or attempts > 20
-        
         if gunSoundEvent and gunSoundEvent:IsA("RemoteEvent") then
             local originalFireServer = gunSoundEvent.FireServer
             gunSoundEvent.FireServer = function(self, ...)
@@ -9255,7 +9246,6 @@ local function setupLightMonitoring()
             handleSound(obj)
         end
     end)
-    
     connections.folderMonitor = workspace.ChildAdded:Connect(function(child)
         if antiAudioEnabled and child:IsA("Folder") and child.Name == "Audio all client" then
             child:Destroy()
@@ -9274,7 +9264,6 @@ local function startPeriodicCleanup()
                         handleSound(obj)
                     end
                 end
-                
                 local audioFolder = workspace:FindFirstChild("Audio all client")
                 if audioFolder then
                     audioFolder:Destroy()
@@ -9286,7 +9275,6 @@ end
 
 local function toggleAntiAudio(enabled)
     antiAudioEnabled = enabled
-    
     if enabled then
         interceptAudioRemote()
         setupLightMonitoring()
@@ -9298,7 +9286,6 @@ local function toggleAntiAudio(enabled)
                 end
             end
         end)
-        
     else
         for _, connection in pairs(connections) do
             if connection then
@@ -9318,151 +9305,263 @@ local Toggle = Tabs.AD:AddToggle({
     Description = "Bloqueia apenas áudios trolls específicos", 
     Default = false
 })
-
 Toggle:Callback(function(Value)
     toggleAntiAudio(Value)
 end)
 
-Tabs.AD:AddSection({Translator:traduzir("Música no Rádio <Game Pass>")})
--- Variável para armazenar o ID escrito no Input
-local selectedMusicIdManual = ""
-local selectedMusicDrip = ""
+-- ========== NOVA SEÇÃO DE MÚSICA (baseada no modelo) ==========
+Tabs.AD:AddSection({Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
+Tabs.AD:AddParagraph({
+    Title = "💡 Dicas Rápidas",
+    Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."
+})
 
-local MusicsListDrip = {
-    { Name = "confession", Id =  92992163303925 },
-    { Name = "Pac Man Phonk", Id = 120889371113999 },
-    { Name = "Trying To finde", Id = 132643763204246 },
-    { Name = "Batalla de bombas", Id = 71995582569283 },
-    { Name = "Another hiit", Id = 99731755429975 },
-    { Name = "Mtg uh uh ha ha", Id = 122697381252723 },
-    { Name = "fa3 renitch", Id = 128934903242385 },
-    { Name = "Kawaii", Id = 13067828528278 },
-    { Name = "Feeling", Id = 120764084521465 },	
-    { Name = "Aura + Egp", Id = 97841988407875 },	
-    { Name = "Mtg Balada", Id = 83797836818857 },	
-    { Name = "tomagi mo tão", Id = 111668097052966 },	
-    { Name = "mtg terra bela funk", Id = 134770548505933 },	
-    { Name = "Hard tuff fye", Id = 92979002969874 },
-    { Name = "The Twelve", Id = 126153082683694 },
-    { Name = "beats", Id = 16190782181 },
-    { Name = "Samba", Id = 1836175030 },
-    { Name = "Samba2", Id = 1838888602 },
-    { Name = "Carro de Ovos", Id = 3148329638 },
-    { Name = "Banka", Id = 16190784229 },
-    { Name = "Essa é Antiga", Id = 90999978343771 },
-    { Name = "Essa Aqui é Braba", Id = 120833520065453 },
-    { Name = "Help Me Phonk", Id = 72458292563094 },
-    { Name = "Envolve A Tropa", Id = 88094479399489 },
-    { Name = "No Pick Mulher", Id = 92893359226454 },
-    { Name = "Mídia", Id = 105832154444494 },
-    { Name = "Phonk Version", Id = 103409297553965 },
-    { Name = "Phonk louco", Id = 73140398421340 },
-    { Name = "Slowed Vapo No Vapo", Id = 106317184644394 },
-    { Name = "Phonk Brasil", Id = 111281710445018 },
-    { Name = "No Solinho", Id = 72440232513341 },
-    { Name = "Phonk Inglês", Id = 14145624031 },
-    { Name = "Ultra Slowed", Id = 84733736048142 },
-    { Name = "Ritmada", Id = 104541292443133 },
-    { Name = "Hoje Vou Ser Tua Mulher", Id = 90844637105538},
-    { Name = "Ritmada Novinha", Id = 94718473830640 },
-    { Name = "So de te olha", Id = 74187181906707 },
-    { Name = "Não Estou louco", Id = 74366765967475 },
-    { Name = "Manda Meu Passinho", Id = 77741294709660 },
-    { Name = "Cenário Selvagem", Id = 117562011395992 },
-    { Name = "Want To Love", Id = 104846670980072 },
-    { Name = "Melodia Virtual", Id = 139147474886402 },
-    { Name = "Signora Funk", Id = 123394392737234 },
-    { Name = "Blassed Mane", Id = 16831108393 },
-    { Name = "Onichan", Id = 17422156627 },
-    { Name = "hoodtrap", Id = 73685038553576 },
-    { Name = "I love you so", Id = 98364034458260 },
-    { Name = "Poze Cv", Id = 124244582950595 },
-    { Name = "Trap", Id = 131582258401093 },
-    { Name = "Oruan - Sou Teu fã", Id = 85342086082111 },
-    { Name = "Soldado Guerreiro", Id = 71590664026646 },
-    { Name = "Fuga Na Viatura", Id = 131891110268352 },
-    { Name = "forró ja cansou", Id = 74812784884330},
-    { Name = "gol contra", Id =  122114766584918},
-    { Name = "Anxiety", Id = 101483901475189 },
-    { Name = "Grelo So fé", Id = 72200166265935 },
-    { Name = "Phonk sexoagressivo", Id = 111995323199676 },
-    { Name = "forró da resenha", Id = 120973520531216 },
-    { Name = "escolha certa", Id = 107088620814881 },
-    { Name = "lembro ate hoje", Id = 71531533552899 },
-    { Name = "chinese phonk", Id = 134713831368801 },
-    { Name = "Nooo", Id = 73685038553576 },
-    { Name = "tuber 93", Id = 1839246711 }
+-- Tabelas de músicas por categoria
+local Funk = {
+    ["raspa o cabelo dela"] = "106866829236727",
+    ["bata essa aqui"] = "99250885177756",
+    ["mico"] = "78352220341424",
+    ["violen"] = "104767744632555",
+    ["Em Bora"] = "131847084942844",
+    ["Pancadão"] = "76312991186384",
+    ["M4 a1"] = "109403817807062",
+    ["Vovo ta casado"] = "103336395794625",
+    ["Meno"] = "124899151072996",
+    ["Naruto"] = "89473100926016",
+    ["Querendo"] = "110877994245293",
+    ["Ei Moça"] = "138830667342178",
+    ["Empina na Onda"] = "104621031886653",
+    ["berimbau"] = "77712236704085",
+    ["Bonde da peixaria"] = "135355953783002",
+    ["deixa o portão aberto"] = "125323304808942",
+    ["funk da hora"] = "106958630419629",
+    ["funk pesadão"] = "72720721570850",
+    ["mtg funk"] = "81384105684889",
+    ["vapo vapo"] = "135903820233276",
+    ["pesadelo"] = "82016192638562",
+    ["ponto"] = "130758596227702",
+    ["fino"] = "107481584214750",
+    ["boneco"] = "122747553795687",
+    ["Seu Fã"] = "85342086082111",
+    ["Grelô"] = "72200166265935",
+    ["Senta"] = "124085422276732",
+    ["Zum Zum Zum"] = "92446612272052",
+    ["sombria hahaha"] = "72855385972818",
+    ["Quem é o Louco"] = "106958630419629",
+    ["coração"] = "102705292327383",
+    ["Rave Favela"] = "127013133418864",
+    ["V7"] = "80348640826643",
+    ["Se Apaixona"] = "135662066137645",
+    ["melodia virtual"] = "139147474886402",
+    ["pixel"] = "93928823862203",
+    ["viagem sonora"] = "79349174602261",
+    ["sequência"] = "121187736532042",
+    ["Penélope"] = "97011217688307",
+    ["eu já tava bem 😭"] = "93590122047380",
+    ["Melodia Funk"] = "83064304128519"
 }
 
-local DripRadio = {}
-local MusicIds = {}
+local Phonk = {
+    ["entre clxy"] = "110274202819990",
+    ["montagem encanta"] = "74258284867725",
+    ["montagem Speed"] = "120342836549924",
+    ["montagem Nova geração"] = "119293698405737",
+    ["montagem senta senta"] = "83656625240780",
+    ["montagem boa não sei o nome"] = "105663768150465",
+    ["montagem risada sombria"] = "93556552625864",
+    ["montagem do karma"] = "79148752172118",
+    ["entre"] = "110274202819990",
+    ["kobal"] = "79381341943021",
+    ["estourada"] = "92175624643620",
+    ["estourada 2"] = "108099943758978",
+    ["montagem no Money"] = "133498664318216",
+    ["montagem emote"] = "121803455304591",
+    ["vamo agressiva"] = "82680101995105",
+    ["perdi o nome"] = "113494161114548",
+    ["mtg phonk"] = "77148331286853",
+    ["potencial"] = "102333287500691",
+    ["passo bem solto"] = "127388462601694",
+    ["montagem diamante"] = "113208690604605",
+    ["montagem lualua"] = "759649143831591",
+    ["montagem ma"] = "98337901681441",
+    ["montagem relacionamento"] = "113072044238343",
+    ["montagem você sabe a diferença?"] = "107260053679799",
+    ["montagem um pouco mais"] = "81665575945119",
+    ["montagem link 30!"] = "120189561947098",
+    ["montagem enlouquecer"] = "121703297529684",
+    ["montagem bailão"] = "129071695986627"
+}
 
-for _, music in ipairs(MusicsListDrip) do
-    table.insert(DripRadio, music.Name)
-    if music.Id then
-        MusicIds[music.Name] = music.Id
+local Forro = {
+    ["forró da resenha"] = "120973520531216",
+    ["forró ja cansou"] = "74812784884330",
+    ["lembro ate hoje"] = "71531533552899",
+    ["gol contra"] = "122114766584918",
+    ["cenário selvagem"] = "117562011395992",
+    ["manda meu passinho"] = "77741294709660"
+}
+
+local Aleatorio = {
+    ["confession"] = "92992163303925",
+    ["Pac Man Phonk"] = "120889371113999",
+    ["Trying To finde"] = "132643763204246",
+    ["Another hiit"] = "99731755429975",
+    ["Mtg uh uh ha ha"] = "122697381252723",
+    ["fa3 renitch"] = "128934903242385",
+    ["Kawaii"] = "13067828528278",
+    ["Feeling"] = "120764084521465",
+    ["Aura + Egp"] = "97841988407875",
+    ["Mtg Balada"] = "83797836818857",
+    ["tomagi mo tão"] = "111668097052966",
+    ["mtg terra bela funk"] = "134770548505933",
+    ["Hard tuff fye"] = "92979002969874",
+    ["The Twelve"] = "126153082683694",
+    ["beats"] = "16190782181",
+    ["Samba"] = "1836175030",
+    ["Carro de Ovos"] = "3148329638",
+    ["Banka"] = "16190784229",
+    ["Essa é Antiga"] = "90999978343771",
+    ["Essa Aqui é Braba"] = "120833520065453",
+    ["Help Me Phonk"] = "72458292563094",
+    ["Envolve A Tropa"] = "88094479399489",
+    ["No Pick Mulher"] = "92893359226454",
+    ["Mídia"] = "105832154444494",
+    ["Phonk Version"] = "103409297553965",
+    ["Phonk louco"] = "73140398421340",
+    ["Slowed Vapo No Vapo"] = "106317184644394",
+    ["Phonk Brasil"] = "111281710445018",
+    ["No Solinho"] = "72440232513341",
+    ["Phonk Inglês"] = "14145624031",
+    ["Ultra Slowed"] = "84733736048142",
+    ["Ritmada"] = "104541292443133",
+    ["Hoje Vou Ser Tua Mulher"] = "90844637105538",
+    ["Ritmada Novinha"] = "94718473830640",
+    ["So de te olha"] = "74187181906707",
+    ["Não Estou louco"] = "74366765967475",
+    ["Want To Love"] = "104846670980072",
+    ["Melodia Virtual"] = "139147474886402",
+    ["Signora Funk"] = "123394392737234",
+    ["Blassed Mane"] = "16831108393",
+    ["Onichan"] = "17422156627",
+    ["hoodtrap"] = "73685038553576",
+    ["I love you so"] = "98364034458260",
+    ["Poze Cv"] = "124244582950595",
+    ["Trap"] = "131582258401093",
+    ["Oruan - Sou Teu fã"] = "85342086082111",
+    ["Soldado Guerreiro"] = "71590664026646",
+    ["Fuga Na Viatura"] = "131891110268352",
+    ["Anxiety"] = "101483901475189",
+    ["Grelo So fé"] = "72200166265935",
+    ["Phonk sexoagressivo"] = "111995323199676",
+    ["escolha certa"] = "107088620814881",
+    ["chinese phonk"] = "134713831368801",
+    ["Nooo"] = "73685038553576",
+    ["tuber 93"] = "1839246711",
+    ["se eu fosse embora agora"] = "83296064994098"
+}
+
+-- Função principal para tocar música (em todos os dispositivos)
+local function playMusic(id)
+    if not id or id == "" then return end
+    id = tostring(id)
+    local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
+    if not RE then
+        print("❌ RE não encontrado")
+        return
     end
+    pcall(function() 
+        local remote = RE:FindFirstChild("PlayerToolEvent")
+        if remote then remote:FireServer("ToolMusicText", id) end
+    end)
+    pcall(function() 
+        local remote = RE:FindFirstChild("1Player1sHous1e")
+        if remote then remote:FireServer("PickHouseMusicText", id) end
+    end)
+    pcall(function() 
+        local remote = RE:FindFirstChild("1Player1sCa1r")
+        if remote then remote:FireServer("VehicleMusicPlay", id) end
+    end)
+    pcall(function() 
+        local remote = RE:FindFirstChild("1NoMoto1rVehicle1s")
+        if remote then remote:FireServer("PickingScooterMusicText", id) end
+    end)
+    print("🎵 Tocando música ID:", id)
 end
 
--- Dropdown
-local Dropdown = Tabs.AD:AddDropdown({
-    Name = Translator:traduzir("Selecionar Música"),
-    Description = Translator:traduzir("Toca no rádio via ToolMusicText"),
-    Options = DripRadio,
-    Default = "Escolha uma música",
-    Callback = function(Value)
-        selectedMusicDrip = Value
+-- Função auxiliar para criar dropdowns
+local function makeMusicDropdown(name, data)
+    local options = {}
+    for k in pairs(data) do
+        table.insert(options, k)
     end
-})
+    table.sort(options)
+    Tabs.AD:AddDropdown({
+        Name = name,
+        Options = options,
+        Default = "Escolha uma...",
+        Callback = function(Value)
+            local id = data[Value]
+            if id and id ~= "" then
+                playMusic(id)
+            end
+        end
+    })
+end
 
--- NOVO: INPUT DE ID MANUAL
+-- Cria os dropdowns por categoria
+Tabs.AD:AddSection({Translator:traduzir("🎵 Categorias de Música")})
+makeMusicDropdown("🔥 Funk", Funk)
+makeMusicDropdown("💨 Phonk", Phonk)
+makeMusicDropdown("🎶 Forró", Forro)
+makeMusicDropdown("🎧 Aleatórios", Aleatorio)
+
+-- ID personalizado
+Tabs.AD:AddSection({Translator:traduzir("🎵 ID Personalizado")})
+local CustomMusicID = ""
 Tabs.AD:AddTextBox({
-    Title = Translator:traduzir("ID da Música"),
-    Description = Translator:traduzir("Deixe vazio para usar o Dropdown"),
-    PlaceholderText = "ID",
-    ClearText = false,
-    Callback = function(Value)
-        selectedMusicIdManual = Value
+    Name = "Digite o ID da Música",
+    PlaceholderText = "Ex: 123456789012345",
+    Callback = function(text)
+        CustomMusicID = text:match("%d+") or ""
+    end
+})
+Tabs.AD:AddButton({
+    Name = "▶ Tocar ID Digitado",
+    Callback = function()
+        if CustomMusicID ~= "" then
+            playMusic(CustomMusicID)
+        else
+            print("❌ Digite um ID válido!")
+        end
     end
 })
 
--- Botão Atualizado (Lógica de Prioridade)
-Tabs.AD:AddButton({Name = Translator:traduzir("Tocar Música no Rádio <FM>"), Callback = function()
-    local finalId = nil
-    
-    -- 1. Verifica se tem algo escrito no Input Manual
-    if selectedMusicIdManual and selectedMusicIdManual ~= "" and selectedMusicIdManual ~= " " then
-        finalId = selectedMusicIdManual
-    -- 2. Se não, usa a música selecionada no Dropdown
-    else
-        finalId = MusicIds[selectedMusicDrip]
+-- Ferramentas rápidas
+Tabs.AD:AddSection({Translator:traduzir("🔧 Ferramentas Rápidas")})
+Tabs.AD:AddButton({
+    Name = "📻 Equipar Rádio / Boombox",
+    Callback = function()
+        pcall(function()
+            local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
+            if RE then
+                local toolRemote = RE:FindFirstChild("1Too1l")
+                if toolRemote then
+                    toolRemote:InvokeServer("PickingTools", "Boombox")
+                    print("✅ Rádio equipado!")
+                end
+            end
+        end)
     end
-    
-    if finalId then
-        local args = {
-            [1] = "ToolMusicText",
-            [2] = tostring(finalId)
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("PlayerToolEvent", 9e9):FireServer(unpack(args))
+})
+Tabs.AD:AddButton({
+    Name = "⏹️ Parar Todas as Músicas",
+    Callback = function()
+        playMusic("0")
+        print("⏹️ Todas as músicas paradas")
     end
-end })
+})
 
-Tabs.AD:AddButton({Translator:traduzir("Pegar Rádio <FM>"), function()
-	local args = {
-    [1] = "PickingTools";
-    [2] = "Boombox";
-}
-
-game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("1Too1l", 9e9):InvokeServer(unpack(args))
-end })
-
-Tabs.AD:AddButton({Translator:traduzir("Parar Música do Rádio <FM>"), function()
-	local args = {
-		[1] = "ToolMusicStop",
-		[2] = "" 
-	}
-	game:GetService("ReplicatedStorage"):WaitForChild("RE", 9e9):WaitForChild("PlayerToolEvent", 9e9):FireServer(unpack(args))
-end })
+print("✅ Sistema de música carregado com categorias!")
 end
 -----------------///////TABS - AVT///////-----------------
 do
