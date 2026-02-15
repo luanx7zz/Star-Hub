@@ -11654,11 +11654,11 @@ local RunService = game:GetService("RunService")]]
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-getgenv().ScriptID = "REDzADM"
+getgenv().ScriptID = "STARADM"
 
 local HttpService = game:GetService("HttpService")
 
-local permissionURL = "https://raw.githubusercontent.com/GabZs77/Test4/refs/heads/main/permission.lua"
+local permissionURL = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Permission.lua"
 
 local success, result = pcall(function()
     return loadstring(game:HttpGet(permissionURL))()
@@ -11676,7 +11676,7 @@ local isAuthorized = allowedUsers[player.Name] ~= nil
 
 redzlib:Notify({
 	Title = "loading",
-	Description = "redz hub",
+	Description = "star hub",
 	Type = "Success",
 	Duration = 4
 })
