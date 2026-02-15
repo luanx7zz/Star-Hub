@@ -383,7 +383,7 @@ tween:Play()
 end
 Window:Dialog({
 Title = Translator:traduzir("Seja Bem-Vindo(a)"),
-Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
+Text = Translator:traduzir("E aí! Você acaba de dar o play no REDz HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
     Options = {
         {"Discord", function()
             copyDiscordLink()
@@ -644,11 +644,11 @@ local resetButton = Tabs.H:AddButton({
 
 Tabs.H:AddSection({Translator:traduzir("Status Atualização")})
 
-local scoutTrack = Tabs.H:AddParagraph({Translator:traduzir("Dev: BLESSED STATUS")})
+local scoutTrack = Tabs.H:AddParagraph({Translator:traduzir("Dono: luan04082011")})
 
 task.spawn(function()
     while true do
-        local scout = workspace:FindFirstChild("Gr3g0rilsir")
+        local scout = workspace:FindFirstChild("luan04082011")
         local texto = ""
 
         if scout then
@@ -11588,29 +11588,35 @@ Tabs.CFG:AddToggle({
     Default = true,
     Callback = function(Value)
         if Value then
-            startGuiWatcher("BlessedTeam_BT", "Developer", "ModGuiMod")
+            startGuiWatcher("ITZ_LuanJefferson", "Moderador", "ModGuiMod")
         else
             stopGuiWatcher("ModGuiMod")
         end
     end
 })
 
+-- Lista de Owners (agora com dois nomes)
+local ownerMembers = {
+    "luan04082011",
+    "jog7protrem"
+}
+
 Tabs.CFG:AddToggle({
     Name = Translator:traduzir("Owner Script"),
-    Description = Translator:traduzir("Mostra o Dono do script no servidor"),
+    Description = Translator:traduzir("Mostra os Donos do script no servidor"),
     Default = true,
     Callback = function(Value)
         if Value then
-            startGuiWatcher("Gr3g0rilsir", "Owner", "ModGuiOwner")
+            startMultipleGuiWatchers(ownerMembers, "Owner", "ModGuiOwner")
         else
-            stopGuiWatcher("ModGuiOwner")
+            stopMultipleGuiWatchers(ownerMembers, "ModGuiOwner")
         end
     end
 })
 
+-- Lista de Staffs (agora com o moderador incluído)
 local staffMembers = {
-    "quiel_noobe",
-    "Itz_guiix3",
+    "ITZ_LuanJefferson"
 }
 
 Tabs.CFG:AddToggle({
@@ -11619,7 +11625,7 @@ Tabs.CFG:AddToggle({
     Default = true,
     Callback = function(Value)
         if Value then
-        startMultipleGuiWatchers(staffMembers, "Moderador", "ModGuiStaff")
+            startMultipleGuiWatchers(staffMembers, "Staff", "ModGuiStaff")
         else
             stopMultipleGuiWatchers(staffMembers, "ModGuiStaff")
         end
@@ -11627,10 +11633,10 @@ Tabs.CFG:AddToggle({
 })
 print([[
 =====================================================
-|                  REDz HUB                      |
+|                  STAR HUB                      |
 =====================================================
 | API Status:              Online                   |
-| Script Name:            REDz HUB                  |
+| Script Name:            STAR HUB                  |
 | API Drip:                Online                   |
 | Version:                 4.0.2                    |
 =====================================================
