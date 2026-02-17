@@ -236,20 +236,8 @@ local Connections, Connection = {}, redzlib.Connection do
 				end
 			end
 			
-				local NotificationContainer = Create("Frame", ScreenGui, {
-				Name = "NotificationContainer",
-				Size = UDim2.new(0, 280, 1, 0),
-				Position = UDim2.new(1, -300, 1, -20),
-				AnchorPoint = Vector2.new(0, 1),
-				BackgroundTransparency = 1,
-				ZIndex = 999
-			}, {
-				Create("UIListLayout", {
-					SortOrder = "LayoutOrder",
-					Padding = UDim.new(0, 8),
-					VerticalAlignment = "Bottom"
-				})
-			})
+			-- LINHA REMOVIDA: NotificationContainer foi movido para depois da criação do ScreenGui
+			
 			function Connect:Once(func)
 				if type(func) == "function" then
 					local Connected;
@@ -328,6 +316,23 @@ local ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
 if ScreenFind and ScreenFind ~= ScreenGui then
 	ScreenFind:Destroy()
 end
+
+-- ========== NOTIFICATION CONTAINER MOVED HERE ==========
+local NotificationContainer = Create("Frame", ScreenGui, {
+	Name = "NotificationContainer",
+	Size = UDim2.new(0, 280, 1, 0),
+	Position = UDim2.new(1, -300, 1, -20),
+	AnchorPoint = Vector2.new(0, 1),
+	BackgroundTransparency = 1,
+	ZIndex = 999
+}, {
+	Create("UIListLayout", {
+		SortOrder = "LayoutOrder",
+		Padding = UDim.new(0, 8),
+		VerticalAlignment = "Bottom"
+	})
+})
+-- =======================================================
 
 local function GetStr(val)
 	if type(val) == "function" then
