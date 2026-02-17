@@ -1,5 +1,5 @@
 -- Star Hub | Made by Luan (Areal, RJ) - 2026 💫
--- Base: Redz Hub Brookhaven RP (Enhanced with Premium Loading)
+-- Base: Star Hub Brookhaven RP (Enhanced with Premium Loading)
 -- Créditos: Luan | From Areal-RJ
 
 -- ========== LOADING SCREEN PREMIUM MODERNA (11 segundos) ==========
@@ -138,7 +138,7 @@ Stroke.Parent = Avatar
 
 local angle = 0
 RunService.RenderStepped:Connect(function(dt)
-	angle += dt * 45
+	angle = angle + dt * 45
 	LogoFrame.Rotation = angle % 360
 end)
 
@@ -228,7 +228,7 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://pastefy.app/38eyVUis/raw", true)
+local redzlibContent = game:HttpGet("https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/README.md", true)
 local redzlib = loadstring(redzlibContent)()
 if not redzlib then error("deu red") end
 
@@ -383,7 +383,7 @@ tween:Play()
 end
 Window:Dialog({
 Title = Translator:traduzir("Seja Bem-Vindo(a)"),
-Text = Translator:traduzir("E aí! Você acaba de dar o play no REDz HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
+Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
     Options = {
         {"Discord", function()
             copyDiscordLink()
@@ -682,7 +682,7 @@ task.spawn(function()
         local formatado = string.format("%02d:%02d:%02d", horas, minutos, segundos)
         tempoTrack:Set("  " .. formatado)
 
-        tempoAtual += Config.statusUpdateInterval
+        tempoAtual = tempoAtual + Config.statusUpdateInterval
         task.wait(Config.statusUpdateInterval)
     end
 end)
@@ -694,8 +694,8 @@ local frameCount = 0
 local currentFPS = 0
 
 RunService.RenderStepped:Connect(function(dt)
-      frameCount += 1
-      lastUpdate += dt
+      frameCount = frameCount + 1
+      lastUpdate = lastUpdate + dt
 
     if lastUpdate >= 1 then
         currentFPS = frameCount
@@ -2117,7 +2117,7 @@ Tabs.Client:AddSection({Translator:traduzir("Mensagens De Chat")})
 local predefinedMessages = {
     {"c00lkidd invaded", "c00lkidd invaded"},
     {"Vou Trava Geral", "Vou Trava Geral"},
-    {"REDz HUB", "REDz HUB"},
+    {"STAR HUB", "STAR HUB"},
     {"Tubers93 invaded", "Tubers93 invaded"},
     {"Server Hacked", "Server Hacked"}
 }
@@ -2902,7 +2902,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
         local total = 0
         for _, c in ipairs({player.Backpack, player.Character}) do
             for _, tool in ipairs(c:GetChildren()) do
-                if tool:IsA("Tool") then total += 1 end
+                if tool:IsA("Tool") then total = total + 1 end
             end
         end
         return total
@@ -2914,7 +2914,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
             local rows = CHAR_MAP[c]
             if rows then
                 for _, row in ipairs(rows) do
-                    total += row:gsub("0", ""):len()
+                    total = total + row:gsub("0", ""):len()
                 end
             else
                 warn("Invalid character:", c)
@@ -2997,12 +2997,12 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
                                     startPos.Y + (y - 1) * pixelSize.Y,
                                     startPos.Z
                                 )
-                                toolIndex += 1
+                                toolIndex = toolIndex + 1
                             end
                         end
                     end
                 end
-                offsetX += #map[1] + 1
+                offsetX = offsetX + #map[1] + 1
             end
         end
 
@@ -3162,7 +3162,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -3174,7 +3174,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -3249,7 +3249,7 @@ Tabs.JJ:AddButton({
                             startPos.Y + (y - 1) * pixelSize.Y,
                             startPos.Z
                         )
-                        toolIndex += 1
+                        toolIndex = toolIndex + 1
                     end
                 end
             end
@@ -3413,7 +3413,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -3425,7 +3425,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -4128,9 +4128,9 @@ getgenv().RunService = nil
 getgenv().flingloop = false
 
 local nomesRP = {
-    "oi kkkk", "Sou Seu filho", "Armaria", "Tenho Dono: Lucas", "Estoy loco", 
-    "XALALALAL", "ANALFABETO", "Criança", "Web namoro", "Veia", "REDz HUB", 
-    "KITA!!!!", "MÃEEEE", "PAIII", "BANCOPAN", "Calada", "Tenho Dona: Lolyta", "Uso Hack"
+    "oi kkkk", "Sou Seu filho", "Armaria", "Tenho Dono", "Estoy loco", 
+    "XALALALAL", "ANALFABETO", "Criança", "Web namoro", "Veia", "STAR HUB", 
+    "KITA!!!!", "MÃEEEE", "PAIII", "BANCOPAN", "Calada", "Tenho Dona", "Uso Hack"
 }
 
 local parteMapeada = {
@@ -4450,8 +4450,8 @@ local function toggleBlackHole(v)
         task.spawn(function()
             local rotationSpeed, pulseTime = 0,0
             while blackHoleActive and blackHoleModel.Parent do
-                rotationSpeed += math.rad(1.5)
-                pulseTime += 0.02
+                rotationSpeed = rotationSpeed + math.rad(1.5)
+                pulseTime = pulseTime + 0.02
                 for i,disk in pairs(diskLayers) do
                     if disk and disk.Parent then
                         local diskSpeed = rotationSpeed*(1+i*0.2)
@@ -5114,7 +5114,7 @@ local function KillPlayerCouch()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle += 50
+            angle = angle + 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -5205,7 +5205,7 @@ local function BringPlayerLLL()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle += 50
+            angle = angle + 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -5546,7 +5546,7 @@ local function jailcouch()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle += 50
+            angle = angle + 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -6002,7 +6002,7 @@ local function FlingBall(target)
 
                 local position = Vector3.new(pos_x, pos_y, pos_z)
                 Ball.CFrame = CFrame.new(position)
-                Ball.Orientation += Vector3.new(45, 60, 30)
+                Ball.Orientation = Ball.Orientation + Vector3.new(45, 60, 30)
                 else
                 for i, v in pairs(tchar:GetChildren()) do
                 if v:IsA("BasePart") and v.CanCollide and not v.Anchored then
@@ -6805,11 +6805,11 @@ local Button = Tabs.TT:AddButton({Translator:traduzir("Joga bola <Todos>"), func
                     while t < 3 and player.Character and player.Character:FindFirstChild("Humanoid") do
                         if wasFlinged(player) then break end
                         task.wait(0.2)
-                        t += 0.2
+                        t = t + 0.2
                     end
 
                     if wasFlinged(player) then
-                        flingCount += 1
+                        flingCount = flingCount + 1
                     end
                 end
             end
@@ -7605,7 +7605,7 @@ local function FlingBall(target)
 		
 			local altura = math.sin(tempo * 7) * 2
 			Ball.CFrame = CFrame.new(pos.X, pos.Y + altura, pos.Z)
-			Ball.Orientation += Vector3.new(45, 60, 30)
+			Ball.Orientation = Ball.Orientation + Vector3.new(45, 60, 30)
 
 			task.wait(1 / 5000)
 		until troot.Velocity.Magnitude > 1000 or thum.Health <= 0 or not tchar:IsDescendantOf(mundo) or target.Parent ~= jogadores
@@ -11784,7 +11784,7 @@ local function createInterface()
     titleLabel.Position = UDim2.new(0, 0, 0, 0)
     titleLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- COR ALTERADA PARA VERMELHO PURO
     titleLabel.BorderSizePixel = 0
-    titleLabel.Text = "REDz Hub Admin"
+    titleLabel.Text = "Star Hub Admin"
     titleLabel.TextColor3 = Color3.new(1, 1, 1)
     titleLabel.TextSize = 16
     titleLabel.Font = Enum.Font.GothamBold
@@ -12976,7 +12976,7 @@ local function showAdminTab()
         if TextChatService and TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral then
             responseConnection = TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(msg)
                 pcall(function()
-                    if msg.Text == "REDZ_Hub_Actived" then
+                    if msg.Text == "Star_Hub_Actived" then
                         local responder = msg.TextSource and Players:GetPlayerByUserId(msg.TextSource.UserId)
                         if responder and responder ~= LocalPlayer then
                             responses[responder.Name] = true
@@ -13073,7 +13073,7 @@ local function setupChatListener()
             
             if text == "Verificar" and sender and allowedUsers[sender.Name] and sender ~= LocalPlayer then
                 task.wait(math.random(0.5, 2))
-                sendChatCommand("REDZ_Hub_Actived")
+                sendChatCommand("Star_Hub_Actived")
                 return
             end
             
