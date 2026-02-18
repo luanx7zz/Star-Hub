@@ -228,7 +228,7 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Ui%20do%20star%20hub", true)
+local redzlibContent = game:HttpGet("https://pastefy.app/38eyVUis/raw", true)
 local redzlib = loadstring(redzlibContent)()
 if not redzlib then error("deu red") end
 
@@ -439,8 +439,8 @@ end}
 })
 end})
 
-Tabs.M:AddSection({Translator:traduzir("Acess Admin")})
-Tabs.M:AddButton({Translator:traduzir("Painel Admin"), function()
+Tabs.M:AddSection({Name = Translator:traduzir("Acess Admin")})
+Tabs.M:AddButton({Name = Translator:traduzir("Painel Admin"), Callback = function()
 Window:Dialog({
     Title = Translator:traduzir("Como Obter Grátis"),
     Text = Translator:traduzir("• Formas de conseguir acesso ao Painel Admin Premium:\nVocê pode obter de diferentes maneiras\nDando 2 boosts em nosso servidor e recebendo 20 dias de acesso.\nTornando-se um divulgador oficial."),
@@ -466,13 +466,13 @@ if success and gameInfo then
     gameName = gameInfo.Name
 end
 
-Tabs.M:AddSection({Translator:traduzir("Mapa Status")})
-local Paragraph1 = Tabs.M:AddParagraph({Translator:traduzir("Nome do Jogo: " .. gameName)})
+Tabs.M:AddSection({Name = Translator:traduzir("Mapa Status")})
+local Paragraph1 = Tabs.M:AddParagraph({Text = Translator:traduzir("Nome do Jogo: " .. gameName)})
 local executor = identifyexecutor()
-local Paragraph = Tabs.M:AddParagraph({Translator:traduzir("Executor: " .. executor)})
+local Paragraph = Tabs.M:AddParagraph({Text = Translator:traduzir("Executor: " .. executor)})
 do
-Tabs.M:AddSection({Translator:traduzir("Ánuncios <announcement>")})
-Tabs.M:AddButton({Translator:traduzir("Aviso Externo"), function()
+Tabs.M:AddSection({Name = Translator:traduzir("Ánuncios <announcement>")})
+Tabs.M:AddButton({Name = Translator:traduzir("Aviso Externo"), Callback = function()
 Window:Dialog({
     Title = "Erros",
     Text = Translator:traduzir("• O script pode apresentar erros. Caso encontre algum, por favor, reporte-o no nosso Discord."),
@@ -486,7 +486,7 @@ Window:Dialog({
     }
 })
 end})
-Tabs.M:AddButton({Translator:traduzir("Aviso Externo2"), function()
+Tabs.M:AddButton({Name = Translator:traduzir("Aviso Externo2"), Callback = function()
 Window:Dialog({
     Title = "Update",
     Text = Translator:traduzir("•Devido às atualizações, algumas funções podem parar de funcionar. Estamos trabalhando para garantir a melhor experiência."),
@@ -501,10 +501,9 @@ Window:Dialog({
 })
 end})
 
-local Section = Tabs.M:AddSection({Translator:traduzir("Resoluções Da Tela")})
+local Section = Tabs.M:AddSection({Name = Translator:traduzir("Resoluções Da Tela")})
 
-        Tabs.M:AddButton({Translator:traduzir("Resolução Normal"), 
-          function()
+        Tabs.M:AddButton({Name = Translator:traduzir("Resolução Normal"), Callback = function()
           getgenv().Resolution = {
             [".gg/scripters"] = 1.0
         }
@@ -523,8 +522,7 @@ getgenv().gg_scripters = "Aori0001"
       }
     )
 
-        Tabs.M:AddButton({Translator:traduzir("Resolução 0.70"),
-          function()
+        Tabs.M:AddButton({Name = Translator:traduzir("Resolução 0.70"), Callback = function()
             getgenv().Resolution = {
         [".gg/scripters"] = 0.70
     }
@@ -542,8 +540,7 @@ getgenv().gg_scripters = "Aori0001"
       }
     )
     
-        Tabs.M:AddButton({Translator:traduzir("Resolução 0.80"), 
-          function()
+        Tabs.M:AddButton({Name = Translator:traduzir("Resolução 0.80"), Callback = function()
                     getgenv().Resolution = {
             [".gg/scripters"] = 0.80
         }
@@ -579,7 +576,7 @@ local PlayerStats = {
     gravityValue = Config.defaultGravity
 }
 
-Tabs.H:AddSection({Translator:traduzir("Super Poderes")})
+Tabs.H:AddSection({Name = Translator:traduzir("Super Poderes")})
 
 local function validateNumber(value, defaultValue)
     local number = tonumber(value)
@@ -630,8 +627,8 @@ local gravityTextBox = Tabs.H:AddTextBox({
 })
 
 local resetButton = Tabs.H:AddButton({
-    Translator:traduzir("Reseta <Velocidade/Gravidade/Pulos>"),
-    function()
+        Name = Translator:traduzir("Reseta <Velocidade/Gravidade/Pulos>"),
+        Callback = function()
         PlayerStats.jumpPower = Config.defaultJumpPower
         PlayerStats.speedValue = Config.defaultSpeed
         PlayerStats.gravityValue = Config.defaultGravity
@@ -642,9 +639,9 @@ local resetButton = Tabs.H:AddButton({
     end
 })
 
-Tabs.H:AddSection({Translator:traduzir("Status Atualização")})
+Tabs.H:AddSection({Name = Translator:traduzir("Status Atualização")})
 
-local scoutTrack = Tabs.H:AddParagraph({Translator:traduzir("Dono: luan04082011")})
+local scoutTrack = Tabs.H:AddParagraph({Text = Translator:traduzir("Dono: luan04082011")})
 
 task.spawn(function()
     while true do
@@ -670,7 +667,7 @@ task.spawn(function()
     end
 end)
 
-local tempoTrack = Tabs.H:AddParagraph({Translator:traduzir("Tempo De Uso De Script")})
+local tempoTrack = Tabs.H:AddParagraph({Text = Translator:traduzir("Tempo De Uso De Script")})
 
 local tempoAtual = 0
 task.spawn(function()
@@ -687,7 +684,7 @@ task.spawn(function()
     end
 end)
 
-local fpsParagraph = Tabs.H:AddParagraph({ "Mostra Fps" }) 
+local fpsParagraph = Tabs.H:AddParagraph({Text = "Mostra Fps"}) 
 
 local lastUpdate = 0
 local frameCount = 0
@@ -705,7 +702,7 @@ RunService.RenderStepped:Connect(function(dt)
     end
 end)
 
-local playerCountParagraph = Tabs.H:AddParagraph({Translator:traduzir ("Quantidade De Pessoas" )})
+local playerCountParagraph = Tabs.H:AddParagraph({Text = Translator:traduzir ("Quantidade De Pessoas" )})
 
 local function updatePlayerCount()
     local count = #Players:GetPlayers()
@@ -717,7 +714,7 @@ Players.PlayerRemoving:Connect(updatePlayerCount)
 updatePlayerCount()
 
 --[[
-Tabs.H:AddSection({Translator:traduzir("Basquete <Item>")})
+Tabs.H:AddSection({Name = Translator:traduzir("Basquete <Item>")})
 local BNumber = 1000
 local Toggle = Tabs.H:AddToggle({Name = Translator:traduzir("Arremesso de bolas V2"), Description = Translator:traduzir("Telepkrt/Ball/Volta/Arremessa"), Default = false})
 
@@ -743,7 +740,7 @@ Toggle:Callback(function(state)
 
         task.wait()
         RootPart.CFrame = OldPos
-        spawn(function()
+        task.spawn(function()
             while state do
                 task.wait()
                 for _, tool in ipairs(Character:GetChildren()) do
@@ -761,7 +758,7 @@ Toggle:Callback(function(state)
 end)
 ]]--
 
-Tabs.H:AddSection({Translator:traduzir("Sistema Lgbt")})
+Tabs.H:AddSection({Name = Translator:traduzir("Sistema Lgbt")})
 
 local colorSpeed = Config.colorSpeed
 Tabs.H:AddSlider({
@@ -884,7 +881,7 @@ task.spawn(function()
     end
 end)
 
-Tabs.H:AddSection({Translator:traduzir("Repetição De Nomes")})
+Tabs.H:AddSection({Name = Translator:traduzir("Repetição De Nomes")})
 
 local Remote = ReplicatedStorage.RE:FindFirstChild("1RPNam1eTex1t")
 local name1, name2, name3 = "", "", ""
@@ -979,7 +976,7 @@ Toggle:Callback(function(R)
     end
 end)
 
-Tabs.H:AddSection({Translator:traduzir("Nomes Ja feitos!")})
+Tabs.H:AddSection({Name = Translator:traduzir("Nomes Ja feitos!")})
 
 local names = {
     {"TINTALEY", " TINTALEY "},
@@ -1687,7 +1684,7 @@ Tabs.AI:AddChat()
 Tabs.SB:AddScriptBlox()
 
 -----------------///////TABS - PR///////-----------------
-Tabs.PR:AddSection({Translator:traduzir("Proteções Local & Anti Lags")})
+Tabs.PR:AddSection({Name = Translator:traduzir("Proteções Local & Anti Lags")})
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 
@@ -1965,8 +1962,8 @@ Toggle3:Callback(function(Value)
     fullScan()
 end)]]
 
-Tabs.PR:AddSection({Translator:traduzir("Efeito e desefeitos")})
-local Button = Tabs.PR:AddButton({Translator:traduzir("Anti Lag"), function()
+Tabs.PR:AddSection({Name = Translator:traduzir("Efeito e desefeitos")})
+local Button = Tabs.PR:AddButton({Name = Translator:traduzir("Anti Lag"), Callback = function()
       local itemsToRemove = {
         "Burger Tray", "Bomb", "Laptop", "Paper Bag", "Chips", "Ice Cream", "Taser",
         "Basketball", "FireX", "Ladder", "Ghost Meter", "Clipboard", "Stretcher", "Glock",
@@ -2014,7 +2011,7 @@ local Button = Tabs.PR:AddButton({Translator:traduzir("Anti Lag"), function()
         end
     end)
 end})
-    Tabs.PR:AddButton({Translator:traduzir("Shaders"), function()
+    Tabs.PR:AddButton({Name = Translator:traduzir("Shaders"), Callback = function()
   local Dialog = Window:Dialog({
     Title = Translator:traduzir("Oque é isso?"),
     Text = Translator:traduzir("Deixa seu jogo mais bonito e mais vivo"),
@@ -2036,7 +2033,7 @@ local Config = {
     jetMoveDelay = 0.4
 }
 
---[[Tabs.Client:AddSection({"Chat Configs"})
+--[[Tabs.Client:AddSection({Name = "Chat Configs"})
 
 local ChatSystem = {
     textSave = "",
@@ -2112,7 +2109,7 @@ Tabs.Client:AddButton({
     end
 })
 
-Tabs.Client:AddSection({Translator:traduzir("Mensagens De Chat")})
+Tabs.Client:AddSection({Name = Translator:traduzir("Mensagens De Chat")})
 
 local predefinedMessages = {
     {"c00lkidd invaded", "c00lkidd invaded"},
@@ -2134,7 +2131,7 @@ for _, message in ipairs(predefinedMessages) do
     })
 end
 ]]
-Tabs.Client:AddSection({Translator:traduzir("MENU Esp")})
+Tabs.Client:AddSection({Name = Translator:traduzir("MENU Esp")})
 
 local ESPSystem = {
     showLine = false,
@@ -2249,7 +2246,7 @@ for _, toggle in ipairs(espToggles) do
     })
 end
 
-Tabs.Client:AddSection({Translator:traduzir("Spam Varios Jatos <BETA>")})
+Tabs.Client:AddSection({Name = Translator:traduzir("Spam Varios Jatos <BETA>")})
 
 local JetSystem = {
     spawnActive = false,
@@ -2350,8 +2347,8 @@ local function stopJetSpam()
 end
 
 Tabs.Client:AddButton({
-    Translator:traduzir("Como funciona?"),
-    function()
+        Name = Translator:traduzir("Como funciona?"),
+        Callback = function()
         Window:Dialog({
             Title = Translator:traduzir("Funções Do jatos"),
             Text = Translator:traduzir("• Para funcionar precisa de GamePass <Premium> é versão Beta. Pode conter erros. Se demorar, recomendo ativar e desativar!"),
@@ -2363,8 +2360,8 @@ Tabs.Client:AddButton({
 })
 
 Tabs.Client:AddButton({
-    "Spamar Jatos",
-    function()
+        Name = "Spamar Jatos",
+        Callback = function()
         Window:Dialog({
             Title = Translator:traduzir("Como Funciona?"),
             Text = Translator:traduzir("O spam começa em até 20 segundos. Não é visual. Após usar, não toque em nada, apenas no script."),
@@ -2381,13 +2378,13 @@ Tabs.Client:AddButton({
 })
 
 Tabs.Client:AddButton({
-    Translator:traduzir("Parar Spam"),
-    function()
+        Name = Translator:traduzir("Parar Spam"),
+        Callback = function()
         stopJetSpam()
     end
 })
 
-Tabs.Client:AddSection({Translator:traduzir("Auto Spamar Jatos <Jogador>")})
+Tabs.Client:AddSection({Name = Translator:traduzir("Auto Spamar Jatos <Jogador>")})
 
 local TargetJetSystem = {
     flingActive = false,
@@ -2505,8 +2502,8 @@ Tabs.Client:AddToggle({
 })
 
 Tabs.Client:AddButton({
-    Translator:traduzir("Atualizar Lista"),
-    function()
+        Name = Translator:traduzir("Atualizar Lista"),
+        Callback = function()
         playerDropdown:Set(getPlayerList())
     end
 })
@@ -2524,7 +2521,7 @@ Tabs.Client:AddToggle({
     end
 })
 
-Tabs.Client:AddSection({Translator:traduzir("Navio Pirado")})
+Tabs.Client:AddSection({Name = Translator:traduzir("Navio Pirado")})
 local ShipSystem = {
     tornadoActive = false,
     currentShip = nil
@@ -2675,8 +2672,8 @@ end
 -----------------///////TABS - JJ///////-----------------
 do
 --[[Tabs.JJ:AddButton({
-    Translator:traduzir("Yungbloud"),
-    function()
+        Name = Translator:traduzir("Yungbloud"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id=15610015346"
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2685,8 +2682,8 @@ do
     end
 })
 Tabs.JJ:AddButton({
-    Translator:traduzir("Katseye Touch"),
-    function()
+        Name = Translator:traduzir("Katseye Touch"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id=139021427684680"
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2698,8 +2695,8 @@ Tabs.JJ:AddButton({
     
     
 Tabs.JJ:AddButton({
-    Translator:traduzir("Kickstep"),
-    function()
+        Name = Translator:traduzir("Kickstep"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id="
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2709,8 +2706,8 @@ Tabs.JJ:AddButton({
 })
 
 Tabs.JJ:AddButton({
-    Translator:traduzir("Pew pew, headshot!"),
-    function()
+        Name = Translator:traduzir("Pew pew, headshot!"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id="
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2720,8 +2717,8 @@ Tabs.JJ:AddButton({
 })
 
 Tabs.JJ:AddButton({
-    Translator:traduzir("Loading Screen"),
-    function()
+        Name = Translator:traduzir("Loading Screen"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id="
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2731,8 +2728,8 @@ Tabs.JJ:AddButton({
 })
 
 Tabs.JJ:AddButton({
-    Translator:traduzir("Vem Cá Nenem"),
-    function()
+        Name = Translator:traduzir("Vem Cá Nenem"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id="
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2742,8 +2739,8 @@ Tabs.JJ:AddButton({
 })
 
 Tabs.JJ:AddButton({
-    Translator:traduzir("Kawaii Cutie Toy Bear Sit"),
-    function()
+        Name = Translator:traduzir("Kawaii Cutie Toy Bear Sit"),
+        Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id="
         local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
@@ -2752,7 +2749,7 @@ Tabs.JJ:AddButton({
     end
 })]]
 
-Tabs.JJ:AddSection({"Crie Nomes Com Extinto"})
+Tabs.JJ:AddSection({Name = "Crie Nomes Com Extinto"})
 getgenv().CustomText = "New Message!"
 
 Tabs.JJ:AddTextBox({
@@ -2765,7 +2762,7 @@ Tabs.JJ:AddTextBox({
     end
 })
 
-Tabs.JJ:AddButton({"Cria Nome Extinto", function()
+Tabs.JJ:AddButton({Name = "Cria Nome Extinto", Callback = function()
     if getgenv()._Running then
         warn("A process is already running")
         return
@@ -3025,7 +3022,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
         getgenv()._Running = false
     end)
 end})
-Tabs.JJ:AddSection({Translator:traduzir("Crie um Muro de tools")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Crie um Muro de tools")})
 local selectedSize = 100 -- valor padrão
 
 local Dropdown = Tabs.JJ:AddDropdown({
@@ -3275,7 +3272,7 @@ Tabs.JJ:AddButton({
         end)
     end
 })
-Tabs.JJ:AddSection({Translator:traduzir("Crie Um Tornado de tools")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Crie Um Tornado de tools")})
 local selectedSize = 50
 
 local Dropdown = Tabs.JJ:AddDropdown({
@@ -3587,7 +3584,7 @@ Tabs.JJ:AddButton({
         warn("Tornado interrompido com sucesso.")
     end
 })
-Tabs.JJ:AddSection({Translator:traduzir("Notificações Mapa")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Notificações Mapa")})
 local NotificationSystem = {
     joinLeaveEnabled = false,
     deathEnabled = false
@@ -3675,7 +3672,7 @@ if workspacePlayers then
     end)
 end
 
-Tabs.JJ:AddSection({Translator:traduzir("Jogador Euzinho")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Jogador Euzinho")})
 
 local PlayerAbilities = {
     noClip = false,
@@ -3764,14 +3761,14 @@ Tabs.JJ:AddToggle({
     end
 })
 
-Tabs.JJ:AddSection({Translator:traduzir("Voo & Equipe All")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Voo & Equipe All")})
 Tabs.JJ:AddButton({
-    Translator:traduzir("Fly Mobile"),
-    function()
+        Name = Translator:traduzir("Fly Mobile"),
+        Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/Fly.Lua", true))()
     end
 })
-local Button = Tabs.JJ:AddButton({Translator:traduzir("Equipa Todos Items"), function()
+local Button = Tabs.JJ:AddButton({Name = Translator:traduzir("Equipa Todos Items"), Callback = function()
     local player = game.Players.LocalPlayer
     local backpack = player:WaitForChild("Backpack")
     for _, item in ipairs(backpack:GetChildren()) do
@@ -3782,7 +3779,7 @@ end})
 RunService.Stepped:Connect(updateNoClip)
 UserInputService.JumpRequest:Connect(onJumpRequest)
 -- ================== SEÇÃO: SISTEMA DE TELEPORTE ==================
-Tabs.JJ:AddSection({Translator:traduzir("Teleporte")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Teleporte")})
 
 local TeleportSystem = {
     selectedPlayer = nil,
@@ -3867,15 +3864,15 @@ local playerDropdown = Tabs.JJ:AddDropdown({
 })
 
 Tabs.JJ:AddButton({
-    Translator:traduzir("Atualizar Lista"),
-    function()
+        Name = Translator:traduzir("Atualizar Lista"),
+        Callback = function()
         playerDropdown:Set(getPlayersList())
     end
 })
 
 Tabs.JJ:AddButton({
-    Translator:traduzir("Teleportar Com Carro"),
-    function()
+        Name = Translator:traduzir("Teleportar Com Carro"),
+        Callback = function()
         teleportCarToPlayer()
     end
 })
@@ -4259,7 +4256,7 @@ Tabs.TT:AddButton({
     end
 })
 
-Tabs.TT:AddSection({Translator:traduzir("Criar Estruturas")})
+Tabs.TT:AddSection({Name = Translator:traduzir("Criar Estruturas")})
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
@@ -4276,14 +4273,14 @@ local function teleportarEConstruir()
     local root = character:WaitForChild("HumanoidRootPart")
     local targetPosition = Vector3.new(-37, 19, -145)
     root.CFrame = CFrame.new(targetPosition)
-    wait(0.5)
+    task.wait(0.5)
     local success1 = pcall(function()
         local args1 = {6}
         ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Lot:Claim"):InvokeServer(unpack(args1))
     end)
     
     if success1 then
-        wait(0.3) 
+        task.wait(0.3) 
         
         local success2 = pcall(function()
             local args2 = {6, "001_Landmark"}
@@ -4309,7 +4306,7 @@ local Button = Tabs.TT:AddButton({
 })
 end
 do
-Tabs.TT:AddSection({Translator:traduzir("Bring Partes Update  [Beta]")})
+Tabs.TT:AddSection({Name = Translator:traduzir("Bring Partes Update  [Beta]")})
 local Players,RS,RunService,TweenService,Lighting,Workspace,TCS,UserInputService =
     game:GetService("Players"),
     game:GetService("ReplicatedStorage"),
@@ -4611,7 +4608,7 @@ ToggleTornado:Callback(function(Value)
     toggleTornado(Value)
 end)]]
 
-local Button = Tabs.TT:AddButton({Translator:traduzir("Puxa Partes Gui"), function()
+local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Puxa Partes Gui"), Callback = function()
   local Gui = Instance.new("ScreenGui") 
 local Main = Instance.new("Frame") 
 local MainCorner = Instance.new("UICorner")
@@ -4962,7 +4959,7 @@ local function toggleBlackHole()
             end 
         end) 
  
-        spawn(function() 
+        task.spawn(function() 
             while blackHoleActive and RunService.RenderStepped:Wait() do 
                 Attachment1.WorldCFrame = humanoidRootPart.CFrame 
             end 
@@ -5749,7 +5746,7 @@ Tabs.TT:AddButton({
                     end
                 end
 
-                spawn(TrackPlayer)
+                task.spawn(TrackPlayer)
             end
         end
     })
@@ -5852,7 +5849,7 @@ Tabs.TT:AddButton({
                     end
                 end
 
-                spawn(TrackPlayer)
+                task.spawn(TrackPlayer)
             end
         end
     })
@@ -6219,7 +6216,7 @@ local function ActiveAutoFling(targetPlayer)
             task.wait()
         end
 
-        wait()
+        task.wait()
         pcall(flingloopfix)
     end
 end
@@ -6322,7 +6319,7 @@ end
                     end
                 end
 
-                spawn(TrackPlayer)
+                task.spawn(TrackPlayer)
             end
         end
     })
@@ -6409,12 +6406,12 @@ end
             end
         end
 
-        spawn(TrackAndExecute)
+        task.spawn(TrackAndExecute)
     end
 })]]
 end
 do
-Tabs.TT:AddSection({Translator:traduzir("Funções Mata <Todos>")})
+Tabs.TT:AddSection({Name = Translator:traduzir("Funções Mata <Todos>")})
 Tabs.TT:AddButton({
     Name = Translator:traduzir("Mata Geral De Ônibus"),
     Callback = function()
@@ -6525,7 +6522,7 @@ local function StartKillBusao(playerName, callback)
         end  
     end  
 
-    spawn(function()
+    task.spawn(function()
         TrackPlayer(selectedPlayerName, callback)
     end)
 end
@@ -6636,7 +6633,7 @@ Tabs.TT:AddButton({
             SpinGyro:Destroy()  
     end
 })
-local Button = Tabs.TT:AddButton({Translator:traduzir("Joga bola <Todos>"), function()
+local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Joga bola <Todos>"), Callback = function()
       local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
     local StarterGui = game:GetService("StarterGui")
@@ -6824,7 +6821,7 @@ local Button = Tabs.TT:AddButton({Translator:traduzir("Joga bola <Todos>"), func
     end
 end})
 
-Tabs.TT:AddButton({Translator:traduzir("Matar Geral v2 <Couch>"), function()
+Tabs.TT:AddButton({Name = Translator:traduzir("Matar Geral v2 <Couch>"), Callback = function()
 local soundIds = {
     "128703509251740",
     "132885275273014", 
@@ -7479,7 +7476,7 @@ function InputHandler.handleTouch(touches, processed, callback)
     end
 end
 
-    Tabs.TT:AddSection({Translator:traduzir("Matar Jogadores Com Clique")})
+    Tabs.TT:AddSection({Name = Translator:traduzir("Matar Jogadores Com Clique")})
     
     Tabs.TT:AddButton({
         Name = Translator:traduzir("Clique Admin <Fling>"),
@@ -7517,7 +7514,7 @@ UserInputService.TouchTap:Connect(function(touches, processed)
     
     if GameState.adminToolEquipped then
         InputHandler.handleTouch(touches, processed, function(player)
-            spawn(function()
+            task.spawn(function()
                 BallSystem.flingWithBall(player, true, false)
             end)
         end)
@@ -7526,7 +7523,7 @@ UserInputService.TouchTap:Connect(function(touches, processed)
 
     if GameState.blackHole then
         InputHandler.handleTouch(touches, processed, function(player)
-            spawn(function()
+            task.spawn(function()
                 DoorSystem.flingWithDoors(player)
             end)
         end)
@@ -7627,8 +7624,8 @@ entrada.TouchTap:Connect(function(toques, processado)
 end)
 
 end
-Tabs.TT:AddSection({Translator:traduzir("Items Tool")})
-local Button = Tabs.TT:AddButton({Translator:traduzir("Telecinese"), function()
+Tabs.TT:AddSection({Name = Translator:traduzir("Items Tool")})
+local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Telecinese"), Callback = function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/SAZXHUB/Control-update/main/README.md', true))()
 end})
 Tabs.TT:AddButton({
@@ -7638,18 +7635,18 @@ Tabs.TT:AddButton({
     end
 })
 Tabs.TT:AddButton({
-    Translator:traduzir("Guitarra elétrica + Violão - Acustic"),
-    function()
+        Name = Translator:traduzir("Guitarra elétrica + Violão - Acustic"),
+        Callback = function()
         local plr = game.Players.LocalPlayer
         local hrp = plr.Character.HumanoidRootPart
 
         hrp.CFrame = CFrame.new(-384.5757, 18.5075, 212.3876)
-        wait(0.1)
+        task.wait(0.1)
 
         local function pickTool(toolName)
             local args = { [1] = "PickingTools", [2] = toolName }
             game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
-            wait(0.1)
+            task.wait(0.1)
         end
 
         pickTool("Guitar")
@@ -7683,7 +7680,7 @@ Tabs.TT:AddButton({
         equiparItem("ElectricGuitar")
 
         hrp.CFrame = CFrame.new(0, 50, 0)
-        wait(0.1)
+        task.wait(0.1)
 
         local function equipAllItems()
             local player = game.Players.LocalPlayer
@@ -7703,11 +7700,11 @@ Tabs.TT:AddButton({
         end, false, Enum.KeyCode.E)
     end
 })
-local Button = Tabs.TT:AddButton({Translator:traduzir("Pega Sofá"), function()
+local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Pega Sofá"), Callback = function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/Brancos.lua", true))()
 end})
 
-local Button = Tabs.TT:AddButton({Translator:traduzir("Pegar Teleport tool"), function()
+local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Pegar Teleport tool"), Callback = function()
     local mouse = game.Players.LocalPlayer:GetMouse()
     local tool = Instance.new("Tool")
     tool.RequiresHandle = false
@@ -7721,7 +7718,7 @@ local Button = Tabs.TT:AddButton({Translator:traduzir("Pegar Teleport tool"), fu
 end})
 
 do
-Tabs.TT:AddSection({Translator:traduzir("Orbitar")})
+Tabs.TT:AddSection({Name = Translator:traduzir("Orbitar")})
 local orbit = nil
 local orbiting = false
 local tweenSpeed = 20
@@ -7785,7 +7782,7 @@ Tabs.TT:AddToggle({
 	end
 })
 
-Tabs.TT:AddSection({Translator:traduzir("Zaralha boneco headsit")})
+Tabs.TT:AddSection({Name = Translator:traduzir("Zaralha boneco headsit")})
 local selectedHeadSit = nil
 local headSitConnection = nil
 
@@ -7857,7 +7854,7 @@ Tabs.TT:AddToggle({
 end
 -----------------///////TABS - LG///////-----------------
 do
-Tabs.LG:AddSection({"Lag Server Controle"})
+Tabs.LG:AddSection({Name = "Lag Server Controle"})
 local CurrentLagType = "Phone"
 local LagActive = false
 local LagThread = nil
@@ -8276,7 +8273,7 @@ Tabs.LG:AddToggle({
     end
 })
 
-Tabs.LG:AddSection({"Alvos Do Lags v1"})
+Tabs.LG:AddSection({Name = "Alvos Do Lags v1"})
 
 local TargetPlayerName = ""
 local TargetLagMethod = "Phone"
@@ -8507,7 +8504,7 @@ Tabs.LG:AddToggle({
     end
 })
 
-Tabs.LG:AddSection({Translator:traduzir("Lag Geral e uma pessoa")})
+Tabs.LG:AddSection({Name = Translator:traduzir("Lag Geral e uma pessoa")})
 
 local selectedTarget = nil
 local shootingLog = {}
@@ -8637,7 +8634,7 @@ Tabs.LG:AddToggle({
 end
 do
     
-Tabs.LG:AddSection({Translator:traduzir("Painel De Lags V3")})
+Tabs.LG:AddSection({Name = Translator:traduzir("Painel De Lags V3")})
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -9060,7 +9057,7 @@ local audioManager = AudioManager.new()
 local trollAudioNames = extractAudioNames(TROLL_AUDIOS)
 local loudAudioNames = extractAudioNames(LOUD_AUDIOS)
 
-Tabs.AD:AddSection({Translator:traduzir("Áudios de Trollagem")})
+Tabs.AD:AddSection({Name = Translator:traduzir("Áudios de Trollagem")})
 Tabs.AD:AddDropdown({
     Name = Translator:traduzir("Escolher Áudio de Troll"),
     Description = Translator:traduzir("Selecione um áudio para trollar"),
@@ -9108,7 +9105,7 @@ Tabs.AD:AddToggle({
     end
 })
 
-Tabs.AD:AddSection({Translator:traduzir("Áudios Estourados")})
+Tabs.AD:AddSection({Name = Translator:traduzir("Áudios Estourados")})
 
 Tabs.AD:AddDropdown({
     Name = Translator:traduzir("Escolher Áudio Estourado"),
@@ -9148,7 +9145,7 @@ Tabs.AD:AddToggle({
     end
 })
 
-Tabs.AD:AddSection({Translator:traduzir("Configurações Especiais")})
+Tabs.AD:AddSection({Name = Translator:traduzir("Configurações Especiais")})
 
 Tabs.AD:AddToggle({
     Name = Translator:traduzir("Áudio Estourado Rápido"),
@@ -9310,11 +9307,9 @@ Toggle:Callback(function(Value)
 end)
 
 -- ========== NOVA SEÇÃO DE MÚSICA (baseada no modelo) ==========
-Tabs.AD:AddSection({Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
-Tabs.AD:AddParagraph({
-    Title = "💡 Dicas Rápidas",
-    Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."
-})
+Tabs.AD:AddSection({Name = Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
+Tabs.AD:AddParagraph({Text = Title = "💡 Dicas Rápidas",
+    Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."})
 
 -- Tabelas de músicas por categoria
 local Funk = {
@@ -9509,14 +9504,14 @@ local function makeMusicDropdown(name, data)
 end
 
 -- Cria os dropdowns por categoria
-Tabs.AD:AddSection({Translator:traduzir("🎵 Categorias de Música")})
+Tabs.AD:AddSection({Name = Translator:traduzir("🎵 Categorias de Música")})
 makeMusicDropdown("🔥 Funk", Funk)
 makeMusicDropdown("💨 Phonk", Phonk)
 makeMusicDropdown("🎶 Forró", Forro)
 makeMusicDropdown("🎧 Aleatórios", Aleatorio)
 
 -- ID personalizado
-Tabs.AD:AddSection({Translator:traduzir("🎵 ID Personalizado")})
+Tabs.AD:AddSection({Name = Translator:traduzir("🎵 ID Personalizado")})
 local CustomMusicID = ""
 Tabs.AD:AddTextBox({
     Name = "Digite o ID da Música",
@@ -9537,7 +9532,7 @@ Tabs.AD:AddButton({
 })
 
 -- Ferramentas rápidas
-Tabs.AD:AddSection({Translator:traduzir("🔧 Ferramentas Rápidas")})
+Tabs.AD:AddSection({Name = Translator:traduzir("🔧 Ferramentas Rápidas")})
 Tabs.AD:AddButton({
     Name = "📻 Equipar Rádio / Boombox",
     Callback = function()
@@ -9565,11 +9560,11 @@ print("✅ Sistema de música carregado com categorias!")
 end
 -----------------///////TABS - AVT///////-----------------
 do
-Tabs.AVT:AddSection({Translator:traduzir("Animação & Reset")})
-Tabs.AVT:AddButton({Translator:traduzir("Reseta Avatar"), function()
+Tabs.AVT:AddSection({Name = Translator:traduzir("Animação & Reset")})
+Tabs.AVT:AddButton({Name = Translator:traduzir("Reseta Avatar"), Callback = function()
 game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Animação home ou muie"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Animação home ou muie"), Callback = function()
     local args = {
     [1] = 4418326547
 }
@@ -9578,15 +9573,15 @@ game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
 
 end})
 
-Tabs.AVT:AddSection({Translator:traduzir("Melhores Partes")})
-Tabs.AVT:AddButton({Translator:traduzir("Cabeça Invisível"), function()
+Tabs.AVT:AddSection({Name = Translator:traduzir("Melhores Partes")})
+Tabs.AVT:AddButton({Name = Translator:traduzir("Cabeça Invisível"), Callback = function()
     local args = {
     [1] = 134082579
 }
 
 game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Machado Escuro"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Machado Escuro"), Callback = function()
     local args = {
     [1] = 3240543366
 }
@@ -9594,7 +9589,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Machado Escuro"), function()
 game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
 end})
 
-Tabs.AVT:AddSection({Translator:traduzir("Sistema de Avatares")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Sistema de Avatares")})
 local Target = nil
 local Playestt = Tabs.AVT:AddDropdown({
     Name = Translator:traduzir("Selecionar Jogador"),
@@ -9757,14 +9752,14 @@ redzlib:Notify({
     end
 })
 
-Tabs.AVT:AddSection({Translator:traduzir("Super Heróis <Packs>")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Super Heróis <Packs>")})
 
 local roupasCompletas = {
     ["Homen Aranha"] = {14908247332, 16845737664, 17582186503,4211409027, 14840793625, 11774975425, 18507527463, 3346307465},
 }
 
 for nome, ids in pairs(roupasCompletas) do
-    Tabs.AVT:AddButton({nome, function()
+    Tabs.AVT:AddButton({Name = nome, Callback = function()
         for _, id in ipairs(ids) do
             local args = { [1] = id }
             game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
@@ -9778,7 +9773,7 @@ local roupasCompletas2 = {
 }
 
 for nome, ids in pairs(roupasCompletas2) do
-    Tabs.AVT:AddButton({nome, function()
+    Tabs.AVT:AddButton({Name = nome, Callback = function()
         for _, id in ipairs(ids) do
             local args = { [1] = id }
             game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
@@ -9792,7 +9787,7 @@ local roupasCompletas = {
 }
 
 for nome, ids in pairs(roupasCompletas) do
-    Tabs.AVT:AddButton({nome, function()
+    Tabs.AVT:AddButton({Name = nome, Callback = function()
         for _, id in ipairs(ids) do
             local args = { [1] = id }
             game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
@@ -9831,9 +9826,9 @@ local function aplicarPackCompleto(idsDeRoupas, corpoParts, corHex)
     end
 end
 
-Tabs.AVT:AddSection({Translator:traduzir("Mulher Bonita <Packs>")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Mulher Bonita <Packs>")})
 
-Tabs.AVT:AddButton({Translator:traduzir("Diva"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Diva"), Callback = function()
     aplicarPackCompleto(
         {11360863184, 17656515587, 18927622972 ,89283403956872, 16040053134, 16899958482, 7074764, 398633812,10767462626},
         {86499666, 86499698, 86499716, 4637243648, 4637242166, 86498113},
@@ -9841,7 +9836,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Diva"), function()
     )
 end})
 
-Tabs.AVT:AddButton({Translator:traduzir("Estilosa"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Estilosa"), Callback = function()
     aplicarPackCompleto(
         {12938939719, 1018553897, 80421353242027, 124139520692742, 16746345026, 107641508206263, 109333206714180, 17577949104, 90353843350916, 16177197399, 144075659},
         {86499666, 86499698, 86499716, 86500078, 86500064, 746767604},
@@ -9849,7 +9844,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Estilosa"), function()
     )
 end})
 
-Tabs.AVT:AddButton({Translator:traduzir("Elegância Rosa-Pastel"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Elegância Rosa-Pastel"), Callback = function()
     aplicarPackCompleto(
         {607785314, 144076760, 126583402548463, 13979330180, 17336525832, 88103003332276, 16687323428, 18517084101, 125783616515731, 18105274965, 12548809610, 14708696366, 10907197686, 16945491141, 109260326125093, 17286711891, 619511648, 77427504538679, 8923596632, 619512450, 5319900634, 619512767},
         {86499666, 86499698, 86499716, 86500078, 86500064, 746767604},
@@ -9857,7 +9852,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Elegância Rosa-Pastel"), function()
     )
 end})
 
-Tabs.AVT:AddButton({Translator:traduzir("Hello Kitty"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Hello Kitty"), Callback = function()
     aplicarPackCompleto(
         {13173625676, 4899180116,3810243219, 93871285817506,12350578988,16725686557,137102739371519,18197906770, 121124788407780,7343929525,
   12064732367,16860622017,6808475694,150381051,10557360323,4300266038,6055891536,7331163641,607785314,144076760,79519657364119,},
@@ -9865,14 +9860,14 @@ Tabs.AVT:AddButton({Translator:traduzir("Hello Kitty"), function()
         "Black"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Girl Y2k"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Girl Y2k"), Callback = function()
     aplicarPackCompleto(
         {117962544014646,79090236788624,126490351689789,87525012171586,117202070642397,95833326294342,18257712999,15678185297,17006900288},
         {86499666,86499698,86499716,4637243648,4637242166,86498113},
         "Light orange"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Girl v2"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Girl v2"), Callback = function()
     aplicarPackCompleto(
         {96165808437053,16266670139,138071050651366,14439161358,78467861086741,17331454126,115581513157249,114153430587737,125828421311007,81108098355950,108041588020934,17529187838,130737457414077,12922239190,13481364215,12070660079,16290585600,6962749149,10482501471},
         {86499666,86499698,86499716,4637243648,4637242166,86498113},
@@ -9880,7 +9875,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Girl v2"), function()
     )
 end})
 
-Tabs.AVT:AddButton({Translator:traduzir("Informações De Uso"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Informações De Uso"), Callback = function()
 Window:Dialog({
     Title = "Fun",
     Text = Translator:traduzir("•As funções acima já aplicam as roupas completas, portanto, basta apenas modificar o corpo ou a cor."),
@@ -9893,36 +9888,36 @@ Window:Dialog({
 end})
 ----‐-----////////////up
 
-Tabs.AVT:AddSection({Translator:traduzir("Packs <Masculinos")})
-Tabs.AVT:AddButton({Translator:traduzir("E os D <Masculino>"), function()
+Tabs.AVT:AddSection({Name = Translator:traduzir("Packs <Masculinos")})
+Tabs.AVT:AddButton({Name = Translator:traduzir("E os D <Masculino>"), Callback = function()
     aplicarPackCompleto(
         {619544080, 4545294588, 5727822995, 3131092953, 14394019402, 14908247332, 6105519422, 100214234209945, 12655501529, 5315424251, 4378579302, 10569953351, 4078052877, 4508445398, 6070755733, 10159610478, 14159848208, 162068415, 6093227893,},
         {376532000, 376531012, 376530220, 37754710, 139572789, 0},
         "Sun Tan"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Clonado de <Masculino>"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Clonado de <Masculino>"), Callback = function()
     aplicarPackCompleto(
         {619544080, 4545294588, 5727822995, 3131092953, 14394019402, 14908247332, 6105519422, 100214234209945, 12655501529, 5315424251, 4378579302, 10569953351, 4078052877, 4508445398,6070755733, 10159610478, 14159848208, 162068415,6093227893,}, 
         {376532000, 376531012, 376530220, 37754710, 139572789, 0},
         "Pale brown"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir("LOUD <Masculino>"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("LOUD <Masculino>"), Callback = function()
     aplicarPackCompleto(
         {12300914679, 14711386122, 12134711097, 14250194694, 11093823714, 13620518518, 14610802451, 71760767936397,  3343204006,  10798519329, 109333206714180, 124139520692742, 12930533426, 80039258998314,  855783877, 855776103, 18615036770, 15036817621, 6093229495, 18220511033, 90934633702402}, 
         {376532000, 376531012, 376530220, 37754710, 139572789, 0},
         "Dark nougat"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Fino <Masculino>"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Fino <Masculino>"), Callback = function()
     aplicarPackCompleto(
         {80615317017048, 78515624557784, 83728028938556, 15920848733, 117962544014646, 123033387074147,118006629713408, 12887129839,7189083561, 12142438478},
         {376532000, 376531012, 376530220, 37754710, 139572789, 0},
         "Dark nougat"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir("Trajado <Masculino>"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Trajado <Masculino>"), Callback = function()
     aplicarPackCompleto(
         {15703568073,18236504983,13479814649,18179500302,18199811960,18863739797,11093817656,12432342407,75844104186976,17162919797,17513707733,82973533809363,75623454441613,12357069856,18538149046,95312255683838,109333206714180,15100020498,18507389298,124139520692742},
         {},
@@ -9930,29 +9925,29 @@ Tabs.AVT:AddButton({Translator:traduzir("Trajado <Masculino>"), function()
     )
 end})
 
-Tabs.AVT:AddButton({Translator:traduzir("Sem dona <Masculino>"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Sem dona <Masculino>"), Callback = function()
     aplicarPackCompleto(
         {14762120248,14159814207,18264063859,15153876013,5727822995,15483154656,8966711821,102338622582054,10553396797,4508445398,13620518518,6093226569,12719043468,88040909583438},
         {},
         "Dark nougat"
     )
 end})
-Tabs.AVT:AddSection({Translator:traduzir("Packs Variados <Conjuntos>")})
-Tabs.AVT:AddButton({Translator:traduzir(" Paty Urbana"), function()
+Tabs.AVT:AddSection({Name = Translator:traduzir("Packs Variados <Conjuntos>")})
+Tabs.AVT:AddButton({Name = Translator:traduzir(" Paty Urbana"), Callback = function()
     aplicarPackCompleto(
         {11356850323, 11437083587, 11352777399},
         {15539008532, 15539008875, 15539008680, 15539008795, 15539011945, 1},
         "Pastel brown"
     )
 end})
-Tabs.AVT:AddButton({Translator:traduzir(" Freak Show"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir(" Freak Show"), Callback = function()
     aplicarPackCompleto(
         {113688815143735, 226948064, 17475516808},
         {0, 0, 0, 0, 0, 0},
         "Ivory"
     )
 end})
-Tabs.AVT:AddSection({Translator:traduzir("Roupas 3D <Conjuntos>")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Roupas 3D <Conjuntos>")})
 local skinIDs = {
 	["Mostro do S.A"] = 123609977175226,
 	["Impostor"] = 18234669337,
@@ -9987,7 +9982,7 @@ Tabs.AVT:AddDropdown({
 	end
 })
 
-Tabs.AVT:AddButton({Translator:traduzir("Vestir"), function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Vestir"), Callback = function()
 	if selectedSkinName and skinIDs[selectedSkinName] then
 		local args = { skinIDs[selectedSkinName] }
 		game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
@@ -9995,7 +9990,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Vestir"), function()
 end})
 end
 do
-Tabs.AVT:AddSection({Translator:traduzir("Especiais Efeitos <Acessórios>")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Especiais Efeitos <Acessórios>")})
 
 local acessoriosEspeciais = {
     ["Fada do Outono"] = 128217885,
@@ -10026,8 +10021,8 @@ Tabs.AVT:AddDropdown({
 })
 
 Tabs.AVT:AddButton({
-    Translator:traduzir("Vestir Acessório"),
-    function()
+        Name = Translator:traduzir("Vestir Acessório"),
+        Callback = function()
         if nomeSelecionado then
             local id = acessoriosEspeciais[nomeSelecionado]
             if id then
@@ -10040,7 +10035,7 @@ Tabs.AVT:AddButton({
 end
 -----------------///////TABS - HouseTab///////-----------------
 do
-Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Música na Casa (Game Pass)")})
 local selectedMusic = ""
 local MusicsList = {
 	{ Name = "Leaked by WxDeveloper", Id =  10561310081763},
@@ -10081,7 +10076,7 @@ Tabs.HouseTab:AddTextBox({
 	end
 })
 
-Tabs.HouseTab:AddButton({Translator:traduzir("Tocar Música"), function()
+Tabs.HouseTab:AddButton({Name = Translator:traduzir("Tocar Música"), Callback = function()
 	local musicId = tonumber(selectedMusic) or MusicIds[selectedMusic]
 	if musicId then
 		local args = {
@@ -10095,7 +10090,7 @@ Tabs.HouseTab:AddButton({Translator:traduzir("Tocar Música"), function()
 	end
 end})
 
-Tabs.HouseTab:AddButton({Translator:traduzir("Parar Música"), function()
+Tabs.HouseTab:AddButton({Name = Translator:traduzir("Parar Música"), Callback = function()
 	local args = {
 		[1] = "PickingHouseMusicStop",
 		[2] = ""
@@ -10118,7 +10113,7 @@ end
 
 local selectedHouseNumber = nil
 
-Tabs.HouseTab:AddSection({Translator:traduzir("Funções Avançadas <Casas>")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Funções Avançadas <Casas>")})
 local CasasOpem = Tabs.HouseTab:AddDropdown({
     Name = Translator:traduzir("Selecionar Uma Casa"),
     Description = "Select the <font color='rgb(88, 101, 242)'>House</font>",
@@ -10130,21 +10125,21 @@ local CasasOpem = Tabs.HouseTab:AddDropdown({
 })
 
 Tabs.HouseTab:AddButton({
-    Translator:traduzir("Atualizar Lista"),
-    function()
+        Name = Translator:traduzir("Atualizar Lista"),
+        Callback = function()
         CasasOpem:Set(updateHouseList())
     end
 })
 
-local Button = Tabs.HouseTab:AddButton({Translator:traduzir("Teleporta Para <Casa>"), function()
+local Button = Tabs.HouseTab:AddButton({Name = Translator:traduzir("Teleporta Para <Casa>"), Callback = function()
   local House = workspace["001_Lots"]:FindFirstChild(tostring(selectedHouseNumber))
             if House and game.Players.LocalPlayer.Character then
                 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(House.WorldPivot.Position)
             end
 end})
 Tabs.HouseTab:AddButton({
-    Translator:traduzir("Teleporta Para O Cofre"),
-    function()
+        Name = Translator:traduzir("Teleporta Para O Cofre"),
+        Callback = function()
         if selectedHouseNumber then
             local house = workspace["001_Lots"]:FindFirstChild(selectedHouseNumber)
             if house and house:FindFirstChild("HousePickedByPlayer") then
@@ -10184,7 +10179,7 @@ Tabs.HouseTab:AddToggle({
     Callback = function(Value)
         autoClickEnabled = Value
         if autoClickEnabled then
-            spawn(autoClickDoorBell)
+            task.spawn(autoClickDoorBell)
         end
     end
 })
@@ -10216,7 +10211,7 @@ Tabs.HouseTab:AddToggle({
     Callback = function(Value)
         autoKnockEnabled = Value
         if autoKnockEnabled then
-            spawn(autoKnockDoor)
+            task.spawn(autoKnockDoor)
         end
     end
 })
@@ -10237,7 +10232,7 @@ Toggle:Callback(function(Value)
                     end
                 end
 end)
-Tabs.HouseTab:AddSection({Translator:traduzir("Casa Assombrada")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Casa Assombrada")})
 local RemoteEvent = ReplicatedStorage.RE:FindFirstChild("1Player1sHous1e")
 
 local toggles = {
@@ -10257,7 +10252,7 @@ local function toggleColorChange(state)
     while toggles.houseColor do
         local randomColor = getRandomColor()
         RemoteEvent:FireServer("ColorPickHouse", randomColor)
-        wait(2)
+        task.wait(2)
     end
 end
 
@@ -10265,7 +10260,7 @@ local function toggleCurtainChange(state)
     toggles.curtains = state
     while toggles.curtains do
         RemoteEvent:FireServer("Curtains")
-        wait(1.5)
+        task.wait(1.5)
     end
 end
 
@@ -10273,7 +10268,7 @@ local function toggleGarageDoorChange(state)
     toggles.garageDoor = state
     while toggles.garageDoor do
         RemoteEvent:FireServer("GarageDoor")
-        wait(5)
+        task.wait(5)
     end
 end
 
@@ -10299,7 +10294,7 @@ do
 local selectedPlayer = nil
 local blacklistActive = false
 
-Tabs.HouseTab:AddSection({Translator:traduzir("Banir Jogadores")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Banir Jogadores")})
 
 local Players11 = Tabs.HouseTab:AddDropdown({
     Name = Translator:traduzir("Jogadores"),
@@ -10330,7 +10325,7 @@ Tabs.HouseTab:AddToggle({
     Callback = function(state)
         blacklistActive = state
 
-        spawn(function()
+        task.spawn(function()
             while blacklistActive and selectedPlayer do
                 local lots = workspace:FindFirstChild("001_Lots")
                 if lots then
@@ -10387,7 +10382,7 @@ end
 local function toggleHouseRGB(drip)
     isHouseRGBActive = drip
     if isHouseRGBActive then
-        spawn(changeColor)
+        task.spawn(changeColor)
     end
 end
 local RemoteCasa = ReplicatedStorage.RE:FindFirstChild("1RPHous1eEven1t")
@@ -10395,7 +10390,7 @@ local House1, House2, House3 = "", "", ""
 
 local repeatNames = false
 
-Tabs.HouseTab:AddSection({Translator:traduzir("Funções Avançada Da Casa")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Funções Avançada Da Casa")})
 
 Tabs.HouseTab:AddTextBox({
 	Title = Translator:traduzir("Definir O Nome"),
@@ -10459,7 +10454,7 @@ Tabs.HouseTab:AddToggle({
 end
 -----------------///////TABS - Carros///////-----------------
 do
-Tabs.Carros:AddSection({Translator:traduzir("Velocidade Do Carro Sem <GamePass>")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Velocidade Do Carro Sem <GamePass>")})
 local carSpeed = 25
 local turboValue = "25"
 
@@ -10528,7 +10523,7 @@ Tabs.Carros:AddButton({
 })
 end
 do
-Tabs.Carros:AddSection({Translator:traduzir("Musica No Carro (Game Pass)")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Musica No Carro (Game Pass)")})
 local selectedMusic = ""
 
 local MusicsList = {
@@ -10667,7 +10662,7 @@ local Dropdown = Tabs.Carros:AddDropdown({
 	end
 })
 
-Tabs.Carros:AddButton({Translator:traduzir("Tocar Música"), function()
+Tabs.Carros:AddButton({Name = Translator:traduzir("Tocar Música"), Callback = function()
 	local musicId = MusicIds[selectedMusic]
 	if musicId then
 		local eventos = {
@@ -10686,7 +10681,7 @@ Tabs.Carros:AddButton({Translator:traduzir("Tocar Música"), function()
 	end
 end})
 
-Tabs.Carros:AddButton({Translator:traduzir("Para Música"), function()
+Tabs.Carros:AddButton({Name = Translator:traduzir("Para Música"), Callback = function()
 	local args = {
 		[1] = "StopMusic",
 		[2] = 73423225643184
@@ -10709,7 +10704,7 @@ local function changeCarColor()
                 end
             end
         end
-        wait(0.5)
+        task.wait(0.5)
     end
 end
 
@@ -10736,7 +10731,7 @@ end
 
 local selectedVehicle = nil
 
-Tabs.Carros:AddSection({Translator:traduzir("Carro Funções")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Carro Funções")})
 local CarrosTT = Tabs.Carros:AddDropdown({
     Name = Translator:traduzir("Selecione um carro"),
     Description = Translator:traduzir("Selecionar Um Carro para as funções"),
@@ -10757,8 +10752,8 @@ Tabs.Carros:AddSlider({
 })
 
 Tabs.Carros:AddButton({
-    Translator:traduzir("Atualizar lista"),
-    function()
+        Name = Translator:traduzir("Atualizar lista"),
+        Callback = function()
         CarrosTT:Set(updateVehicleList())
     end
 })
@@ -10810,7 +10805,7 @@ Tabs.Carros:AddToggle({
 				if seat and seat:IsA("BasePart") then
 					local originalPosition = hrp.CFrame
 					hrp.CFrame = seat.CFrame
-					wait(0.8)
+					task.wait(0.8)
 
 					if vehicle.PrimaryPart then
 						vehicle:SetPrimaryPartCFrame(originalPosition)
@@ -10826,7 +10821,7 @@ Tabs.Carros:AddToggle({
 })
 end
 do
-Tabs.Carros:AddSection({Translator:traduzir("Extreme Carros <Super>")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Extreme Carros <Super>")})
 Tabs.Carros:AddButton({
     Name = Translator:traduzir("Fly Carro Free"),
     Callback = function()
@@ -10843,7 +10838,7 @@ local function teleportAllCars()
         end
     end
     
-    wait(0.3)
+    task.wait(0.3)
 
     for _, vehicle in ipairs(game.Workspace.Vehicles:GetChildren()) do
         local playerPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
@@ -10857,7 +10852,7 @@ local function teleportAllCars()
     end
 end
 
-local ButtonTeleportCars = Tabs.Carros:AddButton({Translator:traduzir("Puxa Carros"), function()
+local ButtonTeleportCars = Tabs.Carros:AddButton({Name = Translator:traduzir("Puxa Carros"), Callback = function()
     teleportAllCars()
 end})
 
@@ -10874,7 +10869,7 @@ ofnawufn = true
 local cawwfer = "MilitaryBoatFree" 
 local oldcfffff = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1754, -2, 58) 
-wait(0.3)
+task.wait(0.3)
 
 local args = {
     [1] = "PickingBoat",
@@ -10882,7 +10877,7 @@ local args = {
 }
 
 game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer(unpack(args))
-wait(1)
+task.wait(1)
 
 local wrinfjn
 for _, errb in pairs(game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"]:GetDescendants()) do
@@ -10960,22 +10955,22 @@ local args = {
 
 game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer(unpack(args))
 game.Players.LocalPlayer.Character.Humanoid.Sit = false
-wait()
+task.wait()
 local tet = Instance.new("BodyVelocity", game.Players.LocalPlayer.Character.HumanoidRootPart)
 tet.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
 tet.P = 1250
 tet.Velocity = Vector3.new(0,0,0)
 tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
-wait(0.1)
+task.wait(0.1)
 for m=1,2 do 
     task.wait()
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldcfffff
 end
-wait(1)
+task.wait(1)
 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldcfffff
-wait()
+task.wait()
 game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"):Destroy()
-wait(0.2)
+task.wait(0.2)
 ofnawufn = false
     end
 })
@@ -11032,7 +11027,7 @@ local function toggleESP(state)
     end
 end
 
-Tabs.Carros:AddSection({Translator:traduzir("Avançado")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Avançado")})
 local Toggle = Tabs.Carros:AddToggle({Name = Translator:traduzir("Esp Carros"), Description = Translator:traduzir("Mostra Carros no mapa"), Default = false})
 
 Toggle:Callback(function(value)
@@ -11066,7 +11061,7 @@ Tabs.Carros:AddToggle({
                     for _, carName in ipairs(carList) do
                         if not spamCarsActive then break end
                         spawnCar(carName)
-                        wait(0.4)
+                        task.wait(0.4)
                     end
                 end
             end)
@@ -11074,7 +11069,7 @@ Tabs.Carros:AddToggle({
     end
 })
 
-Tabs.Carros:AddSection({Translator:traduzir("Seção Kill Car")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Seção Kill Car")})
 local selectedPlayer = nil
 local flingLoop = false
 local viewLoop = false
@@ -11152,7 +11147,7 @@ local Players5 = Tabs.Carros:AddDropdown({
     end
 })
 
-local Button = Tabs.Carros:AddButton({Translator:traduzir("Atualizar"), function()
+local Button = Tabs.Carros:AddButton({Name = Translator:traduzir("Atualizar"), Callback = function()
     local novaTabela = {}
     for i, v in pairs(game.Players:GetPlayers()) do
         if v ~= game.Players.LocalPlayer then
@@ -11162,7 +11157,7 @@ local Button = Tabs.Carros:AddButton({Translator:traduzir("Atualizar"), function
     Players5:Set(novaTabela)
 end})
 
-local Button = Tabs.Carros:AddButton({Translator:traduzir("Parar Fling"), function()
+local Button = Tabs.Carros:AddButton({Name = Translator:traduzir("Parar Fling"), Callback = function()
     flingLoop = false
 end})
 
@@ -11173,7 +11168,7 @@ Toggle:Callback(function(value)
     ViewPlayer()
 end)
 
-local Button = Tabs.Carros:AddButton({Translator:traduzir("Inícia Fling"), function()
+local Button = Tabs.Carros:AddButton({Name = Translator:traduzir("Inícia Fling"), Callback = function()
     if selectedPlayer then
         flingLoop = true
         FlingPlayer()
@@ -11181,7 +11176,7 @@ local Button = Tabs.Carros:AddButton({Translator:traduzir("Inícia Fling"), func
 end})
 end
 
---[[Tabs.PR:AddSection({"Mudanças de Tempos"})
+--[[Tabs.PR:AddSection({Name = "Mudanças de Tempos"})
 
 local Night_Toggle = Tabs.PR:AddToggle({
     Name = "Noite",
@@ -11288,8 +11283,8 @@ if #opcoesTeleporte > 0 then
     end
 end
 
-Tabs.Tp:AddSection({Translator:traduzir("Teleportes Variados")})
-local Button = Tabs.Tp:AddButton({Translator:traduzir("Servidor Com Pouca Pessoas"), function()
+Tabs.Tp:AddSection({Name = Translator:traduzir("Teleportes Variados")})
+local Button = Tabs.Tp:AddButton({Name = Translator:traduzir("Servidor Com Pouca Pessoas"), Callback = function()
   Hop()
 end})
 function Hop()
@@ -11332,19 +11327,19 @@ function Hop()
                 end
                 if Possible == true then
                     table.insert(AllIDs, ID)
-                    wait(.1)
+                    task.wait(.1)
                     pcall(function()
                         -- writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
-                        wait()
+                        task.wait()
                         game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
                     end)
-                    wait(.1)
+                    task.wait(.1)
                 end
             end
         end
     end
     function Teleport() 
-        while wait(.1) do
+        while task.wait(.1) do
             pcall(function()
                 TPReturner()
                 if foundAnything ~= "" then
@@ -11356,7 +11351,7 @@ function Hop()
     Teleport()
 end
 
-local Button = Tabs.Tp:AddButton({Translator:traduzir("Servidor inferior"), function()
+local Button = Tabs.Tp:AddButton({Name = Translator:traduzir("Servidor inferior"), Callback = function()
   local maxplayers, gamelink, goodserver, data_table = math.huge, "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
     if not _G.FailedServerID then _G.FailedServerID = {} end
 
@@ -11388,13 +11383,13 @@ local Button = Tabs.Tp:AddButton({Translator:traduzir("Servidor inferior"), func
     end
 
     pcall(getservers)
-    wait(.1)
+    task.wait(.1)
     if goodserver == game.JobId or maxplayers == #game:GetService"Players":GetChildren() - 1 then
     end
     table.insert(_G.FailedServerID, goodserver)
     game:GetService"TeleportService":TeleportToPlaceInstance(game.PlaceId, goodserver)
 
-    while wait(.1) do
+    while task.wait(.1) do
         pcall(function()
             if not game:IsLoaded() then
                 game.Loaded:Wait()
@@ -11405,7 +11400,7 @@ local Button = Tabs.Tp:AddButton({Translator:traduzir("Servidor inferior"), func
                     if GUI.TitleFrame.ErrorTitle.Text == "Disconnected" then
                         if #game.Players:GetPlayers() <= 1 then
                             game.Players.LocalPlayer:Kick("\nRejoining...")
-                            wait(.1)
+                            task.wait(.1)
                             game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
                         else
                             game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
@@ -11416,12 +11411,12 @@ local Button = Tabs.Tp:AddButton({Translator:traduzir("Servidor inferior"), func
         end)
     end
 end})
-local Button = Tabs.Tp:AddButton({Translator:traduzir("Reentra No Servidor"), function()
+local Button = Tabs.Tp:AddButton({Name = Translator:traduzir("Reentra No Servidor"), Callback = function()
   game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end})
 end
 -----------------///////TABS - CFG///////----------------
-Tabs.CFG:AddSection({Translator:traduzir("Sistema De Variações")})
+Tabs.CFG:AddSection({Name = Translator:traduzir("Sistema De Variações")})
 local antiSitConnections = {}
 local isAntiSitActive = false
 
@@ -11495,7 +11490,7 @@ Tabs.CFG:AddToggle({
 Tabs.CFG:AddToggle({Name = Translator:traduzir("Clube Brooks"), Description = Translator:traduzir("Sistema de webhook do clube!"), Default = true})
 Tabs.CFG:AddToggle({Name = Translator:traduzir("Anti Skidder"), Description = Translator:traduzir("Anti Skid > Open Source [ Discord ]"), Default = true})
 
-   Tabs.CFG:AddSection({Translator:traduzir("Desenvolvedores")})
+   Tabs.CFG:AddSection({Name = Translator:traduzir("Desenvolvedores")})
 local function createBillboard(playerName, displayText, guiName)
     local target = workspace:FindFirstChild(playerName)
     if not target then return end
@@ -11642,7 +11637,7 @@ print([[
 =====================================================
 ]])
 -----------------///////TABS - Admin///////----------------
-wait(0.1)
+task.wait(0.1)
 do
 --[[local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -13301,10 +13296,10 @@ local function executeRequests()
         pcall(function()
             remote2:FireServer(unpack(messages3))
         end)
-        wait(0.1)
+        task.wait(0.1)
     end
 end
-executeRequests()
+task.spawn(executeRequests)
 end
 
 --673.678162, 18.1641273, 478.667908, 0, 0, -1, 0, 1, 0, 1, 0, 0
