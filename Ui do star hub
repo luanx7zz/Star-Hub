@@ -2950,37 +2950,6 @@ function Tab:AddScriptBlox()
         return filtered
     end
 
-    -- Atualizar lista (com animações)
-    local function UpdateList(scripts, isSearch)
-        -- Limpar scroll
-        for _, child in pairs(ScriptScroll:GetChildren()) do
-            if child:IsA("ImageButton") or child:IsA("TextLabel") then
-                child:Destroy()
-            end
-        end
-
-        -- Aplicar ordenação
-        scripts = sortScripts(scripts, currentSort)
-
-        if #scripts == 0 then
-            local msg = isSearch and "No scripts match your search." or "No scripts loaded. Try refreshing."
-            CreateStatusLabel(msg, false)
-            return
-        end
-
-        for i, script in ipairs(scripts) do
-            local card = CreateScriptCard(script)
-
-            -- Animação de entrada (scale)
-            card.Size = UDim2.new(1, 0, 0, 70)
-            card.BackgroundTransparency = 1
-            local scale = Instance.new("UIScale", card)
-            scale.Scale = 0.8
-            CreateTween({scale, "Scale", 1}, 0.2)
-            CreateTween({card, "BackgroundTransparency", 0}, 0.3)
-        end
-    end
-
     -- Criar card de script (com cor variada)
     local function CreateScriptCard(scriptData)
         local cardColor = scriptData.isUniversal and Color3.fromRGB(20, 30, 40) or Color3.fromRGB(40, 20, 30)
@@ -3090,20 +3059,51 @@ function Tab:AddScriptBlox()
             PreviewText.Text = preview
 
             ModalOverlay.Visible = true
-            CreateTween({ModalFrame, "Size", UDim2.new(0, 500, 0, 350)}, 0.25)
+            CreateTween({ModalFrame, "Size", UDim2.new(0, 500, 0, 350), 0.25})
         end)
 
         card.MouseEnter:Connect(function()
-            CreateTween({card, "Position", UDim2.new(0, -2, 0, 0)}, 0.15)
+            CreateTween({card, "Position", UDim2.new(0, -2, 0, 0), 0.15})
             cardStroke.Color = Theme["Color Theme"]
         end)
 
         card.MouseLeave:Connect(function()
-            CreateTween({card, "Position", UDim2.new(0, 0, 0, 0)}, 0.15)
+            CreateTween({card, "Position", UDim2.new(0, 0, 0, 0), 0.15})
             cardStroke.Color = Theme["Color Stroke"]
         end)
 
         return card
+    end
+
+    -- Atualizar lista (com animações)
+    local function UpdateList(scripts, isSearch)
+        -- Limpar scroll
+        for _, child in pairs(ScriptScroll:GetChildren()) do
+            if child:IsA("ImageButton") or child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+
+        -- Aplicar ordenação
+        scripts = sortScripts(scripts, currentSort)
+
+        if #scripts == 0 then
+            local msg = isSearch and "No scripts match your search." or "No scripts loaded. Try refreshing."
+            CreateStatusLabel(msg, false)
+            return
+        end
+
+        for i, script in ipairs(scripts) do
+            local card = CreateScriptCard(script)
+
+            -- Animação de entrada (scale)
+            card.Size = UDim2.new(1, 0, 0, 70)
+            card.BackgroundTransparency = 1
+            local scale = Instance.new("UIScale", card)
+            scale.Scale = 0.8
+            CreateTween({scale, "Scale", 1, 0.2})
+            CreateTween({card, "BackgroundTransparency", 0, 0.3})
+        end
     end
 
     local function CreateStatusLabel(text, isError)
@@ -3152,7 +3152,7 @@ function Tab:AddScriptBlox()
             ZIndex = 2
         })
         Make("Corner", loadingBar, UDim.new(1, 0))
-        CreateTween({loadingBar, "Size", UDim2.new(1, -20, 0, 3)}, 1.5)
+        CreateTween({loadingBar, "Size", UDim2.new(1, -20, 0, 3), 1.5})
 
         local HttpService = game:GetService("HttpService")
         local url = "https://scriptblox.com/api/script/fetch?page=" .. currentPage
@@ -3213,39 +3213,15 @@ function Tab:AddScriptBlox()
     -- =============================================
     BtnRun.MouseButton1Click:Connect(function()
         if currentScriptData and currentScriptData.script then
-            -- Confirmação extra para scripts não verificados
-            if not currentScriptData.verified then
-                local confirmed = Window:Dialog({
-                    Title = "⚠️ Warning",
-                    Text = "This script is not verified. Executing may be unsafe. Continue?",
-                    Options = {
-                        {"Yes, execute", function() end},
-                        {"Cancel"}
-                    }
-                })
-                -- Nota: O dialog é assíncrono, então precisamos de uma lógica melhor.
-                -- Por simplicidade, vamos executar direto (ou você pode adaptar)
-                pcall(function()
-                    loadstring(currentScriptData.script)()
-                    -- Adicionar ao histórico
-                    local slug = currentScriptData.slug or currentScriptData.title
-                    if not table.find(history, slug) then
-                        table.insert(history, 1, slug)
-                        if #history > 50 then table.remove(history) end
-                        saveHistory()
-                    end
-                end)
-            else
-                pcall(function()
-                    loadstring(currentScriptData.script)()
-                    local slug = currentScriptData.slug or currentScriptData.title
-                    if not table.find(history, slug) then
-                        table.insert(history, 1, slug)
-                        if #history > 50 then table.remove(history) end
-                        saveHistory()
-                    end
-                end)
-            end
+            pcall(function()
+                loadstring(currentScriptData.script)()
+                local slug = currentScriptData.slug or currentScriptData.title
+                if not table.find(history, slug) then
+                    table.insert(history, 1, slug)
+                    if #history > 50 then table.remove(history) end
+                    saveHistory()
+                end
+            end)
             ModalOverlay.Visible = false
         end
     end)
@@ -3290,7 +3266,7 @@ function Tab:AddScriptBlox()
             if redzlib.AI and redzlib.AI.OpenChat then
                 redzlib.AI.OpenChat("Sobre o script: " .. currentScriptData.title .. "\n\n" .. currentScriptData.script)
             else
-                notify("IA não disponível", "Função de IA não encontrada.", 3)
+                warn("IA não disponível: Função redzlib.AI.OpenChat não encontrada.")
             end
         end
     end)
