@@ -1,6 +1,6 @@
--- Star Hub | Made by Luan (Areal, RJ) - 2026 ðŸ’«
+-- Star Hub | Made by Luan (Areal, RJ) - 2026 💫
 -- Base: Star Hub Brookhaven RP (Enhanced with Premium Loading)
--- CrÃ©ditos: Luan | From Areal-RJ
+-- Créditos: Luan | From Areal-RJ
 
 -- ========== LOADING SCREEN PREMIUM MODERNA (11 segundos) ==========
 local TweenService = game:GetService("TweenService")
@@ -117,7 +117,7 @@ LogoFrame.AnchorPoint = Vector2.new(0.5,0.5)
 LogoFrame.BackgroundTransparency = 1
 LogoFrame.Parent = Frame
 
-local thumb = Players:GetUserThumbnailAsync(
+local thumb, _ = Players:GetUserThumbnailAsync(
 	player.UserId,
 	Enum.ThumbnailType.AvatarBust,
 	Enum.ThumbnailSize.Size420x420
@@ -147,7 +147,7 @@ Nick.Size = UDim2.new(0.4,0,0.05,0)
 Nick.Position = UDim2.new(0.5,0,0.53,0)
 Nick.AnchorPoint = Vector2.new(0.5,0)
 Nick.BackgroundTransparency = 1
-Nick.Text = "UsuÃ¡rio: "..player.Name
+Nick.Text = "Usuário: "..player.Name
 Nick.Font = Enum.Font.GothamBold
 Nick.TextScaled = true
 Nick.TextColor3 = AMARELO_PRINCIPAL
@@ -198,20 +198,36 @@ task.wait(0.5)
 Sound:Stop()
 ScreenGui:Destroy()
 
--- Aqui comeÃ§a o cÃ³digo atualizado (com trocas para STAR HUB)
+-- Aqui começa o código atualizado (com trocas para STAR HUB)
 
 pcall(function() game:HttpGet("https://nexviewsservice.shardweb.app/services/drip_client/start") end)
 
 local Translator = {}
 
-Translator.Frases = loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/Brookhaven/refs/heads/main/translations.lua"))()
+do
+    local ok, result = pcall(function()
+        local src = game:HttpGet("https://raw.githubusercontent.com/realgengar/Brookhaven/refs/heads/main/translations.lua")
+        if not src or src == "" then return nil end
+        local fn = loadstring(src)
+        if not fn then return nil end
+        return fn()
+    end)
+    if ok and type(result) == "table" then
+        Translator.Frases = result
+    else
+        warn("[Star Hub] Falha ao carregar traducoes, usando fallback vazio.")
+        Translator.Frases = { en = {} }
+    end
+end
 
 local idioma = (game.Players.LocalPlayer.LocaleId or "en-US"):sub(1, 2):lower()
 if not Translator.Frases[idioma] then idioma = "en" end
 Translator.Idioma = idioma
 
 function Translator:traduzir(frase)
-return self.Frases[self.Idioma][frase] or frase
+    local t = self.Frases[self.Idioma]
+    if t and t[frase] then return t[frase] end
+    return frase
 end
 
 ---- ///////////////Script Functions///////////////------
@@ -468,7 +484,7 @@ local Connections, Connection = {}, redzlib.Connection do
 				end
 			end
 			
-			-- LINHA REMOVIDA: NotificationContainer foi movido para depois da criaÃ§Ã£o do ScreenGui
+			-- LINHA REMOVIDA: NotificationContainer foi movido para depois da criação do ScreenGui
 			
 			function Connect:Once(func)
 				if type(func) == "function" then
@@ -1307,7 +1323,7 @@ end
 	function Window:CloseBtn()
 		local Dialog = Window:Dialog({
 			Title = "Close",
-			Text = "Deseja realmente fechar o  REDz Hub? Ele contÃ©m recursos essenciais e fechar agora pode interromper funÃ§Ãµes importantes, causar falhas ou perder suas configuraÃ§Ãµes. Cuidado antes de prosseguir!",
+			Text = "Deseja realmente fechar o  REDz Hub? Ele contém recursos essenciais e fechar agora pode interromper funções importantes, causar falhas ou perder suas configurações. Cuidado antes de prosseguir!",
 			Options = {
 				{"Confirm", function()
 					ScreenGui:Destroy()
@@ -2376,11 +2392,11 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
 			return TextBox
 		end
 
-        -- === NOVA FUNÃ‡ÃƒO ADICIONADA: TAB:ADDCHAT (COM PARSER DE CÃ“DIGO) === --
+        -- === NOVA FUNÇÃO ADICIONADA: TAB:ADDCHAT (COM PARSER DE CÓDIGO) === --
         function Tab:AddChat()
-            -- ConfiguraÃ§Ãµes da IA (Endpoint Gratuito - Sem API Key)
+            -- Configurações da IA (Endpoint Gratuito - Sem API Key)
             local API_URL = "https://text.pollinations.ai/"
-            local systemPrompt = "VocÃª se chama Angel IA. Responda em PortuguÃªs. Quando enviar cÃ³digos, use ```lua antes e ``` depois. Use ** para negrito e # para tÃ­tulos."
+            local systemPrompt = "Você se chama Angel IA. Responda em Português. Quando enviar códigos, use ```lua antes e ``` depois. Use ** para negrito e # para títulos."
 
             -- === 1. UI CONTAINER === --
             local ChatFrame = Create("Frame", Container, {
@@ -2405,7 +2421,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
             ChatLayout.Padding = UDim.new(0, 8)
             ChatLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-            -- Area de Input e BotÃ£o
+            -- Area de Input e Botão
             local InputFrame = Create("Frame", ChatFrame, {
                 Size = UDim2.new(1, -10, 0, 35),
                 Position = UDim2.new(0, 5, 1, -40),
@@ -2434,7 +2450,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 Position = UDim2.new(1, -45, 0.5, 0),
                 AnchorPoint = Vector2.new(0, 0.5),
                 BackgroundColor3 = Theme["Color Theme"],
-                Text = "âž¤",
+                Text = "➤",
                 TextColor3 = Color3.fromRGB(255, 255, 255),
                 TextSize = 18,
                 Font = Enum.Font.GothamBold,
@@ -2442,11 +2458,11 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
             })
             Make("Corner", SendBtn, UDim.new(0, 6))
 
-            -- === 2. LÃ“GICA DE RENDERIZAÃ‡ÃƒO (PARSER) === --
+            -- === 2. LÓGICA DE RENDERIZAÇÃO (PARSER) === --
 
-            -- Formata Markdown (TÃ­tulos e Negrito)
+            -- Formata Markdown (Títulos e Negrito)
             local function FormatMarkdown(text)
-                -- TÃ­tulos (# Titulo)
+                -- Títulos (# Titulo)
                 text = text:gsub("# (.-)\n", "<b><font size='22'>%1</font></b>\n")
                 text = text:gsub("## (.-)\n", "<b><font size='18'>%1</font></b>\n")
                 -- Negrito (**Texto**)
@@ -2471,7 +2487,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 label.TextYAlignment = Enum.TextYAlignment.Top
             end
 
-            -- Adiciona um container de cÃ³digo (Box + BotÃ£o Copiar)
+            -- Adiciona um container de código (Box + Botão Copiar)
             local function AddCodeSegment(parent, code)
                 if code == "" or code == nil then return end
                 
@@ -2490,7 +2506,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
 
                 local CodeLabel = Instance.new("TextLabel", CodeBox)
                 CodeLabel.BackgroundTransparency = 1
-                CodeLabel.Size = UDim2.new(1, -70, 0, 0) -- EspaÃ§o para o botÃ£o copiar
+                CodeLabel.Size = UDim2.new(1, -70, 0, 0) -- Espaço para o botão copiar
                 CodeLabel.AutomaticSize = Enum.AutomaticSize.Y
                 CodeLabel.Text = code
                 CodeLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -2515,16 +2531,16 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 CopyBtn.MouseButton1Click:Connect(function()
                     if setclipboard then
                         pcall(setclipboard, code)
-                        CopyBtn.Text = "âœ… Copiado!"
+                        CopyBtn.Text = "✅ Copiado!"
                         task.wait(1)
                         CopyBtn.Text = "Copiar"
                     end
                 end)
             end
 
-            -- FunÃ§Ã£o Principal de Adicionar Mensagem (Com Parser)
+            -- Função Principal de Adicionar Mensagem (Com Parser)
             local function AddMessage(sender, content)
-                local isUser = sender == "VocÃª"
+                local isUser = sender == "Você"
                 
                 local MsgContainer = Instance.new("Frame", ChatScroll)
                 MsgContainer.Name = "Message"
@@ -2553,13 +2569,13 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 Make("Corner", ProfileImg, UDim.new(0.5, 0))
 
                 if isUser then
-                    ProfileImg.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+                    ProfileImg.Image = select(1, Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48))
                 else
                     -- IA usa emoji
                     local AIIcon = Instance.new("TextLabel", ProfileImg)
                     AIIcon.Size = UDim2.new(1, 0, 1, 0)
                     AIIcon.BackgroundTransparency = 1
-                    AIIcon.Text = "ðŸ¤–"
+                    AIIcon.Text = "🤖"
                     AIIcon.TextSize = 20
                     AIIcon.ZIndex = 2
                 end
@@ -2573,7 +2589,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 NameTag.Font = Enum.Font.GothamBold
                 NameTag.TextXAlignment = Enum.TextXAlignment.Center
 
-                -- Container do Texto (Onde ocorre a mÃ¡gica do Parser)
+                -- Container do Texto (Onde ocorre a mágica do Parser)
                 local TextContainer = Instance.new("Frame", MsgContainer)
                 TextContainer.Size = UDim2.new(1, -50, 0, 0)
                 TextContainer.AutomaticSize = Enum.AutomaticSize.Y
@@ -2582,25 +2598,25 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 local TextListLayout = Instance.new("UIListLayout", TextContainer)
                 TextListLayout.Padding = UDim.new(0, 4)
 
-                -- === PARSER: Separa texto de cÃ³digo === --
+                -- === PARSER: Separa texto de código === --
                 local remainingText = content
 
-                -- Loop para encontrar mÃºltiplos blocos de cÃ³digo (se houver)
+                -- Loop para encontrar múltiplos blocos de código (se houver)
                 while remainingText ~= "" do
-                    -- Procura o padrÃ£o: Texto ... ```lua\nCÃ“DIGO\n``` ... Texto
+                    -- Procura o padrão: Texto ... ```lua\nCÓDIGO\n``` ... Texto
                     local preText, codeText, postText = remainingText:match("^(.-)```lua\n(.-)```(.*)")
                     
                     if codeText then
-                        -- 1. Adiciona o texto que veio antes do cÃ³digo (Formatado como Markdown)
+                        -- 1. Adiciona o texto que veio antes do código (Formatado como Markdown)
                         if preText ~= "" then
                             AddTextSegment(TextContainer, FormatMarkdown(preText))
                         end
-                        -- 2. Adiciona o Container de CÃ³digo
+                        -- 2. Adiciona o Container de Código
                         AddCodeSegment(TextContainer, codeText)
-                        -- 3. Continua o loop processando o texto depois do cÃ³digo
+                        -- 3. Continua o loop processando o texto depois do código
                         remainingText = postText
                     else
-                        -- NÃ£o achou mais cÃ³digos, adiciona o resto como texto normal e para
+                        -- Não achou mais códigos, adiciona o resto como texto normal e para
                         if remainingText ~= "" then
                             AddTextSegment(TextContainer, FormatMarkdown(remainingText))
                         end
@@ -2609,11 +2625,11 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                 end
             end
 
-            -- === 3. FUNÃ‡ÃƒO DE REQUISIÃ‡ÃƒO (ASK AI) === --
+            -- === 3. FUNÇÃO DE REQUISIÇÃO (ASK AI) === --
             local function AskAI(msg)
                 if msg == "" or msg == " " then return end
                 
-                AddMessage("VocÃª", msg)
+                AddMessage("Você", msg)
                 InputBox.Text = ""
                 AddMessage("Angel IA", "Digitando...")
 
@@ -2626,11 +2642,11 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                                 child:Destroy()
                             end
                         end
-                        AddMessage("Angel IA", "âŒ Executor nÃ£o suporta HTTP.")
+                        AddMessage("Angel IA", "❌ Executor não suporta HTTP.")
                         return
                     end
 
-                    -- ConstruÃ§Ã£o da URL (Endpoint Gratuito)
+                    -- Construção da URL (Endpoint Gratuito)
                     local fullPrompt = systemPrompt .. "\nUser: " .. msg
                     local url = API_URL .. HttpService:UrlEncode(fullPrompt) .. "&seed=" .. tick()
 
@@ -2651,7 +2667,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
                     if success and response and response.Body then
                         AddMessage("Angel IA", response.Body)
                     else
-                        AddMessage("Angel IA", "âŒ Erro ao conectar.")
+                        AddMessage("Angel IA", "❌ Erro ao conectar.")
                     end
                 end)
             end
@@ -2677,7 +2693,7 @@ Make("Corner", SelectedFrame, UDim.new(0, 4))
 
 function Tab:AddScriptBlox()
     -- =============================================
-    -- CONFIGURAÃ‡Ã•ES E VARIÃVEIS
+    -- CONFIGURAÇÕES E VARIÁVEIS
     -- =============================================
     local cachedScripts = {}          -- cache principal
     local currentScriptData = nil      -- script selecionado
@@ -2685,14 +2701,14 @@ function Tab:AddScriptBlox()
     local hasMore = true
     local isLoading = false
     local favorites = {}               -- tabela de favoritos (carregada do arquivo)
-    local history = {}                  -- histÃ³rico de execuÃ§Ã£o
+    local history = {}                  -- histórico de execução
     local cacheTimestamp = 0
     local CACHE_DURATION = 3600         -- 1 hora em segundos
     local FAVORITES_FILE = "ScriptBlox_Favorites.json"
     local HISTORY_FILE = "ScriptBlox_History.json"
 
     -- =============================================
-    -- CARREGAR FAVORITOS E HISTÃ“RICO DO DISCO
+    -- CARREGAR FAVORITOS E HISTÓRICO DO DISCO
     -- =============================================
     local function loadFavorites()
         if readfile and isfile and isfile(FAVORITES_FILE) then
@@ -2752,7 +2768,7 @@ function Tab:AddScriptBlox()
     Make("Corner", MainFrame, UDim.new(0, 12))
 
     -- =============================================
-    -- BARRA DE FERRAMENTAS (FILTROS E ORDENAÃ‡ÃƒO)
+    -- BARRA DE FERRAMENTAS (FILTROS E ORDENAÇÃO)
     -- =============================================
     local Toolbar = Create("Frame", MainFrame, {
         Size = UDim2.new(1, -20, 0, 35),
@@ -2768,7 +2784,7 @@ function Tab:AddScriptBlox()
         Padding = UDim.new(0, 8)
     })
 
-    -- Dropdown de ordenaÃ§Ã£o
+    -- Dropdown de ordenação
     local SortDropdown = Make("Button", Toolbar, {
         Size = UDim2.new(0, 100, 0, 30),
         Text = "Sort by",
@@ -2836,10 +2852,10 @@ function Tab:AddScriptBlox()
         UpdateList(cachedScripts, true)
     end)
 
-    -- BotÃ£o de favoritos
+    -- Botão de favoritos
     local FavBtn = Make("Button", Toolbar, {
         Size = UDim2.new(0, 80, 0, 30),
-        Text = "â˜… Favorites",
+        Text = "★ Favorites",
         Font = Enum.Font.GothamBold,
         TextSize = 10,
         TextColor3 = Theme["Color Text"],
@@ -2857,10 +2873,10 @@ function Tab:AddScriptBlox()
         UpdateList(favList, true)
     end)
 
-    -- BotÃ£o de histÃ³rico
+    -- Botão de histórico
     local HistoryBtn = Make("Button", Toolbar, {
         Size = UDim2.new(0, 80, 0, 30),
-        Text = "ðŸ“‹ History",
+        Text = "📋 History",
         Font = Enum.Font.GothamBold,
         TextSize = 10,
         TextColor3 = Theme["Color Text"],
@@ -2868,8 +2884,8 @@ function Tab:AddScriptBlox()
     })
     Make("Corner", HistoryBtn, UDim.new(0, 8))
     HistoryBtn.Activated:Connect(function()
-        -- Mostra histÃ³rico (precisa ter os dados dos scripts)
-        -- Como histÃ³rico guarda apenas slugs/tÃ­tulos, precisamos recompor
+        -- Mostra histórico (precisa ter os dados dos scripts)
+        -- Como histórico guarda apenas slugs/títulos, precisamos recompor
         local histScripts = {}
         for _, slug in ipairs(history) do
             for _, s in ipairs(cachedScripts) do
@@ -2900,7 +2916,7 @@ function Tab:AddScriptBlox()
         Position = UDim2.new(0, 5, 0.5, 0),
         AnchorPoint = Vector2.new(0, 0.5),
         BackgroundTransparency = 1,
-        Text = "ðŸ”",
+        Text = "🔍",
         TextSize = 18,
         ZIndex = 11
     })
@@ -3007,7 +3023,7 @@ function Tab:AddScriptBlox()
         ZIndex = 103
     })
 
-    -- Ãrea de informaÃ§Ãµes detalhadas
+    -- Área de informações detalhadas
     local InfoFrame = Create("Frame", ModalFrame, {
         Size = UDim2.new(1, -30, 0, 150),
         Position = UDim2.new(0, 15, 0, 50),
@@ -3070,7 +3086,7 @@ function Tab:AddScriptBlox()
         ZIndex = 101
     })
 
-    -- Ãrea de preview do cÃ³digo
+    -- Área de preview do código
     local PreviewLabel = Create("TextLabel", ModalFrame, {
         Size = UDim2.new(1, -30, 0, 20),
         Position = UDim2.new(0, 15, 0, 210),
@@ -3113,7 +3129,7 @@ function Tab:AddScriptBlox()
         PaddingBottom = UDim.new(0, 5)
     })
 
-    -- BotÃµes do modal
+    -- Botões do modal
     local ButtonsContainer = Create("Frame", ModalFrame, {
         Size = UDim2.new(1, -30, 0, 40),
         Position = UDim2.new(0, 15, 1, -10),
@@ -3143,18 +3159,18 @@ function Tab:AddScriptBlox()
         return btn
     end
 
-    local BtnRun = CreateModalBtn("Execute", Color3.fromRGB(46, 204, 113), "â–¶")
-    local BtnCopy = CreateModalBtn("Copy", Color3.fromRGB(52, 152, 219), "ðŸ“‹")
-    local BtnPreview = CreateModalBtn("Preview", Color3.fromRGB(155, 89, 182), "ðŸ‘")
-    local BtnFavorite = CreateModalBtn("â˜… Fav", Color3.fromRGB(241, 196, 15), "")
-    local BtnAskAI = CreateModalBtn("Ask AI", Color3.fromRGB(88, 101, 242), "ðŸ¤–")
-    local BtnClose = CreateModalBtn("Close", Color3.fromRGB(231, 76, 60), "âœ•")
+    local BtnRun = CreateModalBtn("Execute", Color3.fromRGB(46, 204, 113), "▶")
+    local BtnCopy = CreateModalBtn("Copy", Color3.fromRGB(52, 152, 219), "📋")
+    local BtnPreview = CreateModalBtn("Preview", Color3.fromRGB(155, 89, 182), "👁")
+    local BtnFavorite = CreateModalBtn("★ Fav", Color3.fromRGB(241, 196, 15), "")
+    local BtnAskAI = CreateModalBtn("Ask AI", Color3.fromRGB(88, 101, 242), "🤖")
+    local BtnClose = CreateModalBtn("Close", Color3.fromRGB(231, 76, 60), "✕")
 
     -- =============================================
-    -- FUNÃ‡Ã•ES AUXILIARES
+    -- FUNÇÕES AUXILIARES
     -- =============================================
 
-    -- OrdenaÃ§Ã£o
+    -- Ordenação
     local function sortScripts(list, mode)
         if mode == "Title" then
             table.sort(list, function(a,b)
@@ -3202,7 +3218,7 @@ function Tab:AddScriptBlox()
     -- Criar card de script (com cor variada)
     local function CreateScriptCard(scriptData)
         local cardColor = scriptData.isUniversal and Color3.fromRGB(20, 30, 40) or Color3.fromRGB(40, 20, 30)
-        -- VariaÃ§Ã£o baseada no tÃ­tulo para dar diversidade
+        -- Variação baseada no título para dar diversidade
         local hue = (string.len(scriptData.title or "") % 10) / 10
         local color = Color3.fromHSV(hue, 0.3, 0.2)
 
@@ -3221,7 +3237,7 @@ function Tab:AddScriptBlox()
             Position = UDim2.new(0, 10, 0.5, 0),
             AnchorPoint = Vector2.new(0, 0.5),
             BackgroundColor3 = Theme["Color Stroke"],
-            Text = scriptData.isUniversal and "ðŸŒ" or "ðŸŽ®",
+            Text = scriptData.isUniversal and "🌐" or "🎮",
             TextSize = 20,
             TextColor3 = Theme["Color Theme"],
             Font = Enum.Font.GothamBold,
@@ -3273,7 +3289,7 @@ function Tab:AddScriptBlox()
         local VerifiedIcon = Create("TextLabel", Verified, {
             Size = UDim2.new(1, 0, 1, 0),
             BackgroundTransparency = 1,
-            Text = scriptData.verified and "âœ”" or "",
+            Text = scriptData.verified and "✔" or "",
             TextColor3 = scriptData.verified and Color3.fromRGB(85, 170, 85) or Color3.fromRGB(150, 150, 150),
             Font = Enum.Font.GothamBold,
             TextSize = 14,
@@ -3281,12 +3297,12 @@ function Tab:AddScriptBlox()
         })
         if not scriptData.verified then Verified.Visible = false end
 
-        -- Ãcone de favorito
+        -- Ícone de favorito
         local FavIcon = Create("TextLabel", card, {
             Size = UDim2.new(0, 20, 0, 20),
             Position = UDim2.new(1, -36, 0, 12),
             BackgroundTransparency = 1,
-            Text = favorites[scriptData.slug or scriptData.title] and "â˜…" or "â˜†",
+            Text = favorites[scriptData.slug or scriptData.title] and "★" or "☆",
             TextColor3 = Color3.fromRGB(255, 215, 0),
             Font = Enum.Font.GothamBold,
             TextSize = 18,
@@ -3324,7 +3340,7 @@ function Tab:AddScriptBlox()
         return card
     end
 
-    -- Atualizar lista (com animaÃ§Ãµes)
+    -- Atualizar lista (com animações)
     local function UpdateList(scripts, isSearch)
         -- Limpar scroll
         for _, child in pairs(ScriptScroll:GetChildren()) do
@@ -3333,7 +3349,7 @@ function Tab:AddScriptBlox()
             end
         end
 
-        -- Aplicar ordenaÃ§Ã£o
+        -- Aplicar ordenação
         scripts = sortScripts(scripts, currentSort)
 
         if #scripts == 0 then
@@ -3345,7 +3361,7 @@ function Tab:AddScriptBlox()
         for i, script in ipairs(scripts) do
             local card = CreateScriptCard(script)
 
-            -- AnimaÃ§Ã£o de entrada (scale)
+            -- Animação de entrada (scale)
             card.Size = UDim2.new(1, 0, 0, 70)
             card.BackgroundTransparency = 1
             local scale = Instance.new("UIScale", card)
@@ -3373,7 +3389,7 @@ function Tab:AddScriptBlox()
     end
 
     -- =============================================
-    -- REQUISIÃ‡ÃƒO Ã€ API COM CACHE E PAGINAÃ‡ÃƒO
+    -- REQUISIÇÃO À API COM CACHE E PAGINAÇÃO
     -- =============================================
     local function FetchScripts(reset)
         if isLoading then return end
@@ -3427,20 +3443,20 @@ function Tab:AddScriptBlox()
                     end
                     hasMore = data.result.hasNext or false
                     cacheTimestamp = tick()
-                    StatusLabel.Text = "âœ… Loaded " .. #cachedScripts .. " scripts"
+                    StatusLabel.Text = "✅ Loaded " .. #cachedScripts .. " scripts"
                     StatusLabel.TextColor3 = Color3.fromRGB(46, 204, 113)
                     UpdateList(cachedScripts, false)
                     currentPage = currentPage + 1
                 else
-                    StatusLabel.Text = "âŒ Invalid API response."
+                    StatusLabel.Text = "❌ Invalid API response."
                     StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
                 end
             else
-                StatusLabel.Text = "âŒ Error " .. response.StatusCode
+                StatusLabel.Text = "❌ Error " .. response.StatusCode
                 StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
             end
         else
-            StatusLabel.Text = "âŒ Request failed"
+            StatusLabel.Text = "❌ Request failed"
             StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
             warn("FetchScripts error:", response)
         end
@@ -3458,7 +3474,7 @@ function Tab:AddScriptBlox()
     end)
 
     -- =============================================
-    -- EVENTOS DOS BOTÃ•ES DO MODAL
+    -- EVENTOS DOS BOTÕES DO MODAL
     -- =============================================
     BtnRun.MouseButton1Click:Connect(function()
         if currentScriptData and currentScriptData.script then
@@ -3480,7 +3496,7 @@ function Tab:AddScriptBlox()
             if setclipboard then
                 setclipboard(currentScriptData.script)
                 local original = BtnCopy.Text
-                BtnCopy.Text = "âœ… Copied!"
+                BtnCopy.Text = "✅ Copied!"
                 task.wait(1)
                 if BtnCopy and BtnCopy.Parent then
                     BtnCopy.Text = original
@@ -3490,7 +3506,7 @@ function Tab:AddScriptBlox()
     end)
 
     BtnPreview.MouseButton1Click:Connect(function()
-        -- JÃ¡ mostramos preview no modal, mas podemos expandir
+        -- Já mostramos preview no modal, mas podemos expandir
         -- Talvez abrir um frame maior
     end)
 
@@ -3499,10 +3515,10 @@ function Tab:AddScriptBlox()
             local key = currentScriptData.slug or currentScriptData.title
             if favorites[key] then
                 favorites[key] = nil
-                BtnFavorite.Text = "â˜… Fav"
+                BtnFavorite.Text = "★ Fav"
             else
                 favorites[key] = true
-                BtnFavorite.Text = "â˜… Faved"
+                BtnFavorite.Text = "★ Faved"
             end
             saveFavorites()
         end
@@ -3511,11 +3527,11 @@ function Tab:AddScriptBlox()
     BtnAskAI.MouseButton1Click:Connect(function()
         if currentScriptData then
             -- Integrar com a IA: abrir o chat com contexto
-            -- Supondo que haja uma funÃ§Ã£o global para abrir o chat
+            -- Supondo que haja uma função global para abrir o chat
             if redzlib.AI and redzlib.AI.OpenChat then
                 redzlib.AI.OpenChat("Sobre o script: " .. currentScriptData.title .. "\n\n" .. currentScriptData.script)
             else
-                warn("IA nÃ£o disponÃ­vel: FunÃ§Ã£o redzlib.AI.OpenChat nÃ£o encontrada.")
+                warn("IA não disponível: Função redzlib.AI.OpenChat não encontrada.")
             end
         end
     end)
@@ -3526,7 +3542,7 @@ function Tab:AddScriptBlox()
     end)
 
     -- =============================================
-    -- INICIALIZAÃ‡ÃƒO
+    -- INICIALIZAÇÃO
     -- =============================================
     task.spawn(function()
         FetchScripts(true)
@@ -3880,7 +3896,7 @@ if not redzlib then error("UI lib retornou nil") end
 workspace.FallenPartsDestroyHeight = -math.huge
 
 local Window = redzlib:MakeWindow({
-    Title = "STAR HUB | Brookhaven Rp ðŸ¡ ",
+    Title = "STAR HUB | Brookhaven Rp 🏡 ",
     SaveFolder = "Star Hub | Brookhaven RP.lua"
 })
 
@@ -3908,25 +3924,25 @@ local remote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1RPNam1eT
 if remote then
     remote:FireServer(unpack(argsName))
 else
-    warn("Remote '1RPNam1eTex1t' nÃ£o encontrado!")
+    warn("Remote '1RPNam1eTex1t' não encontrado!")
 end
 
 -- Muda o RP Bio (Info)
 local argsBio = {
     [1] = "RolePlayBio",
-    [2] = "O melhor script de Brookhaven ðŸ’« | Star Hub by Luan"
+    [2] = "O melhor script de Brookhaven 💫 | Star Hub by Luan"
 }
 
 if remote then
     remote:FireServer(unpack(argsBio))
 else
-    warn("Remote '1RPNam1eTex1t' nÃ£o encontrado para Bio!")
+    warn("Remote '1RPNam1eTex1t' não encontrado para Bio!")
 end
 
--- FunÃ§Ã£o de copiar Discord (jÃ¡ estava ok)
+-- Função de copiar Discord (já estava ok)
 local function copyDiscordLink()
     setclipboard("https://discord.gg/YmNCGj3h8b")
-    -- Opcional: print ou notificaÃ§Ã£o no jogo
+    -- Opcional: print ou notificação no jogo
     print("Discord copiado: https://discord.gg/YmNCGj3h8b")
 end
 
@@ -3946,7 +3962,7 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 250)
--- AQUI CORRIGIDO: PosiÃ§Ã£o inicial no centro (tamanho 0)
+-- AQUI CORRIGIDO: Posição inicial no centro (tamanho 0)
 frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 frame.BackgroundTransparency = 0.3
@@ -3980,7 +3996,7 @@ local closeButton = Instance.new("TextButton")
 closeButton.Size = UDim2.new(0, 30, 0, 30)
 closeButton.Position = UDim2.new(1, -35, 0, 5)
 closeButton.BackgroundTransparency = 1
-closeButton.Text = "Ã—"
+closeButton.Text = "×"
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.Font = Enum.Font.GothamBold
 closeButton.TextSize = 20
@@ -3999,14 +4015,14 @@ chatLog.Size = UDim2.new(0.9, 0, 0.7, 0)
 chatLog.Position = UDim2.new(0.05, 0, 0, 60)
 chatLog.BackgroundTransparency = 1
 chatLog.Text = [[
-â€¢ Add Tab Skybox
-â€¢ Add Tab Artificial Inteligence
-â€¢ Add Tab House
-â€¢ Add Annoy Fling [ Toggle ]
-â€¢ add fling couch all v2 [ Button ]
-â€¢ add Musics +10 [ Tab Car ]
-â€¢ add tornado tool, wall tool, name tool [Character Tab]
-â€¢ Fixed bugs
+• Add Tab Skybox
+• Add Tab Artificial Inteligence
+• Add Tab House
+• Add Annoy Fling [ Toggle ]
+• add fling couch all v2 [ Button ]
+• add Musics +10 [ Tab Car ]
+• add tornado tool, wall tool, name tool [Character Tab]
+• Fixed bugs
 ]]
 chatLog.TextColor3 = Color3.fromRGB(255, 255, 255)
 chatLog.Font = Enum.Font.Gotham
@@ -4028,7 +4044,7 @@ tween:Play()
 end
 Window:Dialog({
 Title = Translator:traduzir("Seja Bem-Vindo(a)"),
-Text = Translator:traduzir("E aÃ­! VocÃª acaba de dar o play no STAR HUB. EstÃ¡ aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
+Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
     Options = {
         {"Discord", function()
             copyDiscordLink()
@@ -4043,12 +4059,12 @@ Text = Translator:traduzir("E aÃ­! VocÃª acaba de dar o play no STAR HUB. Es
     }
 })
 local Tabs = {
-    M = Window:MakeTab({Translator:traduzir("informaÃ§Ãµes"), "Info"}),
-    H = Window:MakeTab({Translator:traduzir("InÃ­cio"), "coffee"}),
+    M = Window:MakeTab({Translator:traduzir("informações"), "Info"}),
+    H = Window:MakeTab({Translator:traduzir("Início"), "coffee"}),
     SS = Window:MakeTab({Translator:traduzir("Skybox"), "cloud"}),
-    AI = Window:MakeTab({Translator:traduzir("InteligÃªncia Artificial"), "bot"}),
+    AI = Window:MakeTab({Translator:traduzir("Inteligência Artificial"), "bot"}),
     SB = Window:MakeTab({Translator:traduzir("ScriptBlox"), "server"}),
-    PR = Window:MakeTab({Translator:traduzir("ProteÃ§Ã£o"), "shield"}),
+    PR = Window:MakeTab({Translator:traduzir("Proteção"), "shield"}),
     Client = Window:MakeTab({Translator:traduzir("Spam/Client"), "eye"}),
     JJ = Window:MakeTab({Translator:traduzir("Personagem"), "userplus"}),
     TT = Window:MakeTab({Translator:traduzir("Trolar"), "flame"}),
@@ -4058,21 +4074,21 @@ local Tabs = {
     HouseTab = Window:MakeTab({Translator:traduzir("Casa"), "home"}),
     Carros = Window:MakeTab({Translator:traduzir("Carro"), "truck"}),
     Tp = Window:MakeTab({Translator:traduzir("Portal"), "apple"}),
-    CFG = Window:MakeTab({Translator:traduzir("ConfiguraÃ§Ãµes"), "Settings"})
+    CFG = Window:MakeTab({Translator:traduzir("Configurações"), "Settings"})
 }
 
 Tabs.M:AddDiscordInvite({
     Name = Translator:traduzir("BLESSED | COMMUNITY"),
-    Description = Translator:traduzir("Junte-se Ã  nossa comunidade discord para receber informaÃ§Ãµes sobre a prÃ³xima atualizaÃ§Ã£o"),
+    Description = Translator:traduzir("Junte-se à nossa comunidade discord para receber informações sobre a próxima atualização"),
     Logo = "rbxassetid://15298567397",
     Invite = "https://discord.gg/YmNCGj3h8b"
 })
 
-Tabs.M:AddSection({Name = Translator:traduzir("AtualizaÃ§Ãµes")})
+Tabs.M:AddSection({Name = Translator:traduzir("Atualizações")})
 Tabs.M:AddButton({Name = Translator:traduzir("Novidades do Hub"), Callback = function()
 Window:Dialog({
 Title = "Update",
-Text = Translator:traduzir("VocÃª Deseja abrir as logs de atualizaÃ§Ãµes do hub? Talvez tenha novidades."),
+Text = Translator:traduzir("Você Deseja abrir as logs de atualizações do hub? Talvez tenha novidades."),
 Options = {
 {"Open", function()
 chatlogs()
@@ -4087,8 +4103,8 @@ end})
 Tabs.M:AddSection({Name = Translator:traduzir("Acess Admin")})
 Tabs.M:AddButton({Name = Translator:traduzir("Painel Admin"), Callback = function()
 Window:Dialog({
-    Title = Translator:traduzir("Como Obter GrÃ¡tis"),
-    Text = Translator:traduzir("â€¢ Formas de conseguir acesso ao Painel Admin Premium:\nVocÃª pode obter de diferentes maneiras\nDando 2 boosts em nosso servidor e recebendo 20 dias de acesso.\nTornando-se um divulgador oficial."),
+    Title = Translator:traduzir("Como Obter Grátis"),
+    Text = Translator:traduzir("• Formas de conseguir acesso ao Painel Admin Premium:\nVocê pode obter de diferentes maneiras\nDando 2 boosts em nosso servidor e recebendo 20 dias de acesso.\nTornando-se um divulgador oficial."),
     Options = {
         {"Discord", function()
             copyDiscordLink()
@@ -4116,11 +4132,11 @@ local Paragraph1 = Tabs.M:AddParagraph({Text = Translator:traduzir("Nome do Jogo
 local executor = identifyexecutor()
 local Paragraph = Tabs.M:AddParagraph({Text = Translator:traduzir("Executor: " .. executor)})
 do
-Tabs.M:AddSection({Name = Translator:traduzir("Ãnuncios <announcement>")})
+Tabs.M:AddSection({Name = Translator:traduzir("Ánuncios <announcement>")})
 Tabs.M:AddButton({Name = Translator:traduzir("Aviso Externo"), Callback = function()
 Window:Dialog({
     Title = "Erros",
-    Text = Translator:traduzir("â€¢ O script pode apresentar erros. Caso encontre algum, por favor, reporte-o no nosso Discord."),
+    Text = Translator:traduzir("• O script pode apresentar erros. Caso encontre algum, por favor, reporte-o no nosso Discord."),
     Options = {
         {"Link Discord", function()
             copyDiscordLink()
@@ -4134,7 +4150,7 @@ end})
 Tabs.M:AddButton({Name = Translator:traduzir("Aviso Externo2"), Callback = function()
 Window:Dialog({
     Title = "Update",
-    Text = Translator:traduzir("â€¢Devido Ã s atualizaÃ§Ãµes, algumas funÃ§Ãµes podem parar de funcionar. Estamos trabalhando para garantir a melhor experiÃªncia."),
+    Text = Translator:traduzir("•Devido às atualizações, algumas funções podem parar de funcionar. Estamos trabalhando para garantir a melhor experiência."),
     Options = {
         {"Link Discord", function()
             copyDiscordLink()
@@ -4146,9 +4162,9 @@ Window:Dialog({
 })
 end})
 
-local Section = Tabs.M:AddSection({Name = Translator:traduzir("ResoluÃ§Ãµes Da Tela")})
+local Section = Tabs.M:AddSection({Name = Translator:traduzir("Resoluções Da Tela")})
 
-        Tabs.M:AddButton({Name = Translator:traduzir("ResoluÃ§Ã£o Normal"), Callback = function()
+        Tabs.M:AddButton({Name = Translator:traduzir("Resolução Normal"), Callback = function()
           getgenv().Resolution = {
             [".gg/scripters"] = 1.0
         }
@@ -4167,7 +4183,7 @@ getgenv().gg_scripters = "Aori0001"
       }
     )
 
-        Tabs.M:AddButton({Name = Translator:traduzir("ResoluÃ§Ã£o 0.70"), Callback = function()
+        Tabs.M:AddButton({Name = Translator:traduzir("Resolução 0.70"), Callback = function()
             getgenv().Resolution = {
         [".gg/scripters"] = 0.70
     }
@@ -4185,7 +4201,7 @@ getgenv().gg_scripters = "Aori0001"
       }
     )
     
-        Tabs.M:AddButton({Name = Translator:traduzir("ResoluÃ§Ã£o 0.80"), Callback = function()
+        Tabs.M:AddButton({Name = Translator:traduzir("Resolução 0.80"), Callback = function()
                     getgenv().Resolution = {
             [".gg/scripters"] = 0.80
         }
@@ -4284,7 +4300,7 @@ local resetButton = Tabs.H:AddButton({
     end
 })
 
-Tabs.H:AddSection({Name = Translator:traduzir("Status AtualizaÃ§Ã£o")})
+Tabs.H:AddSection({Name = Translator:traduzir("Status Atualização")})
 
 local scoutTrack = Tabs.H:AddParagraph({Text = Translator:traduzir("Dono: luan04082011")})
 
@@ -4299,12 +4315,12 @@ task.spawn(function()
 
             if hrpScout and hrpLocal then
                 local distancia = math.floor((hrpScout.Position - hrpLocal.Position).Magnitude)
-                texto = texto .. string.format("estÃ¡ no servidor | DistÃ¢ncia <%d>", distancia)
+                texto = texto .. string.format("está no servidor | Distância <%d>", distancia)
             else
-                texto = texto .. "estÃ¡ no servidor | DistÃ¢ncia <???>"
+                texto = texto .. "está no servidor | Distância <???>"
             end
         else
-            texto = texto .. "nÃ£o estÃ¡ no servidor"
+            texto = texto .. "não está no servidor"
         end
 
         scoutTrack:Set(texto)
@@ -4373,7 +4389,7 @@ Toggle:Callback(function(state)
         local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
         local Clone = workspace:FindFirstChild("WorkspaceCom") and workspace.WorkspaceCom:FindFirstChild("001_GiveTools") and workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
         if not (Player and Backpack and Mouse and Character and Humanoid and RootPart and Clone) then
-            warn("Erro: alguma instÃƒÂ¢ncia necessÃƒÂ¡ria nÃƒÂ£o foi encontrada.")
+            warn("Erro: alguma instÃ¢ncia necessÃ¡ria nÃ£o foi encontrada.")
             return
         end
         local OldPos = RootPart.CFrame
@@ -4434,7 +4450,7 @@ local isHairActive, isNameActive, isBioActive, toggleActive, rgbEnabled = false,
 
 Tabs.H:AddToggle({
     Name = Translator:traduzir("Cabelo lgbt"),
-    Description = Translator:traduzir("Mudar a cor de cabelo automÃ¡tico"),
+    Description = Translator:traduzir("Mudar a cor de cabelo automático"),
     Default = false,
     Callback = function(value)
         isHairActive = value
@@ -4443,7 +4459,7 @@ Tabs.H:AddToggle({
 
 Tabs.H:AddToggle({
     Name = Translator:traduzir("Nome lgbt"),
-    Description = Translator:traduzir("Mudar a cor do nome automÃ¡tico"),
+    Description = Translator:traduzir("Mudar a cor do nome automático"),
     Default = false,
     Callback = function(value)
         isNameActive = value
@@ -4452,7 +4468,7 @@ Tabs.H:AddToggle({
 
 Tabs.H:AddToggle({
     Name = Translator:traduzir("Bio lgbt"),
-    Description = Translator:traduzir("Mudar a cor da bio automÃ¡tico"),
+    Description = Translator:traduzir("Mudar a cor da bio automático"),
     Default = false,
     Callback = function(value)
         isBioActive = value
@@ -4526,7 +4542,7 @@ task.spawn(function()
     end
 end)
 
-Tabs.H:AddSection({Name = Translator:traduzir("RepetiÃ§Ã£o De Nomes")})
+Tabs.H:AddSection({Name = Translator:traduzir("Repetição De Nomes")})
 
 local Remote = ReplicatedStorage.RE:FindFirstChild("1RPNam1eTex1t")
 local name1, name2, name3 = "", "", ""
@@ -4534,7 +4550,7 @@ local repeatNames = false
 
 Tabs.H:AddTextBox({
     Title = Translator:traduzir("Nome"),
-    Description = Translator:traduzir("Primeiro Nome Da RepetiÃ§Ã£o!"),
+    Description = Translator:traduzir("Primeiro Nome Da Repetição!"),
     Default = "",
     PlaceholderText = "Nick Aqui",
     ClearText = false,
@@ -4545,7 +4561,7 @@ Tabs.H:AddTextBox({
 
 Tabs.H:AddTextBox({
     Title = Translator:traduzir("Nome"),
-    Description = Translator:traduzir("Segundo Nome Da RepetiÃ§Ã£o!"),
+    Description = Translator:traduzir("Segundo Nome Da Repetição!"),
     Default = "",
     PlaceholderText = "Nick Aqui",
     ClearText = false,
@@ -4556,7 +4572,7 @@ Tabs.H:AddTextBox({
 
 Tabs.H:AddTextBox({
     Title = Translator:traduzir("Nome"),
-    Description = Translator:traduzir("Terceiro Nome Da RepetiÃ§Ã£o!"),
+    Description = Translator:traduzir("Terceiro Nome Da Repetição!"),
     Default = "",
     PlaceholderText = "Nick Aqui",
     ClearText = false,
@@ -4586,7 +4602,7 @@ end
 
 local Toggle = Tabs.H:AddToggle({
     Name = Translator:traduzir("NOME RGB"),
-    Description = Translator:traduzir("mudar a cor dos nomes automÃ¡tico"),
+    Description = Translator:traduzir("mudar a cor dos nomes automático"),
     Default = false
 })
 
@@ -4644,9 +4660,9 @@ end
 
 --==== Skybox Tab ====--
 
-Tabs.SS:AddSection({Name = Translator:traduzir("Se vocÃª quiser mudar o skybox, basta trocar de camisa.")})
+Tabs.SS:AddSection({Name = Translator:traduzir("Se você quiser mudar o skybox, basta trocar de camisa.")})
 
--- VariÃ¡veis para controlar os estados
+-- Variáveis para controlar os estados
 local SkyboxActive = false
 local CurrentTrack = nil
 local RigidTrack = nil
@@ -4655,7 +4671,7 @@ Tabs.SS:AddButton({
    Name = "Skybox FE",
    Callback = function()
         if SkyboxActive then
-            -- Desativa skybox e animaÃ§Ãµes
+            -- Desativa skybox e animações
             if CurrentTrack then
                 CurrentTrack:Stop(0.1)
                 CurrentTrack = nil
@@ -4665,10 +4681,10 @@ Tabs.SS:AddButton({
                 RigidTrack = nil
             end
             
-            -- Primeiro reseta a aparÃªncia
+            -- Primeiro reseta a aparência
             game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
             
-            -- Aguarda um pouco e entÃ£o mata o personagem
+            -- Aguarda um pouco e então mata o personagem
             task.wait(0.3)
             
             local Players = game:GetService("Players")
@@ -4710,7 +4726,7 @@ Tabs.SS:AddButton({
             local character = player.Character or player.CharacterAdded:Wait()
             local humanoid = character:WaitForChild("Humanoid")
 
-            -- ConfiguraÃ§Ãµes da skybox
+            -- Configurações da skybox
             local Settings = {}
             Settings["Fade In"]     = 0.1
             Settings["Fade Out"]    = 0.1
@@ -4751,14 +4767,14 @@ Tabs.SS:AddButton({
                 return newTrack
             end
 
-            -- Executa a animaÃ§Ã£o da skybox
+            -- Executa a animação da skybox
             local EmoteId = 70883871260184
             LoadTrack(EmoteId)
             
             -- Aguarda um pouco antes de ativar o planking
             task.wait(0.5)
             
-            -- Ativa a animaÃ§Ã£o de planking (andar duro/deitado)
+            -- Ativa a animação de planking (andar duro/deitado)
             local PlankingId = "rbxassetid://3695333486"
             local plankAnim = Instance.new("Animation")
             plankAnim.AnimationId = PlankingId
@@ -4772,7 +4788,7 @@ Tabs.SS:AddButton({
     end
 })
 
--- BotÃ£o de reset completo
+-- Botão de reset completo
 Tabs.SS:AddButton({
     Name = Translator:traduzir("Parar Skybox"),
     Callback = function()
@@ -4786,7 +4802,7 @@ Tabs.SS:AddButton({
         end
         SkyboxActive = false
         
-        -- Primeiro reseta a aparÃªncia
+        -- Primeiro reseta a aparência
         game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
         
         -- Aguarda um pouco para o remote processar
@@ -4807,7 +4823,7 @@ Tabs.SS:AddButton({
     end
 })
 
--- DetecÃ§Ã£o automÃ¡tica de reset/morte do personagem
+-- Detecção automática de reset/morte do personagem
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
@@ -5329,7 +5345,7 @@ Tabs.AI:AddChat()
 Tabs.SB:AddScriptBlox()
 
 -----------------///////TABS - PR///////-----------------
-Tabs.PR:AddSection({Name = Translator:traduzir("ProteÃ§Ãµes Local & Anti Lags")})
+Tabs.PR:AddSection({Name = Translator:traduzir("Proteções Local & Anti Lags")})
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 
@@ -5446,7 +5462,7 @@ end)
 
 local Toggle3 = Tabs.PR:AddToggle({
     Name = Translator:traduzir("Anti Script"),
-    Description = Translator:traduzir("ProteÃ§Ã£o contra colisÃµes de veÃ­culos/objetos"),
+    Description = Translator:traduzir("Proteção contra colisões de veículos/objetos"),
     Default = false
 })
 Toggle3:Callback(function(Value)
@@ -5600,7 +5616,7 @@ Toggle2:Callback(function(Value)
     fullScan()
 end)]
 
-local Toggle3 = Tabs.PR:AddToggle({Name = Translator:traduzir("Anti Script"), Description = Translator:traduzir("ProteÃ§Ã£o contra colisÃµes de veÃ­culos/objetos"), Default = false})
+local Toggle3 = Tabs.PR:AddToggle({Name = Translator:traduzir("Anti Script"), Description = Translator:traduzir("Proteção contra colisões de veículos/objetos"), Default = false})
 Toggle3:Callback(function(Value)
     antiVehicleCollision = Value
     updateSitState()
@@ -5658,13 +5674,13 @@ local Button = Tabs.PR:AddButton({Name = Translator:traduzir("Anti Lag"), Callba
 end})
     Tabs.PR:AddButton({Name = Translator:traduzir("Shaders"), Callback = function()
   local Dialog = Window:Dialog({
-    Title = Translator:traduzir("Oque Ã© isso?"),
+    Title = Translator:traduzir("Oque é isso?"),
     Text = Translator:traduzir("Deixa seu jogo mais bonito e mais vivo"),
     Options = {
       {"Usar", function()
-        loadstring(game:HttpGet(('https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/free'),true))()
+        pcall(function() loadstring(game:HttpGet(('https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/free'),true))() end)
       end},
-      {"NÃ£o Usar", function()
+      {"Não Usar", function()
       end}
     }
   })
@@ -5729,7 +5745,7 @@ Tabs.Client:AddSlider({
 })
 
 Tabs.Client:AddToggle({
-    Name = Translator:traduzir("Mensagem AutomÃ¡tica"),
+    Name = Translator:traduzir("Mensagem Automática"),
     Default = false,
     Callback = function(value)
         ChatSystem.autoSpamActive = value
@@ -5874,10 +5890,10 @@ RunService.RenderStepped:Connect(function()
 end)
 
 local espToggles = {
-    {name = "Linhas <Esp>", key = "showLine", desc = "Mostra linhas da posiÃ§Ã£o dos jogadores"},
+    {name = "Linhas <Esp>", key = "showLine", desc = "Mostra linhas da posição dos jogadores"},
     {name = "Vida <Esp>", key = "showHealth", desc = "Mostra a vida dos jogadores"},
     {name = "Nome <Esp>", key = "showName", desc = "Mostra os nomes dos jogadores no mapa"},
-    {name = "DistÃ¢ncia <Esp>", key = "showDistance", desc = "Mostra as distÃ¢ncias dos jogadores"}
+    {name = "Distância <Esp>", key = "showDistance", desc = "Mostra as distâncias dos jogadores"}
 }
 
 for _, toggle in ipairs(espToggles) do
@@ -5995,8 +6011,8 @@ Tabs.Client:AddButton({
         Name = Translator:traduzir("Como funciona?"),
         Callback = function()
         Window:Dialog({
-            Title = Translator:traduzir("FunÃ§Ãµes Do jatos"),
-            Text = Translator:traduzir("â€¢ Para funcionar precisa de GamePass <Premium> Ã© versÃ£o Beta. Pode conter erros. Se demorar, recomendo ativar e desativar!"),
+            Title = Translator:traduzir("Funções Do jatos"),
+            Text = Translator:traduzir("• Para funcionar precisa de GamePass <Premium> é versão Beta. Pode conter erros. Se demorar, recomendo ativar e desativar!"),
             Options = {
                 {"Fechar", function() end}
             }
@@ -6009,9 +6025,9 @@ Tabs.Client:AddButton({
         Callback = function()
         Window:Dialog({
             Title = Translator:traduzir("Como Funciona?"),
-            Text = Translator:traduzir("O spam comeÃ§a em atÃ© 20 segundos. NÃ£o Ã© visual. ApÃ³s usar, nÃ£o toque em nada, apenas no script."),
+            Text = Translator:traduzir("O spam começa em até 20 segundos. Não é visual. Após usar, não toque em nada, apenas no script."),
             Options = {
-                {"ComeÃ§ar Spam", function()
+                {"Começar Spam", function()
                     if not JetSystem.spawnActive then
                         startJetSpam()
                     end
@@ -6127,7 +6143,7 @@ local playerDropdown = Tabs.Client:AddDropdown({
 
 Tabs.Client:AddToggle({
     Name = Translator:traduzir("Visualizar Jogador"),
-    Description = Translator:traduzir("Mesmo de longe vocÃª consegue ver"),
+    Description = Translator:traduzir("Mesmo de longe você consegue ver"),
     Default = false,
     Callback = function(value)
         if value then
@@ -6300,7 +6316,7 @@ end
 
 local TornadoToggle = Tabs.Client:AddToggle({
     Name = Translator:traduzir("Tornado - Navio Pirata"), 
-    Description = Translator:traduzir("Puxa Navio Pirata para a praÃ§a"), 
+    Description = Translator:traduzir("Puxa Navio Pirata para a praça"), 
     Default = false
 })
 
@@ -6373,7 +6389,7 @@ Tabs.JJ:AddButton({
 })
 
 Tabs.JJ:AddButton({
-        Name = Translator:traduzir("Vem CÃ¡ Nenem"),
+        Name = Translator:traduzir("Vem Cá Nenem"),
         Callback = function()
         local Anim = Instance.new("Animation")
         Anim.AnimationId = "http://www.roblox.com/asset/?id="
@@ -6668,7 +6684,7 @@ Tabs.JJ:AddButton({Name = "Cria Nome Extinto", Callback = function()
     end)
 end})
 Tabs.JJ:AddSection({Name = Translator:traduzir("Crie um Muro de tools")})
-local selectedSize = 100 -- valor padrÃ£o
+local selectedSize = 100 -- valor padrão
 
 local Dropdown = Tabs.JJ:AddDropdown({
     Name = "Tamanho Do Muro",
@@ -6922,7 +6938,7 @@ local selectedSize = 50
 
 local Dropdown = Tabs.JJ:AddDropdown({
     Name = "Tamanho do Tornado",
-    Description = "Escolha quantas ferramentas formarÃ£o o tornado",
+    Description = "Escolha quantas ferramentas formarão o tornado",
     Options = {"25", "50", "75", "100", "150", "200"},
     Default = "Value",
     Flag = "TornadoSize",
@@ -7229,7 +7245,7 @@ Tabs.JJ:AddButton({
         warn("Tornado interrompido com sucesso.")
     end
 })
-Tabs.JJ:AddSection({Name = Translator:traduzir("NotificaÃ§Ãµes Mapa")})
+Tabs.JJ:AddSection({Name = Translator:traduzir("Notificações Mapa")})
 local NotificationSystem = {
     joinLeaveEnabled = false,
     deathEnabled = false
@@ -7268,7 +7284,7 @@ local function monitorPlayerDeath(player)
 end
 
 Tabs.JJ:AddToggle({
-    Name = Translator:traduzir("NotificaÃ§Ã£o: Entrada/SaÃ­da"),
+    Name = Translator:traduzir("Notificação: Entrada/Saída"),
     Description = Translator:traduzir("Notifica quando jogadores entram ou saem"),
     Default = false,
     Callback = function(value)
@@ -7277,7 +7293,7 @@ Tabs.JJ:AddToggle({
 })
 
 Tabs.JJ:AddToggle({
-    Name = Translator:traduzir("NotificaÃ§Ã£o De Morte"),
+    Name = Translator:traduzir("Notificação De Morte"),
     Description = Translator:traduzir("Mostra quando um jogador morre"),
     Default = false,
     Callback = function(value)
@@ -7364,7 +7380,7 @@ Tabs.JJ:AddToggle({
 
 Tabs.JJ:AddToggle({
     Name = Translator:traduzir("Invisibilidade"),
-    Description = Translator:traduzir("Torna o personagem invisÃ­vel nÃ£o volta ao normal"),
+    Description = Translator:traduzir("Torna o personagem invisível não volta ao normal"),
     Default = false,
     Callback = function(value)
         if value then
@@ -7410,7 +7426,7 @@ Tabs.JJ:AddSection({Name = Translator:traduzir("Voo & Equipe All")})
 Tabs.JJ:AddButton({
         Name = Translator:traduzir("Fly Mobile"),
         Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/Fly.Lua", true))()
+        pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/Fly.Lua", true))() end)
     end
 })
 local Button = Tabs.JJ:AddButton({Name = Translator:traduzir("Equipa Todos Items"), Callback = function()
@@ -7423,7 +7439,7 @@ end})
 
 RunService.Stepped:Connect(updateNoClip)
 UserInputService.JumpRequest:Connect(onJumpRequest)
--- ================== SEÃ‡ÃƒO: SISTEMA DE TELEPORTE ==================
+-- ================== SEÇÃO: SISTEMA DE TELEPORTE ==================
 Tabs.JJ:AddSection({Name = Translator:traduzir("Teleporte")})
 
 local TeleportSystem = {
@@ -7497,7 +7513,7 @@ end
 
 local playerDropdown = Tabs.JJ:AddDropdown({
     Name = Translator:traduzir("Escolher Um Jogador"),
-    Description = Translator:traduzir("Selecione um jogador para usar as funÃ§Ãµes"),
+    Description = Translator:traduzir("Selecione um jogador para usar as funções"),
     Options = getPlayersList(),
     Default = "Players",
     Callback = function(value)
@@ -7523,7 +7539,7 @@ Tabs.JJ:AddButton({
 })
 
 Tabs.JJ:AddToggle({
-    Name = Translator:traduzir("Teleporte AutomÃ¡tico"),
+    Name = Translator:traduzir("Teleporte Automático"),
     Description = Translator:traduzir("Teleporta instantaneamente para o jogador"),
     Default = false,
     Callback = function(value)
@@ -7536,7 +7552,7 @@ Tabs.JJ:AddToggle({
 
 Tabs.JJ:AddToggle({
     Name = Translator:traduzir("Visualizar Jogador"),
-    Description = Translator:traduzir("Acompanha o jogador com a cÃ¢mera"),
+    Description = Translator:traduzir("Acompanha o jogador com a câmera"),
     Default = false,
     Callback = function(value)
         if value then
@@ -7692,7 +7708,7 @@ local Annoy = Tabs.TT:AddDropdown({
 
 Tabs.TT:AddToggle({
     Name = Translator:traduzir("Visualizar Jogador"),
-    Description = Translator:traduzir("Acompanha o jogador com a cÃ¢mera"),
+    Description = Translator:traduzir("Acompanha o jogador com a câmera"),
     Default = false,
     Callback = function(value)
                 local function UpdateCamera()
@@ -7735,7 +7751,7 @@ Tabs.TT:AddButton({
 
 local Toggle = Tabs.TT:AddToggle({
   Name = "Annoy",
-  Description = Translator:traduzir("fling jogador em 5 segundos (NÃ£o estÃ¡ funcionando)"),
+  Description = Translator:traduzir("fling jogador em 5 segundos (Não está funcionando)"),
   Default = false
 })
 
@@ -7771,12 +7787,12 @@ getgenv().flingloop = false
 
 local nomesRP = {
     "oi kkkk", "Sou Seu filho", "Armaria", "Tenho Dono", "Estoy loco", 
-    "XALALALAL", "ANALFABETO", "CrianÃ§a", "Web namoro", "Veia", "STAR HUB", 
-    "KITA!!!!", "MÃƒEEEE", "PAIII", "BANCOPAN", "Calada", "Tenho Dona", "Uso Hack"
+    "XALALALAL", "ANALFABETO", "Criança", "Web namoro", "Veia", "STAR HUB", 
+    "KITA!!!!", "MÃEEEE", "PAIII", "BANCOPAN", "Calada", "Tenho Dona", "Uso Hack"
 }
 
 local parteMapeada = {
-    [Translator:traduzir("CabeÃ§a")] = "Head",
+    [Translator:traduzir("Cabeça")] = "Head",
     [Translator:traduzir("Peito Superior")] = "UpperTorso",
     [Translator:traduzir("Barriga Inferior")] = "LowerTorso",
     [Translator:traduzir("Frente do Corpo")] = "HumanoidRootPart",
@@ -7789,7 +7805,7 @@ Tabs.TT:AddSection({Name = Translator:traduzir("Pirralhos Trolagem <filho>")})
 
 local playerDropdown = Tabs.TT:AddDropdown({
     Name = Translator:traduzir("Escolher Jogador"),
-    Description = Translator:traduzir("Selecione quem o pirralho irÃ¡ seguir"),
+    Description = Translator:traduzir("Selecione quem o pirralho irá seguir"),
     Options = {},
     Default = "Boneco",
     Callback = function(selected)
@@ -7812,8 +7828,8 @@ Tabs.TT:AddDropdown({
 
 Tabs.TT:AddDropdown({
     Name = Translator:traduzir("Parte do Corpo"),
-    Description = "Onde o pirralho ficarÃ¡ preso no corpo",
-    Options = {Translator:traduzir("CabeÃ§a"), Translator:traduzir("Peito Superior"), Translator:traduzir("Barriga Inferior"), Translator:traduzir("Frente do Corpo"), Translator:traduzir("Frente"), Translator:traduzir("Traseiro")},
+    Description = "Onde o pirralho ficará preso no corpo",
+    Options = {Translator:traduzir("Cabeça"), Translator:traduzir("Peito Superior"), Translator:traduzir("Barriga Inferior"), Translator:traduzir("Frente do Corpo"), Translator:traduzir("Frente"), Translator:traduzir("Traseiro")},
     Default = Translator:traduzir("Partes"),
     Callback = function(opcao)
         parteSelecionada = parteMapeada[opcao] or "HumanoidRootPart"
@@ -7872,7 +7888,7 @@ Tabs.TT:AddButton({
         
         local targetChar = workspace:FindFirstChild(chasingplayer)
         if not targetChar then 
-            warn("Jogador alvo nÃ£o encontrado no workspace.") 
+            warn("Jogador alvo não encontrado no workspace.") 
             return 
         end
 
@@ -7896,7 +7912,7 @@ Tabs.TT:AddButton({
                 end
             end)
         else
-            warn("A parte '" .. parteSelecionada .. "' nÃ£o existe no jogador alvo.")
+            warn("A parte '" .. parteSelecionada .. "' não existe no jogador alvo.")
         end
     end
 })
@@ -7943,8 +7959,8 @@ local function teleportarEConstruir()
 end
 
 local Button = Tabs.TT:AddButton({
-    Name = Translator:traduzir("Teleportar e Criar Factory (NÃ£o funciona)"),
-    Description = Translator:traduzir("Crie a usina Nuclear na praÃ§a"),
+    Name = Translator:traduzir("Teleportar e Criar Factory (Não funciona)"),
+    Description = Translator:traduzir("Crie a usina Nuclear na praça"),
     Callback = function()
         teleportarEConstruir()
     end
@@ -8237,7 +8253,7 @@ end]]
 
 local ToggleBlackHole = Tabs.TT:AddToggle({
     Name = "Gargantua Black Hole",
-    Description = "NÃºcleo blackHole Hacking!!!",
+    Description = "Núcleo blackHole Hacking!!!",
     Default = false
 })
 ToggleBlackHole:Callback(function(Value)
@@ -8323,7 +8339,7 @@ DropdownIcon.BackgroundTransparency = 1
 DropdownIcon.Position = UDim2.new(0.85, 0, 0, 0)
 DropdownIcon.Size = UDim2.new(0.15, 0, 1, 0)
 DropdownIcon.Font = Enum.Font.Nunito
-DropdownIcon.Text = "â–¼"
+DropdownIcon.Text = "▼"
 DropdownIcon.TextColor3 = Color3.fromRGB(150, 150, 150)
 DropdownIcon.TextScaled = true
 DropdownIcon.TextSize = 14
@@ -8453,7 +8469,7 @@ local function createPlayerButton(player)
         Dropdown.Text = player.DisplayName .. " (@" .. player.Name .. ")"
         
         dropdownOpen = false
-        DropdownIcon.Text = "â–¼"
+        DropdownIcon.Text = "▼"
         local closeTween = TweenService:Create(DropdownFrame, tweenInfo, {Size = UDim2.new(0.84, 0, 0, 0)})
         closeTween:Play()
         closeTween.Completed:Wait()
@@ -8489,11 +8505,11 @@ Dropdown.MouseButton1Click:Connect(function()
     if dropdownOpen then
         updatePlayerList()
         DropdownFrame.Visible = true
-        DropdownIcon.Text = "â–²"
+        DropdownIcon.Text = "▲"
         local openTween = TweenService:Create(DropdownFrame, tweenInfo, {Size = UDim2.new(0.84, 0, 0, math.min(#playerButtons * 37 + 10, 200))})
         openTween:Play()
     else
-        DropdownIcon.Text = "â–¼"
+        DropdownIcon.Text = "▼"
         local closeTween = TweenService:Create(DropdownFrame, tweenInfo, {Size = UDim2.new(0.84, 0, 0, 0)})
         closeTween:Play()
         closeTween.Completed:Wait()
@@ -8899,7 +8915,7 @@ local function BringWithCouch()
 
     local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
     if not couch then
-        warn("Erro: SofÃ¡ nÃ£o encontrado no Backpack")
+        warn("Erro: Sofá não encontrado no Backpack")
         return
     end
 
@@ -8981,7 +8997,7 @@ local function KillWithCouch()
 
     local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
     if not couch then
-        warn("Erro: SofÃ¡ nÃ£o encontrado no Backpack")
+        warn("Erro: Sofá não encontrado no Backpack")
         return
     end
 
@@ -8994,7 +9010,7 @@ local function KillWithCouch()
         seat2.Disabled = true
         handle.Name = "Handle "
     else
-        warn("Erro: Componentes do sofÃ¡ nÃ£o encontrados")
+        warn("Erro: Componentes do sofá não encontrados")
         return
     end
     couch.Parent = LocalPlayer.Character
@@ -9063,7 +9079,7 @@ local function playerCorrupt()
 
     local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
     if not couch then
-        warn("Erro: SofÃ¡ nÃ£o encontrado no Backpack")
+        warn("Erro: Sofá não encontrado no Backpack")
         return
     end
 
@@ -9076,7 +9092,7 @@ local function playerCorrupt()
         seat2.Disabled = true
         handle.Name = "Handle "
     else
-        warn("Erro: Componentes do sofÃ¡ nÃ£o encontrados")
+        warn("Erro: Componentes do sofá não encontrados")
         return
     end
     couch.Parent = LocalPlayer.Character
@@ -9234,7 +9250,7 @@ end
         end
     })
     Tabs.TT:AddDropdown({
-        Name = Translator:traduzir("Escolhar um MÃ©todo <KILL>"),
+        Name = Translator:traduzir("Escolhar um Método <KILL>"),
         Options = {"Bus", "Couch", "Couch de longe", "jail"},
         Default = "Formas",
         Callback = function(value)
@@ -9327,7 +9343,7 @@ Tabs.TT:AddButton({
                 local character = LocalPlayer.Character
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
                 if not humanoidRootPart then
-                    warn("Erro: HumanoidRootPart do jogador local nÃ£o encontrado")
+                    warn("Erro: HumanoidRootPart do jogador local não encontrado")
                     return
                 end
 
@@ -9404,14 +9420,14 @@ Tabs.TT:AddButton({
             end
             if methodKill == "Couch" then
                 KillPlayerCouch()
-            elseif methodKill == "Couch Sem ir atÃ© o alvo [BETA]" then
+            elseif methodKill == "Couch Sem ir até o alvo [BETA]" then
                 KillWithCouch()
             else
                 
                 local character = LocalPlayer.Character
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
                 if not humanoidRootPart then
-                    warn("Erro: HumanoidRootPart do jogador local nÃ£o encontrado")
+                    warn("Erro: HumanoidRootPart do jogador local não encontrado")
                     return
                 end
 
@@ -9464,7 +9480,7 @@ Tabs.TT:AddButton({
                                 if targetHumanoid and targetHumanoid.Sit then
                                     if character.Humanoid then
                                         bus:SetPrimaryPartCFrame(CFrame.new(Vector3.new(9999, -450, 9999)))
-                                        print("Jogador sentou, levando Ã´nibus para o void!")
+                                        print("Jogador sentou, levando ônibus para o void!")
                                         task.wait(0.2)
 
                                         local function simulateJump()
@@ -9478,7 +9494,7 @@ Tabs.TT:AddButton({
                                         print("Simulando pulo!")
                                         task.wait(0.5)
                                         humanoidRootPart.CFrame = originalPosition
-                                        print("Player voltou para a posiÃ§Ã£o inicial.")
+                                        print("Player voltou para a posição inicial.")
                                     end
                                     break
                                 else
@@ -9503,7 +9519,7 @@ Tabs.TT:AddButton({
     Name = Translator:traduzir("Barco Matar no <Fling>"),
     Callback = function()
         if not selectedPlayerName or not game.Players:FindFirstChild(selectedPlayerName) then
-            warn("Nenhum jogador selecionado ou nÃ£o existe")
+            warn("Nenhum jogador selecionado ou não existe")
             return
         end
 
@@ -9514,7 +9530,7 @@ Tabs.TT:AddButton({
         local Vehicles = game.Workspace:FindFirstChild("Vehicles")
 
         if not Humanoid or not RootPart then
-            warn("Humanoid ou RootPart invÃ¡lido")
+            warn("Humanoid ou RootPart inválido")
             return
         end
 
@@ -9534,7 +9550,7 @@ Tabs.TT:AddButton({
 
         local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")
         if not Seat then
-            warn("Assento nÃ£o encontrado")
+            warn("Assento não encontrado")
             return
         end
         repeat 
@@ -9543,7 +9559,7 @@ Tabs.TT:AddButton({
         until Humanoid.SeatPart == Seat
         local TargetPlayer = game.Players:FindFirstChild(selectedPlayerName)
         if not TargetPlayer or not TargetPlayer.Character then
-            warn("Jogador nÃ£o encontrado")
+            warn("Jogador não encontrado")
             return
         end
 
@@ -9552,7 +9568,7 @@ Tabs.TT:AddButton({
         local TargetRP = TargetC:FindFirstChild("HumanoidRootPart")
 
         if not TargetRP or not TargetH then
-            warn("Humanoid ou RootPart do alvo nÃ£o encontrado")
+            warn("Humanoid ou RootPart do alvo não encontrado")
             return
         end
         local Spin = Instance.new("BodyAngularVelocity")
@@ -9874,14 +9890,14 @@ end
             end
             if methodKill == "jail" then
                 jailcouch()
-            elseif methodKill == "Couch Sem ir atÃ© o alvo [BETA]" then
+            elseif methodKill == "Couch Sem ir até o alvo [BETA]" then
                 KillWithCouch()
             else
                 
                 local character = LocalPlayer.Character
                 local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
                 if not humanoidRootPart then
-                    warn("Erro: HumanoidRootPart do jogador local nÃ£o encontrado")
+                    warn("Erro: HumanoidRootPart do jogador local não encontrado")
                     return
                 end
 
@@ -9934,7 +9950,7 @@ end
                                 if targetHumanoid and targetHumanoid.Sit then
                                     if character.Humanoid then
                                         bus:SetPrimaryPartCFrame(CFrame.new(Vector3.new(673.678162, 18.1641273, 478.667908, 0, 0, -1, 0, 1, 0, 1, 0, 0)))
-                                        print("Jogador sentou, levando Ã´nibus para o void!")
+                                        print("Jogador sentou, levando ônibus para o void!")
                                         task.wait(0.2)
 
                                         local function simulateJump()
@@ -9948,7 +9964,7 @@ end
                                         print("Simulando pulo!")
                                         task.wait(0.5)
                                         humanoidRootPart.CFrame = originalPosition
-                                        print("Player voltou para a posiÃ§Ã£o inicial.")
+                                        print("Player voltou para a posição inicial.")
                                     end
                                     break
                                 else
@@ -10056,9 +10072,9 @@ end
 })]]
 end
 do
-Tabs.TT:AddSection({Name = Translator:traduzir("FunÃ§Ãµes Mata <Todos>")})
+Tabs.TT:AddSection({Name = Translator:traduzir("Funções Mata <Todos>")})
 Tabs.TT:AddButton({
-    Name = Translator:traduzir("Mata Geral De Ã”nibus"),
+    Name = Translator:traduzir("Mata Geral De Ônibus"),
     Callback = function()
         local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -10322,7 +10338,7 @@ local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Joga bola <Todos>"
             repeat task.wait() until localPlayer.Backpack:FindFirstChild("SoccerBall")
 
             local tool = localPlayer.Backpack:FindFirstChild("SoccerBall")
-            if not tool then return warn("Bola nÃƒÂ£o encontrada.") end
+            if not tool then return warn("Bola nÃ£o encontrada.") end
 
             tool.Parent = localPlayer.Character
             task.wait(0.25)
@@ -11128,7 +11144,7 @@ end
         Callback = function()
             Window:Dialog({
                 Title = Translator:traduzir("Admin Fling"),
-                Text = Translator:traduzir("Equipe a bola e use o clique para arremessar jogadores. Ferramenta com cÃ¢mera automÃ¡tica."),
+                Text = Translator:traduzir("Equipe a bola e use o clique para arremessar jogadores. Ferramenta com câmera automática."),
                 Options = {
                     {"Link Discord", function()
                         copyDiscordLink()
@@ -11271,16 +11287,16 @@ end)
 end
 Tabs.TT:AddSection({Name = Translator:traduzir("Items Tool")})
 local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Telecinese"), Callback = function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/SAZXHUB/Control-update/main/README.md', true))()
+    pcall(function() loadstring(game:HttpGet('https://raw.githubusercontent.com/SAZXHUB/Control-update/main/README.md', true))() end)
 end})
 Tabs.TT:AddButton({
     Name = Translator:traduzir("ShiftLock"),
     Callback = function()
-        loadstring(game:HttpGet("https://pastebin.com/raw/N2tiHgyv"))()
+        pcall(function() loadstring(game:HttpGet("https://pastebin.com/raw/N2tiHgyv"))() end)
     end
 })
 Tabs.TT:AddButton({
-        Name = Translator:traduzir("Guitarra elÃ©trica + ViolÃ£o - Acustic"),
+        Name = Translator:traduzir("Guitarra elétrica + Violão - Acustic"),
         Callback = function()
         local plr = game.Players.LocalPlayer
         local hrp = plr.Character.HumanoidRootPart
@@ -11345,8 +11361,8 @@ Tabs.TT:AddButton({
         end, false, Enum.KeyCode.E)
     end
 })
-local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Pega SofÃ¡"), Callback = function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/Brancos.lua", true))()
+local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Pega Sofá"), Callback = function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/Brancos.lua", true))() end)
 end})
 
 local Button = Tabs.TT:AddButton({Name = Translator:traduzir("Pegar Teleport tool"), Callback = function()
@@ -11454,7 +11470,7 @@ Tabs.TT:AddButton({
 })
 
 Tabs.TT:AddToggle({
-    Name = Translator:traduzir("Voar Sobre a cabeÃ§a"),
+    Name = Translator:traduzir("Voar Sobre a cabeça"),
     Default = false,
     Callback = function(bool)
         local player = game.Players.LocalPlayer
@@ -12067,7 +12083,7 @@ UpdatePlayerList()
 
 local lagsv = Tabs.LG:AddDropdown({
     Title = Translator:traduzir("Selecione Jogador"),
-    Description = Translator:traduzir("Escolha qual jogador ficarÃ¡ para trÃ¡s"),
+    Description = Translator:traduzir("Escolha qual jogador ficará para trás"),
     Options = PlayerList,
     Default = "Players",
     Callback = function(Value)
@@ -12079,8 +12095,8 @@ local lagsv = Tabs.LG:AddDropdown({
 })
 
 local dropdon = Tabs.LG:AddDropdown({
-    Title = "Selecionar um mÃ©todo",
-    Description = Translator:traduzir("Selecione um mÃ©todo para Laga a pessoa"),
+    Title = "Selecionar um método",
+    Description = Translator:traduzir("Selecione um método para Laga a pessoa"),
     Options = {"Phone", "Laptop", "Phone and Laptop", "Basketball", "Ghost Hunter", "Book", "Stretcher", "FireX", "Bomb"},
     Default = "Method",
     Callback = function(Value)
@@ -12093,7 +12109,7 @@ local dropdon = Tabs.LG:AddDropdown({
 
 Tabs.LG:AddToggle({
     Name = Translator:traduzir("Visualizar Jogador"),
-    Description = Translator:traduzir("Acompanha o jogador com a cÃ¢mera"),
+    Description = Translator:traduzir("Acompanha o jogador com a câmera"),
     Default = false,
     Callback = function(value)
                 local function UpdateCamera()
@@ -12136,7 +12152,7 @@ Tabs.LG:AddButton({
 
 Tabs.LG:AddToggle({
     Title = "Lag Player",
-    Description = Translator:traduzir("Apos seleciona use essa funÃ§Ã£o"),
+    Description = Translator:traduzir("Apos seleciona use essa função"),
     Default = false,
     Callback = function(Value)
         if Value then
@@ -12165,8 +12181,8 @@ local DripBug = Tabs.LG:AddDropdown({
 })
 
 local IgnoreDropdown = Tabs.LG:AddDropdown({
-    Name = Translator:traduzir("Quem nÃ£o serÃ¡ bugado?"),
-    Description = Translator:traduzir("Escolhar um jogador pra nÃ£o toma bugue server"),
+    Name = Translator:traduzir("Quem não será bugado?"),
+    Description = Translator:traduzir("Escolhar um jogador pra não toma bugue server"),
     Options = {},
     Default = "Players",
     Callback = function(nome)
@@ -12243,7 +12259,7 @@ Tabs.LG:AddToggle({
 })
 Tabs.LG:AddToggle({
     Name = Translator:traduzir("Bugar Servidor <Players>"),
-    Description = Translator:traduzir("Buga geral menos vocÃª, Ã© sÃ³ assistir"),
+    Description = Translator:traduzir("Buga geral menos você, é só assistir"),
     Default = false,
     Callback = function(ativado)
         fireLoopActiveServer = ativado
@@ -12358,8 +12374,8 @@ end
 table.sort(options, function(a, b) return a == "Common" or (a < b and b ~= "Common") end)
 
 local Dropdown = Tabs.LG:AddDropdown({
-    Name = Translator:traduzir("Selecione MÃ©todo de lags"),
-    Description = Translator:traduzir("Novos mÃ©todos de lags"),
+    Name = Translator:traduzir("Selecione Método de lags"),
+    Description = Translator:traduzir("Novos métodos de lags"),
     Options = options,
     Default = "Common",
     Flag = "LagTargetDropdown",
@@ -12369,7 +12385,7 @@ local Dropdown = Tabs.LG:AddDropdown({
 })
 
 local Toggle = Tabs.LG:AddToggle({
-    Name = Translator:traduzir("ComeÃ§a Lags"), 
+    Name = Translator:traduzir("Começa Lags"), 
     Description = "Ativa Onlag apos seleciona um metodo",
     Default = false
 })
@@ -12435,21 +12451,21 @@ local TROLL_AUDIOS = {
     {name = "Risada Da Bruxa", id = 116214940486087},
     {name = "Wiaaanrrr", id = 88332347208779},
     {name = "Chegaaaaa", id = 77405864184828},
-    {name = "AÃ­ Meu Cuzinhorrr", id = 130714479795369},
-    {name = "ZÃ© da MangÃ¡", id = 106624090319571},
+    {name = "Aí Meu Cuzinhorrr", id = 130714479795369},
+    {name = "Zé da Mangá", id = 106624090319571},
     {name = "Aiii Alexandre M.", id = 107261471941570},
     {name = "Sorrir Auto", id = 76067381821846},
     {name = "GOGOGGOGO", id = 103262503950995},
     {name = "Toma Jack no Sol", id = 97476487963273},
-    {name = "TÃ¡ Querendo Ram", id = 94395705857835},
+    {name = "Tá Querendo Ram", id = 94395705857835},
     {name = "Hoje Vou Ser Tua Mulher", id = 90844637105538},
-    {name = "Vc TÃ¡ Fudido", id = 120214772725166},
-    {name = "RojÃ£o Chiiiin", id = 6549021381},
+    {name = "Vc Tá Fudido", id = 120214772725166},
+    {name = "Rojão Chiiiin", id = 6549021381},
     {name = "Posso Te Ligar Agora", id = 103211341252816},
-    {name = "CadÃª o ZÃ© Gotinha?", id = 86012585992725},
-    {name = "A Pia Cheia de LouÃ§a", id = 98076927129047},
+    {name = "Cadê o Zé Gotinha?", id = 86012585992725},
+    {name = "A Pia Cheia de Louça", id = 98076927129047},
     {name = "Olha Mensagemmmmm", id = 121668429878811},
-    {name = "Olha um PÃ© de Siriguela", id = 112804043442210},
+    {name = "Olha um Pé de Siriguela", id = 112804043442210},
     {name = "Vai Corinthians", id = 127012936767471},
     {name = "Manda o Papo", id = 134699681156023},
     {name = "Direitos Autorais", id = 93414656438796},
@@ -12465,7 +12481,7 @@ local TROLL_AUDIOS = {
     {name = "Plankton AAAAAAAAN", id = 95982351322190},
     {name = "Oh My God", id = 73349649774476},
     {name = "Todo Mundo Ser FD", id = 136804576009416},
-    {name = "Nobru ApelÃ£o", id = 77627828376120},
+    {name = "Nobru Apelão", id = 77627828376120},
     {name = "Muito Afiado", id = 130905328878700},
     {name = "Bosta!!!", id = 8430024127},
     {name = "Vai Lava Prato", id = 101232400175829},
@@ -12486,12 +12502,12 @@ local LOUD_AUDIOS = {
     {name = "Buuuh Sound", id = 83788010495185},    
     {name = "Laugh Sound", id = 123106903091799},    
     {name = "Jason..", id = 96381698372079},    
-    {name = "Quero CafÃƒÂ©..", id = 113702985238621},    
+    {name = "Quero CafÃ©..", id = 113702985238621},    
     {name = "Jumpscare sfx", id = 85271883712040},
     {name = "Fnaf 1 Jumpscare", id = 6982454389},
     {name = "Granny Jumpscare", id = 1592934514},
     {name = "Loud Jumpscare", id = 8819324666},
-    {name = "AnÃ´nimo", id = 5710016194},
+    {name = "Anônimo", id = 5710016194},
     {name = "Troll Laugh", id = 73753120048787},  
     {name = "Skull's Laugh", id = 78836790233075},    
     {name = "Laugh Noli", id = 126967668249129},    
@@ -12500,16 +12516,16 @@ local LOUD_AUDIOS = {
     {name = "SirenHead", id = 5681392074},    
     {name = "Tubers93", id = 103215672097028},    
     {name = "Alt Horroroso", id = 85435253347146},
-    {name = "Mega Ãudio", id = 6855150757},
+    {name = "Mega Áudio", id = 6855150757},
     {name = "Ruim", id = 120034877160791},
     {name = "Care2", id = 110637995610528},
     {name = "Ahahahaha", id = 7772283448},
     {name = "Maikw", id = 18786647417},
     {name = "Hit", id = 7129073354},
     {name = "Nuclear", id = 675587093},
-    {name = "PotÃªncia", id = 7520729342},
+    {name = "Potência", id = 7520729342},
     {name = "Cinema", id = 91412024101709},
-    {name = "Estora TÃ­mpano", id = 268116333},
+    {name = "Estora Tímpano", id = 268116333},
     {name = "AIIIIM", id = 106835463235574},
     {name = "The Boiled One", id = 137177653817621},
     {name = "OLK Detected", id = 9068077052},
@@ -12567,19 +12583,19 @@ function AudioManager.new()
                 end)
                 
                 if not success then
-                    warn("Erro ao reproduzir Ã¡udio no servidor: " .. tostring(err))
+                    warn("Erro ao reproduzir áudio no servidor: " .. tostring(err))
                 end
             else
-                warn("Evento de som nÃ£o encontrado")
+                warn("Evento de som não encontrado")
             end
         else
-            warn("ReplicatedStorage.RE nÃ£o encontrado")
+            warn("ReplicatedStorage.RE não encontrado")
         end
     end
     
     function self:playAudio(audioId, playOnServer)
         if not audioId then
-            warn("ID de Ã¡udio nÃ£o especificado")
+            warn("ID de áudio não especificado")
             return
         end
         
@@ -12619,7 +12635,7 @@ function AudioManager.new()
     
     function self:startTrollLoop()
         if not self.selectedTrollAudio then
-            warn("Nenhum Ã¡udio de troll selecionado")
+            warn("Nenhum áudio de troll selecionado")
             return
         end
         self.trollLoop = true
@@ -12637,7 +12653,7 @@ function AudioManager.new()
     
     function self:startLoudLoop()
         if not self.selectedLoudAudio then
-            warn("Nenhum Ã¡udio estourado selecionado")
+            warn("Nenhum áudio estourado selecionado")
             return
         end
         self.loudLoop = true
@@ -12702,12 +12718,12 @@ local audioManager = AudioManager.new()
 local trollAudioNames = extractAudioNames(TROLL_AUDIOS)
 local loudAudioNames = extractAudioNames(LOUD_AUDIOS)
 
-Tabs.AD:AddSection({Name = Translator:traduzir("Ãudios de Trollagem")})
+Tabs.AD:AddSection({Name = Translator:traduzir("Áudios de Trollagem")})
 Tabs.AD:AddDropdown({
-    Name = Translator:traduzir("Escolher Ãudio de Troll"),
-    Description = Translator:traduzir("Selecione um Ã¡udio para trollar"),
+    Name = Translator:traduzir("Escolher Áudio de Troll"),
+    Description = Translator:traduzir("Selecione um áudio para trollar"),
     Options = trollAudioNames,
-    Default = "Selecione um Ã¡udio",
+    Default = "Selecione um áudio",
     Callback = function(value)
         local audioId = findAudioById(TROLL_AUDIOS, value)
         if audioId then
@@ -12717,9 +12733,9 @@ Tabs.AD:AddDropdown({
 })
 local audioId
 Tabs.AD:AddTextBox({
-    Name = Translator:traduzir("Insira o ID do Ãudio ou Musica"),
-    Description = Translator:traduzir("Digite o ID do Ã¡udio"),
-    PlaceholderText = "NÃºmeros",
+    Name = Translator:traduzir("Insira o ID do Áudio ou Musica"),
+    Description = Translator:traduzir("Digite o ID do áudio"),
+    PlaceholderText = "Números",
     Callback = function(value)
         audioId = tonumber(value)
     end
@@ -12727,19 +12743,19 @@ Tabs.AD:AddTextBox({
 
 Tabs.AD:AddButton({
     Name = Translator:traduzir("Reproduzir Troll"),
-    Description = Translator:traduzir("Reproduzir o Ã¡udio selecionado uma vez"),
+    Description = Translator:traduzir("Reproduzir o áudio selecionado uma vez"),
     Callback = function()
         if audioManager.selectedTrollAudio then
             audioManager:playAudio(audioManager.selectedTrollAudio, true)
         else
-            warn("Selecione um Ã¡udio primeiro!")
+            warn("Selecione um áudio primeiro!")
         end
     end
 })
 
 Tabs.AD:AddToggle({
     Name = Translator:traduzir("Loop de Troll"),
-    Description = Translator:traduzir("Repetir continuamente o Ã¡udio selecionado"),
+    Description = Translator:traduzir("Repetir continuamente o áudio selecionado"),
     Default = false,
     Callback = function(value)
         if value then
@@ -12750,13 +12766,13 @@ Tabs.AD:AddToggle({
     end
 })
 
-Tabs.AD:AddSection({Name = Translator:traduzir("Ãudios Estourados")})
+Tabs.AD:AddSection({Name = Translator:traduzir("Áudios Estourados")})
 
 Tabs.AD:AddDropdown({
-    Name = Translator:traduzir("Escolher Ãudio Estourado"),
-    Description = Translator:traduzir("Selecione um Ã¡udio estourado"),
+    Name = Translator:traduzir("Escolher Áudio Estourado"),
+    Description = Translator:traduzir("Selecione um áudio estourado"),
     Options = loudAudioNames,
-    Default = Translator:traduzir("Selecione um Ã¡udio"),
+    Default = Translator:traduzir("Selecione um áudio"),
     Callback = function(value)
         local audioId = findAudioById(LOUD_AUDIOS, value)
         if audioId then
@@ -12767,19 +12783,19 @@ Tabs.AD:AddDropdown({
 
 Tabs.AD:AddButton({
     Name = Translator:traduzir("Reproduzir Estourado"),
-    Description = Translator:traduzir("Reproduzir o Ã¡udio estourado uma vez"),
+    Description = Translator:traduzir("Reproduzir o áudio estourado uma vez"),
     Callback = function()
         if audioManager.selectedLoudAudio then
             audioManager:playAudio(audioManager.selectedLoudAudio, true)
         else
-            warn("Selecione um Ã¡udio primeiro!")
+            warn("Selecione um áudio primeiro!")
         end
     end
 })
 
 Tabs.AD:AddToggle({
     Name = Translator:traduzir("Loop Estourado"),
-    Description = Translator:traduzir("Repetir continuamente o Ã¡udio estourado"),
+    Description = Translator:traduzir("Repetir continuamente o áudio estourado"),
     Default = false,
     Callback = function(value)
         if value then
@@ -12790,11 +12806,11 @@ Tabs.AD:AddToggle({
     end
 })
 
-Tabs.AD:AddSection({Name = Translator:traduzir("ConfiguraÃ§Ãµes Especiais")})
+Tabs.AD:AddSection({Name = Translator:traduzir("Configurações Especiais")})
 
 Tabs.AD:AddToggle({
-    Name = Translator:traduzir("Ãudio Estourado RÃ¡pido"),
-    Description = Translator:traduzir("Loop ultra rÃ¡pido do Ã¡udio padrÃ£o (cuidado!)"),
+    Name = Translator:traduzir("Áudio Estourado Rápido"),
+    Description = Translator:traduzir("Loop ultra rápido do áudio padrão (cuidado!)"),
     Default = false,
     Callback = function(value)
         getgenv().Audio_All_loop_fast = value
@@ -12806,7 +12822,7 @@ Tabs.AD:AddToggle({
     end
 })
 
--- ========== ANTI-ÃUDIO ==========
+-- ========== ANTI-ÁUDIO ==========
 local antiAudioEnabled = false
 local connections = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12891,7 +12907,7 @@ local function setupLightMonitoring()
     connections.folderMonitor = workspace.ChildAdded:Connect(function(child)
         if antiAudioEnabled and child:IsA("Folder") and child.Name == "Audio all client" then
             child:Destroy()
-            print("ï¸ser fude audio")
+            print("️ser fude audio")
         end
     end)
 end
@@ -12944,7 +12960,7 @@ end
 
 local Toggle = Tabs.AD:AddToggle({
     Name = "Anti - Audios <betaTeste>",
-    Description = "Bloqueia apenas Ã¡udios trolls especÃ­ficos", 
+    Description = "Bloqueia apenas áudios trolls específicos", 
     Default = false
 })
 Toggle:Callback(function(Value)
@@ -12952,9 +12968,9 @@ Toggle:Callback(function(Value)
 end)
 
 -- ========== NOVA SEÇÃO DE MÚSICA (baseada no modelo) ==========
-Tabs.AD:AddSection({Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
+Tabs.AD:AddSection({Translator:traduzir(" Música no Rádio <Game Pass>")})
 Tabs.AD:AddParagraph({
-    Title = "💡 Dicas Rápidas",
+    Title = " Dicas Rápidas",
     Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."
 })
 
@@ -13000,7 +13016,7 @@ local Funk = {
     ["viagem sonora"] = "79349174602261",
     ["sequência"] = "121187736532042",
     ["Penélope"] = "97011217688307",
-    ["eu já tava bem 😭"] = "93590122047380",
+    ["eu já tava bem "] = "93590122047380",
     ["Melodia Funk"] = "83064304128519"
 }
 
@@ -13104,13 +13120,13 @@ local Aleatorio = {
     ["se eu fosse embora agora"] = "83296064994098"
 }
 
--- FunÃ§Ã£o principal para tocar mÃºsica (em todos os dispositivos)
+-- Função principal para tocar música (em todos os dispositivos)
 local function playMusic(id)
     if not id or id == "" then return end
     id = tostring(id)
     local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
     if not RE then
-        print("âŒ RE nÃ£o encontrado")
+        print("❌ RE não encontrado")
         return
     end
     pcall(function() 
@@ -13129,10 +13145,10 @@ local function playMusic(id)
         local remote = RE:FindFirstChild("1NoMoto1rVehicle1s")
         if remote then remote:FireServer("PickingScooterMusicText", id) end
     end)
-    print("ðŸŽµ Tocando mÃºsica ID:", id)
+    print("🎵 Tocando música ID:", id)
 end
 
--- FunÃ§Ã£o auxiliar para criar dropdowns
+-- Função auxiliar para criar dropdowns
 local function makeMusicDropdown(name, data)
     local options = {}
     for k in pairs(data) do
@@ -13153,37 +13169,37 @@ local function makeMusicDropdown(name, data)
 end
 
 -- Cria os dropdowns por categoria
-Tabs.AD:AddSection({Name = Translator:traduzir("ðŸŽµ Categorias de MÃºsica")})
-makeMusicDropdown("ðŸ”¥ Funk", Funk)
-makeMusicDropdown("ðŸ’¨ Phonk", Phonk)
-makeMusicDropdown("ðŸŽ¶ ForrÃ³", Forro)
-makeMusicDropdown("ðŸŽ§ AleatÃ³rios", Aleatorio)
+Tabs.AD:AddSection({Name = Translator:traduzir("🎵 Categorias de Música")})
+makeMusicDropdown("🔥 Funk", Funk)
+makeMusicDropdown("💨 Phonk", Phonk)
+makeMusicDropdown("🎶 Forró", Forro)
+makeMusicDropdown("🎧 Aleatórios", Aleatorio)
 
 -- ID personalizado
-Tabs.AD:AddSection({Name = Translator:traduzir("ðŸŽµ ID Personalizado")})
+Tabs.AD:AddSection({Name = Translator:traduzir("🎵 ID Personalizado")})
 local CustomMusicID = ""
 Tabs.AD:AddTextBox({
-    Name = "Digite o ID da MÃºsica",
+    Name = "Digite o ID da Música",
     PlaceholderText = "Ex: 123456789012345",
     Callback = function(text)
         CustomMusicID = text:match("%d+") or ""
     end
 })
 Tabs.AD:AddButton({
-    Name = "â–¶ Tocar ID Digitado",
+    Name = "▶ Tocar ID Digitado",
     Callback = function()
         if CustomMusicID ~= "" then
             playMusic(CustomMusicID)
         else
-            print("âŒ Digite um ID vÃ¡lido!")
+            print("❌ Digite um ID válido!")
         end
     end
 })
 
--- Ferramentas rÃ¡pidas
-Tabs.AD:AddSection({Name = Translator:traduzir("ðŸ”§ Ferramentas RÃ¡pidas")})
+-- Ferramentas rápidas
+Tabs.AD:AddSection({Name = Translator:traduzir("🔧 Ferramentas Rápidas")})
 Tabs.AD:AddButton({
-    Name = "ðŸ“» Equipar RÃ¡dio / Boombox",
+    Name = "📻 Equipar Rádio / Boombox",
     Callback = function()
         pcall(function()
             local RE = game:GetService("ReplicatedStorage"):FindFirstChild("RE")
@@ -13191,29 +13207,29 @@ Tabs.AD:AddButton({
                 local toolRemote = RE:FindFirstChild("1Too1l")
                 if toolRemote then
                     toolRemote:InvokeServer("PickingTools", "Boombox")
-                    print("âœ… RÃ¡dio equipado!")
+                    print("✅ Rádio equipado!")
                 end
             end
         end)
     end
 })
 Tabs.AD:AddButton({
-    Name = "â¹ï¸ Parar Todas as MÃºsicas",
+    Name = "⏹️ Parar Todas as Músicas",
     Callback = function()
         playMusic("0")
-        print("â¹ï¸ Todas as mÃºsicas paradas")
+        print("⏹️ Todas as músicas paradas")
     end
 })
 
-print("âœ… Sistema de mÃºsica carregado com categorias!")
+print("✅ Sistema de música carregado com categorias!")
 end
 -----------------///////TABS - AVT///////-----------------
 do
-Tabs.AVT:AddSection({Name = Translator:traduzir("AnimaÃ§Ã£o & Reset")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Animação & Reset")})
 Tabs.AVT:AddButton({Name = Translator:traduzir("Reseta Avatar"), Callback = function()
 game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
 end})
-Tabs.AVT:AddButton({Name = Translator:traduzir("AnimaÃ§Ã£o home ou muie"), Callback = function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Animação home ou muie"), Callback = function()
     local args = {
     [1] = 4418326547
 }
@@ -13223,7 +13239,7 @@ game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
 end})
 
 Tabs.AVT:AddSection({Name = Translator:traduzir("Melhores Partes")})
-Tabs.AVT:AddButton({Name = Translator:traduzir("CabeÃ§a InvisÃ­vel"), Callback = function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Cabeça Invisível"), Callback = function()
     local args = {
     [1] = 134082579
 }
@@ -13251,7 +13267,7 @@ local Playestt = Tabs.AVT:AddDropdown({
 })
 
 Tabs.AVT:AddSlider({
-    Name = Translator:traduzir("VerificaÃ§Ã£o De Parts <Update>"),
+    Name = Translator:traduzir("Verificação De Parts <Update>"),
     Min = 5,
     Max = 15,
     Increase = 1,
@@ -13289,7 +13305,7 @@ redzlib:Notify({
 })
 
 if not Remotes then
-    warn("Pasta Remotes nÃ£o encontrada.")
+    warn("Pasta Remotes não encontrada.")
     return
 end
 
@@ -13351,7 +13367,7 @@ if TPlayer and TPlayer.Character then
             remoteBody:InvokeServer(unpack(argsBody))
             task.wait(0.3)
         else
-            warn("RemoteFunction 'ChangeCharacterBody' nÃ£o encontrado.")
+            warn("RemoteFunction 'ChangeCharacterBody' não encontrado.")
         end
 
         wearItem(PDesc.Shirt, {"WearShirt", "WearOutfit", "Wear"})
@@ -13401,7 +13417,7 @@ redzlib:Notify({
     end
 })
 
-Tabs.AVT:AddSection({Name = Translator:traduzir("Super HerÃ³is <Packs>")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Super Heróis <Packs>")})
 
 local roupasCompletas = {
     ["Homen Aranha"] = {14908247332, 16845737664, 17582186503,4211409027, 14840793625, 11774975425, 18507527463, 3346307465},
@@ -13493,7 +13509,7 @@ Tabs.AVT:AddButton({Name = Translator:traduzir("Estilosa"), Callback = function(
     )
 end})
 
-Tabs.AVT:AddButton({Name = Translator:traduzir("ElegÃ¢ncia Rosa-Pastel"), Callback = function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Elegância Rosa-Pastel"), Callback = function()
     aplicarPackCompleto(
         {607785314, 144076760, 126583402548463, 13979330180, 17336525832, 88103003332276, 16687323428, 18517084101, 125783616515731, 18105274965, 12548809610, 14708696366, 10907197686, 16945491141, 109260326125093, 17286711891, 619511648, 77427504538679, 8923596632, 619512450, 5319900634, 619512767},
         {86499666, 86499698, 86499716, 86500078, 86500064, 746767604},
@@ -13524,10 +13540,10 @@ Tabs.AVT:AddButton({Name = Translator:traduzir("Girl v2"), Callback = function()
     )
 end})
 
-Tabs.AVT:AddButton({Name = Translator:traduzir("InformaÃ§Ãµes De Uso"), Callback = function()
+Tabs.AVT:AddButton({Name = Translator:traduzir("Informações De Uso"), Callback = function()
 Window:Dialog({
     Title = "Fun",
-    Text = Translator:traduzir("â€¢As funÃ§Ãµes acima jÃ¡ aplicam as roupas completas, portanto, basta apenas modificar o corpo ou a cor."),
+    Text = Translator:traduzir("•As funções acima já aplicam as roupas completas, portanto, basta apenas modificar o corpo ou a cor."),
     Options = {
         {"Fechar", function()
             
@@ -13535,7 +13551,7 @@ Window:Dialog({
     }
 })
 end})
-----â€-----////////////up
+----‐-----////////////up
 
 Tabs.AVT:AddSection({Name = Translator:traduzir("Packs <Masculinos")})
 Tabs.AVT:AddButton({Name = Translator:traduzir("E os D <Masculino>"), Callback = function()
@@ -13623,7 +13639,7 @@ local selectedSkinName = nil
 
 Tabs.AVT:AddDropdown({
 	Name = Translator:traduzir("Skins 3D"),
-	Description = Translator:traduzir("Roupas 3D Varias opÃ§Ãµes Tops!"),
+	Description = Translator:traduzir("Roupas 3D Varias opções Tops!"),
 	Options = skinNames,
 	Default = "Roupas",
 	Callback = function(Value)
@@ -13639,12 +13655,12 @@ Tabs.AVT:AddButton({Name = Translator:traduzir("Vestir"), Callback = function()
 end})
 end
 do
-Tabs.AVT:AddSection({Name = Translator:traduzir("Especiais Efeitos <AcessÃ³rios>")})
+Tabs.AVT:AddSection({Name = Translator:traduzir("Especiais Efeitos <Acessórios>")})
 
 local acessoriosEspeciais = {
     ["Fada do Outono"] = 128217885,
     ["Fada da Primavera"] = 150381051,
-    ["Fada do Dia de SÃ£o Petersburgo"] = 226189871,
+    ["Fada do Dia de São Petersburgo"] = 226189871,
     ["Fada do Inverno"] = 141742418,
     ["Risada de Bruxa"] = 305888394,
     ["Chifres Bsp"] = 233705355,
@@ -13661,7 +13677,7 @@ end
 
 Tabs.AVT:AddDropdown({
     Name = Translator:traduzir("Escolha o Efeito"),
-    Description = Translator:traduzir("Selecione um acessÃ³rio para ativar"),
+    Description = Translator:traduzir("Selecione um acessório para ativar"),
     Options = nomes,
     Default = "Efeitos",
     Callback = function(selecionado)
@@ -13670,7 +13686,7 @@ Tabs.AVT:AddDropdown({
 })
 
 Tabs.AVT:AddButton({
-        Name = Translator:traduzir("Vestir AcessÃ³rio"),
+        Name = Translator:traduzir("Vestir Acessório"),
         Callback = function()
         if nomeSelecionado then
             local id = acessoriosEspeciais[nomeSelecionado]
@@ -13684,7 +13700,7 @@ Tabs.AVT:AddButton({
 end
 -----------------///////TABS - HouseTab///////-----------------
 do
-Tabs.HouseTab:AddSection({Name = Translator:traduzir("MÃºsica na Casa (Game Pass)")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Música na Casa (Game Pass)")})
 local selectedMusic = ""
 local MusicsList = {
 	{ Name = "Leaked by WxDeveloper", Id =  10561310081763},
@@ -13704,18 +13720,18 @@ for _, music in ipairs(MusicsList) do
 end
 
 local Dropdown = Tabs.HouseTab:AddDropdown({
-	Name = Translator:traduzir("Selecionar MÃºsica"),
+	Name = Translator:traduzir("Selecionar Música"),
 	Description = Translator:traduzir("Funciona apenas com Game Pass"),
 	Options = Musics,
-	Default = "MÃºsicas",
+	Default = "Músicas",
 	Callback = function(Value)
 		selectedMusic = Value
 	end
 })
 
 Tabs.HouseTab:AddTextBox({
-	Name = Translator:traduzir("Insira o ID da MÃºsica"),
-	Description = Translator:traduzir("VocÃª pode colar o ID direto aqui"),
+	Name = Translator:traduzir("Insira o ID da Música"),
+	Description = Translator:traduzir("Você pode colar o ID direto aqui"),
 	PlaceholderText = "Ex: 74366765967475",
 	Callback = function(value)
 		local parsed = tonumber(value)
@@ -13725,7 +13741,7 @@ Tabs.HouseTab:AddTextBox({
 	end
 })
 
-Tabs.HouseTab:AddButton({Name = Translator:traduzir("Tocar MÃºsica"), Callback = function()
+Tabs.HouseTab:AddButton({Name = Translator:traduzir("Tocar Música"), Callback = function()
 	local musicId = tonumber(selectedMusic) or MusicIds[selectedMusic]
 	if musicId then
 		local args = {
@@ -13739,7 +13755,7 @@ Tabs.HouseTab:AddButton({Name = Translator:traduzir("Tocar MÃºsica"), Callback
 	end
 end})
 
-Tabs.HouseTab:AddButton({Name = Translator:traduzir("Parar MÃºsica"), Callback = function()
+Tabs.HouseTab:AddButton({Name = Translator:traduzir("Parar Música"), Callback = function()
 	local args = {
 		[1] = "PickingHouseMusicStop",
 		[2] = ""
@@ -13762,7 +13778,7 @@ end
 
 local selectedHouseNumber = nil
 
-Tabs.HouseTab:AddSection({Name = Translator:traduzir("FunÃ§Ãµes AvanÃ§adas <Casas>")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Funções Avançadas <Casas>")})
 local CasasOpem = Tabs.HouseTab:AddDropdown({
     Name = Translator:traduzir("Selecionar Uma Casa"),
     Description = "Select the <font color='rgb(88, 101, 242)'>House</font>",
@@ -14011,7 +14027,7 @@ local function changeColor()
     local replicatedStorage = game:GetService("ReplicatedStorage")
     local remoteEvent = replicatedStorage:FindFirstChild("RE") and replicatedStorage.RE:FindFirstChild("1Player1sHous1e")
     if not remoteEvent then
-        warn("RemoteEvent '1Player1sHous1e' nÃ£o encontrado.")
+        warn("RemoteEvent '1Player1sHous1e' não encontrado.")
         return
     end
     while isHouseRGBActive do
@@ -14039,11 +14055,11 @@ local House1, House2, House3 = "", "", ""
 
 local repeatNames = false
 
-Tabs.HouseTab:AddSection({Name = Translator:traduzir("FunÃ§Ãµes AvanÃ§ada Da Casa")})
+Tabs.HouseTab:AddSection({Name = Translator:traduzir("Funções Avançada Da Casa")})
 
 Tabs.HouseTab:AddTextBox({
 	Title = Translator:traduzir("Definir O Nome"),
-	Description = Translator:traduzir("Primeiro Nome Da RepetiÃ§Ã£o!"),
+	Description = Translator:traduzir("Primeiro Nome Da Repetição!"),
 	Default = "",
 	PlaceholderText = "Nick Casa",
 	ClearText = false,
@@ -14053,7 +14069,7 @@ Tabs.HouseTab:AddTextBox({
 })
 Tabs.HouseTab:AddTextBox({
 	Title = Translator:traduzir("Definir O Nome"),
-	Description = Translator:traduzir("Segundo Nome Da RepetiÃ§Ã£o!"),
+	Description = Translator:traduzir("Segundo Nome Da Repetição!"),
 	Default = "",
 	PlaceholderText = "Nick Casa",
 	ClearText = false,
@@ -14063,7 +14079,7 @@ Tabs.HouseTab:AddTextBox({
 })
 Tabs.HouseTab:AddTextBox({
 	Title = Translator:traduzir("Definir O Nome"),
-	Description = Translator:traduzir("Terceiro Nome Da RepetiÃ§Ã£o!"),
+	Description = Translator:traduzir("Terceiro Nome Da Repetição!"),
 	Default = "",
 	PlaceholderText = "Nick Casa",
 	ClearText = false,
@@ -14109,7 +14125,7 @@ local turboValue = "25"
 
 Tabs.Carros:AddTextBox({
 	Title = Translator:traduzir("Definir Velocidade"),
-	Description = Translator:traduzir("Velocidade do carro preencher o espaÃ§o"),
+	Description = Translator:traduzir("Velocidade do carro preencher o espaço"),
 	Default = tostring(carSpeed),
 	PlaceholderText = Translator:traduzir("Velocidade"),
 	ClearText = false,
@@ -14187,7 +14203,7 @@ local MusicsList = {
 	{ Name = "Feeling", Id = 120764084521465 },	
 	{ Name = "Aura + Egp", Id = 97841988407875 },	
 	{ Name = "Mtg Balada", Id = 83797836818857 },	
-	{ Name = "tomagi mo tÃ£o", Id = 111668097052966 },	
+	{ Name = "tomagi mo tão", Id = 111668097052966 },	
 	{ Name = "mtg terra bela funk", Id = 134770548505933 },	
 	{ Name = "Hard tuff fye", Id = 92979002969874 },
 	{ Name = "The Twelve", Id = 126153082683694 },	
@@ -14223,7 +14239,7 @@ local MusicsList = {
     { Name = "Em dezembro de 81", Id = 92492039534399 },
     { Name = "favela venceu", Id = 97097857368633 },
     { Name = "Backrooms", Id = 120817494107898 },
-    { Name = "MÃºsicas de Piano acÃºstico", Id = 1838457617 },
+    { Name = "Músicas de Piano acústico", Id = 1838457617 },
     { Name = "Sushi Don't lie", Id = 134713831368801 },
     { Name = "Kerosene Cyristal Castels", Id = 17647322226 },
     { Name = "song6", Id = 11295853276 },
@@ -14233,9 +14249,9 @@ local MusicsList = {
     { Name = "montagem sombra girl", Id = 11164818809 },
 
     --Ins
-	{ Name = "NÃ£o Estou louco", Id = 74366765967475 },
+	{ Name = "Não Estou louco", Id = 74366765967475 },
 	{ Name = "Manda Meu Passinho", Id = 77741294709660 },
-	{ Name = "CenÃ¡rio Selvagem", Id = 117562011395992 },
+	{ Name = "Cenário Selvagem", Id = 117562011395992 },
 	{ Name = "Want To Love", Id = 104846670980072 },
 	{ Name = "Melodia Virtual", Id = 139147474886402 },
 	{ Name = "Signora Funk", Id = 123394392737234 },
@@ -14247,17 +14263,17 @@ local MusicsList = {
 	{ Name = "Passei de glock", Id = 187643630 },
 	{ Name = "Poze Cv", Id = 124244582950595 },
 	{ Name = "Trap", Id = 131582258401093 },
-	{ Name = "Oruan - Sou Teu fÃ£", Id = 85342086082111 },
+	{ Name = "Oruan - Sou Teu fã", Id = 85342086082111 },
 	{ Name = "Soldado Guerreiro", Id = 71590664026646 },
 	{ Name = "Fuga Na Viatura", Id = 131891110268352 },
-	{ Name = "forrÃ³ ja cansou", Id = 74812784884330},
+	{ Name = "forró ja cansou", Id = 74812784884330},
 	{ Name = "gol contra", Id =  122114766584918},
 	{ Name = "Eligebete", Id = 129370559491985 },
 	{ Name = "Forsaken", Id = 136274352281439 },
 	{ Name = "Anxiety", Id = 101483901475189 },
-	{ Name = "Grelo So fÃ©", Id = 72200166265935 },
+	{ Name = "Grelo So fé", Id = 72200166265935 },
 	{ Name = "Phonk sexoagressivo", Id = 111995323199676 },
-	{ Name = "forrÃ³ da resenha", Id = 120973520531216 },
+	{ Name = "forró da resenha", Id = 120973520531216 },
 	{ Name = "escolha certa", Id = 107088620814881 },
 	{ Name = "lembro ate hoje", Id = 71531533552899 },
 	{ Name = "oruam", Id = 85342086082111 },
@@ -14274,18 +14290,18 @@ local MusicsList = {
 	{ Name = "Flamengo funk", Id = 8080255618 },
 	{ Name = "Carro de Ovos", Id = 3148329638 },
 	{ Name = "Banka", Id = 16190784229 },
-	{ Name = "Essa Ã© Antiga", Id = 90999978343771 },
-	{ Name = "Essa Aqui Ã© Braba", Id = 120833520065453 },
+	{ Name = "Essa é Antiga", Id = 90999978343771 },
+	{ Name = "Essa Aqui é Braba", Id = 120833520065453 },
 	{ Name = "Help Me Phonk", Id = 72458292563094 },
 	{ Name = "Envolve A Tropa", Id = 88094479399489 },
 	{ Name = "No Pick Mulher", Id = 92893359226454 },
-	{ Name = "MÃ­dia", Id = 105832154444494 },
+	{ Name = "Mídia", Id = 105832154444494 },
 	{ Name = "Phonk Version", Id = 103409297553965 },
 	{ Name = "Phonk louco", Id = 73140398421340 },
 	{ Name = "Slowed Vapo No Vapo", Id = 106317184644394 },
 	{ Name = "Phonk Brasil", Id = 111281710445018 },
 	{ Name = "No Solinho", Id = 72440232513341 },
-	{ Name = "Phonk InglÃªs", Id = 14145624031 },
+	{ Name = "Phonk Inglês", Id = 14145624031 },
 	{ Name = "Ultra Slowed", Id = 84733736048142 },
 	{ Name = "Ritmada", Id = 104541292443133 },
 	{ Name = "Ritmada Novinha", Id = 94718473830640 },
@@ -14302,7 +14318,7 @@ for _, music in ipairs(MusicsList) do
 end
 
 local Dropdown = Tabs.Carros:AddDropdown({
-	Name = Translator:traduzir("Selecionar MÃºsica"),
+	Name = Translator:traduzir("Selecionar Música"),
 	Description = Translator:traduzir("funciona apenas com game pass"),
 	Options = Musics,
 	Default = "Musica",
@@ -14311,7 +14327,7 @@ local Dropdown = Tabs.Carros:AddDropdown({
 	end
 })
 
-Tabs.Carros:AddButton({Name = Translator:traduzir("Tocar MÃºsica"), Callback = function()
+Tabs.Carros:AddButton({Name = Translator:traduzir("Tocar Música"), Callback = function()
 	local musicId = MusicIds[selectedMusic]
 	if musicId then
 		local eventos = {
@@ -14330,7 +14346,7 @@ Tabs.Carros:AddButton({Name = Translator:traduzir("Tocar MÃºsica"), Callback =
 	end
 end})
 
-Tabs.Carros:AddButton({Name = Translator:traduzir("Para MÃºsica"), Callback = function()
+Tabs.Carros:AddButton({Name = Translator:traduzir("Para Música"), Callback = function()
 	local args = {
 		[1] = "StopMusic",
 		[2] = 73423225643184
@@ -14380,10 +14396,10 @@ end
 
 local selectedVehicle = nil
 
-Tabs.Carros:AddSection({Name = Translator:traduzir("Carro FunÃ§Ãµes")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Carro Funções")})
 local CarrosTT = Tabs.Carros:AddDropdown({
     Name = Translator:traduzir("Selecione um carro"),
-    Description = Translator:traduzir("Selecionar Um Carro para as funÃ§Ãµes"),
+    Description = Translator:traduzir("Selecionar Um Carro para as funções"),
     Options = updateVehicleList(),
     Default = Translator:traduzir("Carros"),
     Callback = function(Value)
@@ -14392,7 +14408,7 @@ local CarrosTT = Tabs.Carros:AddDropdown({
 })
 
 Tabs.Carros:AddSlider({
-    Name = Translator:traduzir("VerificaÃ§Ã£o de Carros"),
+    Name = Translator:traduzir("Verificação de Carros"),
     Min = 1,
     Max = 25,
     Increase = 1,
@@ -14435,7 +14451,7 @@ Tabs.Carros:AddButton({
 })
 Tabs.Carros:AddToggle({
 	Name = Translator:traduzir("Puxa o Carro"),
-	Description = Translator:traduzir("Teleporta temporariamente o carro atÃ© vocÃª"),
+	Description = Translator:traduzir("Teleporta temporariamente o carro até você"),
 	Default = false,
 	Callback = function(Value)
 		if not Value then return end
@@ -14474,7 +14490,7 @@ Tabs.Carros:AddSection({Name = Translator:traduzir("Extreme Carros <Super>")})
 Tabs.Carros:AddButton({
     Name = Translator:traduzir("Fly Carro Free"),
     Callback = function()
-loadstring(game:HttpGet(('https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/FlyCar.lua'),true))()
+pcall(function() loadstring(game:HttpGet(('https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/FlyCar.lua'),true))() end)
     end
 })
 local function teleportAllCars()
@@ -14657,7 +14673,7 @@ local function toggleESP(state)
                     if ESPEnabled and vehicle and vehicle.PrimaryPart then
                         local player = game.Players.LocalPlayer
                         local distance = (player.Character.PrimaryPart.Position - vehicle.PrimaryPart.Position).Magnitude
-                        textLabel.Text = vehicle.Name .. " | DistÃ¢ncia: " .. math.floor(distance) .. " studs"
+                        textLabel.Text = vehicle.Name .. " | Distância: " .. math.floor(distance) .. " studs"
                     end
                 end)
                 table.insert(espConnections, connection)
@@ -14676,7 +14692,7 @@ local function toggleESP(state)
     end
 end
 
-Tabs.Carros:AddSection({Name = Translator:traduzir("AvanÃ§ado")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Avançado")})
 local Toggle = Tabs.Carros:AddToggle({Name = Translator:traduzir("Esp Carros"), Description = Translator:traduzir("Mostra Carros no mapa"), Default = false})
 
 Toggle:Callback(function(value)
@@ -14718,7 +14734,7 @@ Tabs.Carros:AddToggle({
     end
 })
 
-Tabs.Carros:AddSection({Name = Translator:traduzir("SeÃ§Ã£o Kill Car")})
+Tabs.Carros:AddSection({Name = Translator:traduzir("Seção Kill Car")})
 local selectedPlayer = nil
 local flingLoop = false
 local viewLoop = false
@@ -14788,7 +14804,7 @@ end
 
 local Players5 = Tabs.Carros:AddDropdown({
     Name = Translator:traduzir("Escolha um jogador"),
-    Description = Translator:traduzir("Selecionar um jogador pra funcionar as funÃ§Ãµes"),
+    Description = Translator:traduzir("Selecionar um jogador pra funcionar as funções"),
     Options = {},
     Default = "Players",
     Callback = function(value)
@@ -14817,7 +14833,7 @@ Toggle:Callback(function(value)
     ViewPlayer()
 end)
 
-local Button = Tabs.Carros:AddButton({Name = Translator:traduzir("InÃ­cia Fling"), Callback = function()
+local Button = Tabs.Carros:AddButton({Name = Translator:traduzir("Inícia Fling"), Callback = function()
     if selectedPlayer then
         flingLoop = true
         FlingPlayer()
@@ -14825,7 +14841,7 @@ local Button = Tabs.Carros:AddButton({Name = Translator:traduzir("InÃ­cia Flin
 end})
 end
 
---[[Tabs.PR:AddSection({Name = "MudanÃ§as de Tempos"})
+--[[Tabs.PR:AddSection({Name = "Mudanças de Tempos"})
 
 local Night_Toggle = Tabs.PR:AddToggle({
     Name = "Noite",
@@ -14856,28 +14872,28 @@ end)]]
 -----------------///////TABS - Tp///////-----------------
 do
 local teleportButtons = {
-    {Nome = "AgÃªncia", Ponto = CFrame.new(179, 4, -464)},
+    {Nome = "Agência", Ponto = CFrame.new(179, 4, -464)},
     {Nome = "Oficina Oculta", Ponto = CFrame.new(0, 4, -495)},
     {Nome = "Bastidores", Ponto = CFrame.new(192, 4, 272)},
     {Nome = "Centro Urbano", Ponto = CFrame.new(136, 4, 117)},
-    {Nome = "Ãrea do Crime", Ponto = CFrame.new(-119, -28, 235)},
+    {Nome = "Área do Crime", Ponto = CFrame.new(-119, -28, 235)},
     {Nome = "Casa Deserta", Ponto = CFrame.new(986, 4, 63)},
     {Nome = "Arco", Ponto = CFrame.new(-589, 141, -59)},
     {Nome = "Hospital", Ponto = CFrame.new(-309, 4, 71)},
     {Nome = "Sala Secreta", Ponto = CFrame.new(-343, 4, -613)},
     {Nome = "Ilha Isolada", Ponto = CFrame.new(-1925, 23, 127)},
-    {Nome = "HotÃ©is", Ponto = CFrame.new(182, 4, 150)},
+    {Nome = "Hotéis", Ponto = CFrame.new(182, 4, 150)},
     {Nome = "Montanha", Ponto = CFrame.new(-670, 251, 765)},
-    {Nome = "Portal da AgÃªncia", Ponto = CFrame.new(672, 4, -296)},
+    {Nome = "Portal da Agência", Ponto = CFrame.new(672, 4, -296)},
     {Nome = "Esconderijo", Ponto = CFrame.new(505, -75, 143)},
     {Nome = "Escola", Ponto = CFrame.new(-312, 4, 211)},
-    {Nome = "CafÃ©", Ponto = CFrame.new(161, 8, 52)},
+    {Nome = "Café", Ponto = CFrame.new(161, 8, 52)},
     {Nome = "Cafeteria", Ponto = CFrame.new(-97.12, 4.65, 254.99)},
-    {Nome = "InÃ­cio", Ponto = CFrame.new(-26, 4, -23)},
+    {Nome = "Início", Ponto = CFrame.new(-26, 4, -23)},
     {Nome = "Banco", Ponto = CFrame.new(2.28, 4.65, 254.58)},
     {Nome = "Roupas", Ponto = CFrame.new(-46.15, 4.65, 253.20)},
-    {Nome = "RefÃºgio", Ponto = CFrame.new(-88.48, 22.05, 262.34)},
-    {Nome = "ClÃ­nica DentÃ¡ria", Ponto = CFrame.new(-53.58, 22.15, 265.61)},
+    {Nome = "Refúgio", Ponto = CFrame.new(-88.48, 22.05, 262.34)},
+    {Nome = "Clínica Dentária", Ponto = CFrame.new(-53.58, 22.15, 265.61)},
 }
 
 local selectedTeleport = nil
@@ -14908,7 +14924,7 @@ Tabs.Tp:AddButton({
     Callback = function()
         local plr = game.Players.LocalPlayer
         if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then
-            warn("Personagem nÃ£o encontrado!")
+            warn("Personagem não encontrado!")
             return
         end
 
@@ -14922,7 +14938,7 @@ Tabs.Tp:AddButton({
     end
 })
 
--- Seleciona o primeiro local por padrÃ£o
+-- Seleciona o primeiro local por padrão
 if #opcoesTeleporte > 0 then
     for _, entry in ipairs(teleportButtons) do
         if entry.Nome == opcoesTeleporte[1] then
@@ -15065,13 +15081,13 @@ local Button = Tabs.Tp:AddButton({Name = Translator:traduzir("Reentra No Servido
 end})
 end
 -----------------///////TABS - CFG///////----------------
-Tabs.CFG:AddSection({Name = Translator:traduzir("Sistema De VariaÃ§Ãµes")})
+Tabs.CFG:AddSection({Name = Translator:traduzir("Sistema De Variações")})
 local antiSitConnections = {}
 local isAntiSitActive = false
 
 Tabs.CFG:AddToggle({
     Name = Translator:traduzir("Anti Sit"),
-    Description = Translator:traduzir("NÃ£o Sentar"),
+    Description = Translator:traduzir("Não Sentar"),
     Default = false,
     Callback = function(Value)
         local player = game.Players.LocalPlayer
@@ -15258,7 +15274,7 @@ Tabs.CFG:AddToggle({
     end
 })
 
--- Lista de Staffs (agora com o moderador incluÃ­do)
+-- Lista de Staffs (agora com o moderador incluído)
 local staffMembers = {
     "ITZ_LuanJefferson"
 }
@@ -15805,7 +15821,7 @@ function CreateJail(player)
         local transparency = 0.3
         local cageColor = Color3.fromRGB(75, 0, 130)
 
-        -- funÃ§Ã£o interna que monta a jaula em volta de um HRP
+        -- função interna que monta a jaula em volta de um HRP
         local function buildCage(targetHRP, suffix)
             local cageModel = Instance.new("Model")
             cageModel.Name = "JaulaDeAdmin_" .. player.Name .. suffix
@@ -15851,7 +15867,7 @@ function CreateJail(player)
         local jailModel = buildCage(HRP, "_Preso")
         Jajail[player] = jailModel
 
-        -- cÃ³pia sÃ³ pra vocÃª visualizar no seu humanoid
+        -- cópia só pra você visualizar no seu humanoid
         if myChar and myChar:FindFirstChild("HumanoidRootPart") then
             buildCage(myChar.HumanoidRootPart, "_Visual")
         end
@@ -16380,7 +16396,7 @@ local function showAdminTab()
     if not isAuthorized then return end
     clearContent()
     
-    createSection(scrollFrame, "SeleÃ§Ã£o de Jogador")
+    createSection(scrollFrame, "Seleção de Jogador")
     
     local playerDropdown = createDropdown(scrollFrame, "Selecione um jogador", getPlayerList(), function(value)
         for _, player in ipairs(Players:GetPlayers()) do
@@ -16401,7 +16417,7 @@ local function showAdminTab()
         end)
     end)
     
-    createSection(scrollFrame, "Comandos BÃ¡sicos")
+    createSection(scrollFrame, "Comandos Básicos")
     
     createButton(scrollFrame, "Bring Player", function()
         if selectedPlayer then
@@ -16598,19 +16614,19 @@ local function showAdminTab()
             })
         end
     end)
-        createSection(scrollFrame, "VerificaÃ§Ã£o")
+        createSection(scrollFrame, "Verificação")
         
         createButton(scrollFrame, "Verificar", function()
             sendChatCommand("Verificar")
             redzlib:Notify({
-                    Title = "VerificaÃ§Ã£o",
-                    Description = "Verificando usuÃ¡rios...",
+                    Title = "Verificação",
+                    Description = "Verificando usuários...",
                     Type = "Success",
                     Duration = 4
                 })
             --[[game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "VerificaÃ§Ã£o",
-                Text = "Verificando usuÃ¡rios...",
+                Title = "Verificação",
+                Text = "Verificando usuários...",
                 Duration = 3
             })]]
         
@@ -16645,26 +16661,26 @@ local function showAdminTab()
                 if count > 0 then
                     local nameList = table.concat(names, ", ")
                     redzlib:Notify({
-                    Title = "VerificaÃ§Ã£o Completa",
-                    Description = count .. " usuÃ¡rio(s) encontrado(s): " .. nameList,
+                    Title = "Verificação Completa",
+                    Description = count .. " usuário(s) encontrado(s): " .. nameList,
                     Type = "Success",
                     Duration = 7
                 })
                     --[[game:GetService("StarterGui"):SetCore("SendNotification", {
-                        Title = "VerificaÃ§Ã£o Completa",
-                        Text = count .. " usuÃ¡rio(s) encontrado(s): " .. nameList,
+                        Title = "Verificação Completa",
+                        Text = count .. " usuário(s) encontrado(s): " .. nameList,
                         Duration = 8
                     })]]
                 else
                     redzlib:Notify({
-                        Title = "VerificaÃ§Ã£o Completa",
-                        Description = "Nenhum outro usuÃ¡rio encontrado",
+                        Title = "Verificação Completa",
+                        Description = "Nenhum outro usuário encontrado",
                         Type = "Success",
                         Duration = 4
                     })
                     --[[game:GetService("StarterGui"):SetCore("SendNotification", {
-                        Title = "VerificaÃ§Ã£o Completa",
-                        Text = "Nenhum outro usuÃ¡rio encontrado",
+                        Title = "Verificação Completa",
+                        Text = "Nenhum outro usuário encontrado",
                         Duration = 5
                     })]]
                 end
@@ -16684,7 +16700,7 @@ if isAuthorized then
     minimizeButton.Position = UDim2.new(1, -35, 0, 8)
     minimizeButton.BackgroundTransparency = 1
     minimizeButton.BorderSizePixel = 0
-    minimizeButton.Text = "âˆ’"
+    minimizeButton.Text = "−"
     minimizeButton.TextColor3 = Color3.new(1, 1, 1)
     minimizeButton.TextSize = 18
     minimizeButton.Font = Enum.Font.GothamBold
@@ -16702,7 +16718,7 @@ if isAuthorized then
         else
             mainFrame.Size = originalSize
             scrollFrame.Parent.Visible = true
-            minimizeButton.Text = "âˆ’"
+            minimizeButton.Text = "−"
         end
     end)
 end
@@ -16740,12 +16756,12 @@ local function setupChatListener()
             local targetName = args[2]
             local target = targetName and findTarget(targetName)
             
-            -- Comandos bÃ¡sicos
+            -- Comandos básicos
             if cmd == "/kill" and target == LocalPlayer then
                 local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
                 if hum then hum.Health = 0 end
             elseif cmd == "/kick" and target == LocalPlayer then
-                LocalPlayer:Kick("VocÃª foi expulso pelo painel de admin.")
+                LocalPlayer:Kick("Você foi expulso pelo painel de admin.")
             elseif cmd == "/bring" and target == LocalPlayer then
                 local targetRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                 local senderRoot = sender.Character and sender.Character:FindFirstChild("HumanoidRootPart")
@@ -16883,7 +16899,7 @@ if isAuthorized then
 })
     --[[game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "Sistema Carregado",
-        Text = "FunÃ§Ãµes Funcionado",
+        Text = "Funções Funcionado",
         Duration = 3
     })]]
 else
