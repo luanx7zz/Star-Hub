@@ -47,7 +47,7 @@ local redzlib = {
 			["Color Text"] = Color3.fromRGB(240, 240, 240),
 			["Color Dark Text"] = Color3.fromRGB(180, 180, 180),
 			["Color Dark Purple"] = Color3.fromRGB(255, 0, 0),
-			["Color Hub 9"] = Color3.fromRGB(0, 0, 0, 0),
+			["Color Hub 9"] = Color3.fromRGB(0, 0, 0),
 			["Color Dark Greem"] = Color3.fromRGB(43, 255, 0)
 		}
 	},
@@ -87,7 +87,7 @@ local redzlib = {
 			["settings"] = "rbxassetid://10734950309",
 			["shield"] = "rbxassetid://10734951847",
 			["coffee"] = "rbxassetid://10709810814",
-			["users"] = "rbxassetid //10747373426",
+			["users"] = "rbxassetid://10747373426",
             ["baby"] = "rbxassetid://10709769732",
 			["ghost"] = "rbxassetid://10723396107",
 			
@@ -183,10 +183,8 @@ local Funcs = {} do
 	end
 	
 	function Funcs:ToggleParent(Obj, Parent)
-		if Bool ~= nil then
-			Obj.Parent = Bool
-		else
-			Obj.Parent = not Obj.Parent and Parent
+		if Parent ~= nil then
+			Obj.Parent = Parent
 		end
 	end
 	
