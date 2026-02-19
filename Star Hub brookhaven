@@ -228,9 +228,13 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://pastefy.app/38eyVUis/raw", true)
-local redzlib = loadstring(redzlibContent)()
-if not redzlib then error("deu red") end
+local redzlibContent = game:HttpGet("https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Ui%20do%20star%20hub", true)
+local fn, compileErr = loadstring(redzlibContent)
+if not fn then
+    error("UI lib falhou ao compilar: " .. tostring(compileErr))
+end
+local redzlib = fn()
+if not redzlib then error("UI lib retornou nil - verifique o arquivo da biblioteca") end
 
 workspace.FallenPartsDestroyHeight = -math.huge
 
@@ -9307,13 +9311,16 @@ Toggle:Callback(function(Value)
 end)
 
 -- ========== NOVA SEÇÃO DE MÚSICA (baseada no modelo) ==========
-Tabs.AD:AddSection({Name = Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
-Tabs.AD:AddParagraph({Text = Title = "💡 Dicas Rápidas",
-    Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."})
+Tabs.AD:AddSection({Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
+Tabs.AD:AddParagraph({
+    Title = "💡 Dicas Rápidas",
+    Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."
+})
 
 -- Tabelas de músicas por categoria
 local Funk = {
     ["raspa o cabelo dela"] = "106866829236727",
+    ["Eu ja sofri por amor"] = "128011871344522",
     ["bata essa aqui"] = "99250885177756",
     ["mico"] = "78352220341424",
     ["violen"] = "104767744632555",
@@ -9365,7 +9372,6 @@ local Phonk = {
     ["montagem boa não sei o nome"] = "105663768150465",
     ["montagem risada sombria"] = "93556552625864",
     ["montagem do karma"] = "79148752172118",
-    ["entre"] = "110274202819990",
     ["kobal"] = "79381341943021",
     ["estourada"] = "92175624643620",
     ["estourada 2"] = "108099943758978",
@@ -9388,6 +9394,8 @@ local Phonk = {
 }
 
 local Forro = {
+    ["minha pequena"] = "133190351316780",
+    ["tomara Pablo"] = "82637471825234",
     ["forró da resenha"] = "120973520531216",
     ["forró ja cansou"] = "74812784884330",
     ["lembro ate hoje"] = "71531533552899",
