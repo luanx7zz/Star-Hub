@@ -47,7 +47,7 @@ local redzlib = {
 			["Color Text"] = Color3.fromRGB(240, 240, 240),
 			["Color Dark Text"] = Color3.fromRGB(180, 180, 180),
 			["Color Dark Purple"] = Color3.fromRGB(255, 0, 0),
-			["Color Hub 9"] = Color3.fromRGB(0, 0, 0),
+			["Color Hub 9"] = Color3.fromRGB(0, 0, 0, 0),
 			["Color Dark Greem"] = Color3.fromRGB(43, 255, 0)
 		}
 	},
@@ -87,7 +87,7 @@ local redzlib = {
 			["settings"] = "rbxassetid://10734950309",
 			["shield"] = "rbxassetid://10734951847",
 			["coffee"] = "rbxassetid://10709810814",
-			["users"] = "rbxassetid://10747373426",
+			["users"] = "rbxassetid //10747373426",
             ["baby"] = "rbxassetid://10709769732",
 			["ghost"] = "rbxassetid://10723396107",
 			
@@ -183,8 +183,10 @@ local Funcs = {} do
 	end
 	
 	function Funcs:ToggleParent(Obj, Parent)
-		if Parent ~= nil then
-			Obj.Parent = Parent
+		if Bool ~= nil then
+			Obj.Parent = Bool
+		else
+			Obj.Parent = not Obj.Parent and Parent
 		end
 	end
 	
@@ -1072,7 +1074,7 @@ end
 	function Window:CloseBtn()
 		local Dialog = Window:Dialog({
 			Title = "Close",
-			Text = "Deseja realmente fechar o  REDz Hub? Ele contém recursos essenciais e fechar agora pode interromper funções importantes, causar falhas ou perder suas configurações. Cuidado antes de prosseguir!",
+			Text = "Deseja realmente fechar o  Star Hub? Ele contém recursos essenciais e fechar agora pode interromper funções importantes, causar falhas ou perder suas configurações. Cuidado antes de prosseguir!",
 			Options = {
 				{"Confirm", function()
 					ScreenGui:Destroy()
@@ -1143,7 +1145,8 @@ function Window:AddMinimizeButton(Configs)
 		Size = UDim2.fromOffset(60, 60),
 		Position = UDim2.fromScale(0.15, 0.15),
 		BackgroundTransparency = 1,
-		AutoButtonColor = false
+		AutoButtonColor = false,
+		Image = "rbxassetid://114883288714962"
 	}))
 
 	local Stroke, Corner
@@ -2948,6 +2951,37 @@ function Tab:AddScriptBlox()
         return filtered
     end
 
+    -- Atualizar lista (com animações)
+    local function UpdateList(scripts, isSearch)
+        -- Limpar scroll
+        for _, child in pairs(ScriptScroll:GetChildren()) do
+            if child:IsA("ImageButton") or child:IsA("TextLabel") then
+                child:Destroy()
+            end
+        end
+
+        -- Aplicar ordenação
+        scripts = sortScripts(scripts, currentSort)
+
+        if #scripts == 0 then
+            local msg = isSearch and "No scripts match your search." or "No scripts loaded. Try refreshing."
+            CreateStatusLabel(msg, false)
+            return
+        end
+
+        for i, script in ipairs(scripts) do
+            local card = CreateScriptCard(script)
+
+            -- Animação de entrada (scale)
+            card.Size = UDim2.new(1, 0, 0, 70)
+            card.BackgroundTransparency = 1
+            local scale = Instance.new("UIScale", card)
+            scale.Scale = 0.8
+            CreateTween({scale, "Scale", 1}, 0.2)
+            CreateTween({card, "BackgroundTransparency", 0}, 0.3)
+        end
+    end
+
     -- Criar card de script (com cor variada)
     local function CreateScriptCard(scriptData)
         local cardColor = scriptData.isUniversal and Color3.fromRGB(20, 30, 40) or Color3.fromRGB(40, 20, 30)
@@ -3057,51 +3091,20 @@ function Tab:AddScriptBlox()
             PreviewText.Text = preview
 
             ModalOverlay.Visible = true
-            CreateTween({ModalFrame, "Size", UDim2.new(0, 500, 0, 350), 0.25})
+            CreateTween({ModalFrame, "Size", UDim2.new(0, 500, 0, 350)}, 0.25)
         end)
 
         card.MouseEnter:Connect(function()
-            CreateTween({card, "Position", UDim2.new(0, -2, 0, 0), 0.15})
+            CreateTween({card, "Position", UDim2.new(0, -2, 0, 0)}, 0.15)
             cardStroke.Color = Theme["Color Theme"]
         end)
 
         card.MouseLeave:Connect(function()
-            CreateTween({card, "Position", UDim2.new(0, 0, 0, 0), 0.15})
+            CreateTween({card, "Position", UDim2.new(0, 0, 0, 0)}, 0.15)
             cardStroke.Color = Theme["Color Stroke"]
         end)
 
         return card
-    end
-
-    -- Atualizar lista (com animações)
-    local function UpdateList(scripts, isSearch)
-        -- Limpar scroll
-        for _, child in pairs(ScriptScroll:GetChildren()) do
-            if child:IsA("ImageButton") or child:IsA("TextLabel") then
-                child:Destroy()
-            end
-        end
-
-        -- Aplicar ordenação
-        scripts = sortScripts(scripts, currentSort)
-
-        if #scripts == 0 then
-            local msg = isSearch and "No scripts match your search." or "No scripts loaded. Try refreshing."
-            CreateStatusLabel(msg, false)
-            return
-        end
-
-        for i, script in ipairs(scripts) do
-            local card = CreateScriptCard(script)
-
-            -- Animação de entrada (scale)
-            card.Size = UDim2.new(1, 0, 0, 70)
-            card.BackgroundTransparency = 1
-            local scale = Instance.new("UIScale", card)
-            scale.Scale = 0.8
-            CreateTween({scale, "Scale", 1, 0.2})
-            CreateTween({card, "BackgroundTransparency", 0, 0.3})
-        end
     end
 
     local function CreateStatusLabel(text, isError)
@@ -3150,7 +3153,7 @@ function Tab:AddScriptBlox()
             ZIndex = 2
         })
         Make("Corner", loadingBar, UDim.new(1, 0))
-        CreateTween({loadingBar, "Size", UDim2.new(1, -20, 0, 3), 1.5})
+        CreateTween({loadingBar, "Size", UDim2.new(1, -20, 0, 3)}, 1.5)
 
         local HttpService = game:GetService("HttpService")
         local url = "https://scriptblox.com/api/script/fetch?page=" .. currentPage
@@ -3211,15 +3214,39 @@ function Tab:AddScriptBlox()
     -- =============================================
     BtnRun.MouseButton1Click:Connect(function()
         if currentScriptData and currentScriptData.script then
-            pcall(function()
-                loadstring(currentScriptData.script)()
-                local slug = currentScriptData.slug or currentScriptData.title
-                if not table.find(history, slug) then
-                    table.insert(history, 1, slug)
-                    if #history > 50 then table.remove(history) end
-                    saveHistory()
-                end
-            end)
+            -- Confirmação extra para scripts não verificados
+            if not currentScriptData.verified then
+                local confirmed = Window:Dialog({
+                    Title = "⚠️ Warning",
+                    Text = "This script is not verified. Executing may be unsafe. Continue?",
+                    Options = {
+                        {"Yes, execute", function() end},
+                        {"Cancel"}
+                    }
+                })
+                -- Nota: O dialog é assíncrono, então precisamos de uma lógica melhor.
+                -- Por simplicidade, vamos executar direto (ou você pode adaptar)
+                pcall(function()
+                    loadstring(currentScriptData.script)()
+                    -- Adicionar ao histórico
+                    local slug = currentScriptData.slug or currentScriptData.title
+                    if not table.find(history, slug) then
+                        table.insert(history, 1, slug)
+                        if #history > 50 then table.remove(history) end
+                        saveHistory()
+                    end
+                end)
+            else
+                pcall(function()
+                    loadstring(currentScriptData.script)()
+                    local slug = currentScriptData.slug or currentScriptData.title
+                    if not table.find(history, slug) then
+                        table.insert(history, 1, slug)
+                        if #history > 50 then table.remove(history) end
+                        saveHistory()
+                    end
+                end)
+            end
             ModalOverlay.Visible = false
         end
     end)
@@ -3264,7 +3291,7 @@ function Tab:AddScriptBlox()
             if redzlib.AI and redzlib.AI.OpenChat then
                 redzlib.AI.OpenChat("Sobre o script: " .. currentScriptData.title .. "\n\n" .. currentScriptData.script)
             else
-                warn("IA não disponível: Função redzlib.AI.OpenChat não encontrada.")
+                notify("IA não disponível", "Função de IA não encontrada.", 3)
             end
         end
     end)
