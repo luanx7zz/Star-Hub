@@ -228,8 +228,10 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://pastefy.app/a5HPRupo/raw", true)
-local redzlib = loadstring(redzlibContent)()
+local redzlibContent = game:HttpGet("https://pastefy.app/Ie4RRbDB/raw", true)
+local fn, loadErr = loadstring(redzlibContent)
+if not fn then error("Erro na lib: " .. tostring(loadErr)) end
+local redzlib = fn()
 if not redzlib then error("deu red") end
 
 workspace.FallenPartsDestroyHeight = -math.huge
@@ -241,7 +243,7 @@ local Window = redzlib:MakeWindow({
 
 Window:AddMinimizeButton({
 	Button = {
-		Image = "rbxassetid://15298567397"
+		Image = "rbxassetid://114883288714962"
 	},
 	Corner = {
 		CornerRadius = UDim.new(35, 1)
