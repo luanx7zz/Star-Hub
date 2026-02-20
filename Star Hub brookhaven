@@ -383,7 +383,7 @@ tween:Play()
 end
 Window:Dialog({
 Title = Translator:traduzir("Seja Bem-Vindo(a)"),
-Text = Translator:traduzir("E aí! Você acaba de dar o play no REDz HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
+Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está aqui um dos melhores Hub do Brookhaven. Bora nessa!"),
     Options = {
         {"Discord", function()
             copyDiscordLink()
@@ -2117,7 +2117,7 @@ Tabs.Client:AddSection({Translator:traduzir("Mensagens De Chat")})
 local predefinedMessages = {
     {"c00lkidd invaded", "c00lkidd invaded"},
     {"Vou Trava Geral", "Vou Trava Geral"},
-    {"REDz HUB", "REDz HUB"},
+    {"STAR HUB", "STAR HUB"},
     {"Tubers93 invaded", "Tubers93 invaded"},
     {"Server Hacked", "Server Hacked"}
 }
@@ -4128,9 +4128,9 @@ getgenv().RunService = nil
 getgenv().flingloop = false
 
 local nomesRP = {
-    "oi kkkk", "Sou Seu filho", "Armaria", "Tenho Dono: Lucas", "Estoy loco", 
-    "XALALALAL", "ANALFABETO", "Criança", "Web namoro", "Veia", "REDz HUB", 
-    "KITA!!!!", "MÃEEEE", "PAIII", "BANCOPAN", "Calada", "Tenho Dona: Lolyta", "Uso Hack"
+    "oi kkkk", "Sou Seu filho", "Armaria", "Tenho Dono", "Estou loco", 
+    "XALALALAL", "ANALFABETO", "Criança", "Web namoro", "Veia", "STAR HUB", 
+    "KITA!!!!", "MÃEEEE", "PAIII", "BANCOPAN", "Calada", "Tenho Dona", "Uso Hack"
 }
 
 local parteMapeada = {
@@ -11784,7 +11784,7 @@ local function createInterface()
     titleLabel.Position = UDim2.new(0, 0, 0, 0)
     titleLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- COR ALTERADA PARA VERMELHO PURO
     titleLabel.BorderSizePixel = 0
-    titleLabel.Text = "REDz Hub Admin"
+    titleLabel.Text = "Star Hub Admin"
     titleLabel.TextColor3 = Color3.new(1, 1, 1)
     titleLabel.TextSize = 16
     titleLabel.Font = Enum.Font.GothamBold
@@ -12976,7 +12976,7 @@ local function showAdminTab()
         if TextChatService and TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral then
             responseConnection = TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(msg)
                 pcall(function()
-                    if msg.Text == "REDZ_Hub_Actived" then
+                    if msg.Text == "STAR_Hub_Actived" then
                         local responder = msg.TextSource and Players:GetPlayerByUserId(msg.TextSource.UserId)
                         if responder and responder ~= LocalPlayer then
                             responses[responder.Name] = true
@@ -13073,7 +13073,7 @@ local function setupChatListener()
             
             if text == "Verificar" and sender and allowedUsers[sender.Name] and sender ~= LocalPlayer then
                 task.wait(math.random(0.5, 2))
-                sendChatCommand("REDZ_Hub_Actived")
+                sendChatCommand("Star_Hub_Actived")
                 return
             end
             
@@ -13177,7 +13177,7 @@ local function setupChatListener()
             elseif success then
                 print("set")
             else
-                warn("erros redz", maxAttempts, "tentativas")
+                warn("erros star", maxAttempts, "tentativas")
             end
         end
         
