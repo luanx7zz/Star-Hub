@@ -228,7 +228,7 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Ui do star hub", true)
+local redzlibContent = game:HttpGet("https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Ui%20do%20star%20hub", true)
 local redzlib = loadstring(redzlibContent)()
 if not redzlib then error("deu red") end
 
