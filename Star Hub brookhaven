@@ -9318,6 +9318,9 @@ Tabs.AD:AddParagraph({
 
 -- Tabelas de músicas por categoria
 local Funk = {
+    ["chupa o bico do meu peito"] = "89246057052047",
+    ["menina se prepara"] = "129385045610593",
+    ["eu ja sofri por amor"] = "128011871344522",
     ["raspa o cabelo dela"] = "106866829236727",
     ["bata essa aqui"] = "99250885177756",
     ["mico"] = "78352220341424",
@@ -9370,7 +9373,6 @@ local Phonk = {
     ["montagem boa não sei o nome"] = "105663768150465",
     ["montagem risada sombria"] = "93556552625864",
     ["montagem do karma"] = "79148752172118",
-    ["entre"] = "110274202819990",
     ["kobal"] = "79381341943021",
     ["estourada"] = "92175624643620",
     ["estourada 2"] = "108099943758978",
@@ -9393,6 +9395,8 @@ local Phonk = {
 }
 
 local Forro = {
+    ["minha pequena"] = "133190351316780",
+    ["mas eu duvido pablo"] = "82637471825234",
     ["forró da resenha"] = "120973520531216",
     ["forró ja cansou"] = "74812784884330",
     ["lembro ate hoje"] = "71531533552899",
