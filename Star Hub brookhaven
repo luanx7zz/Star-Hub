@@ -228,7 +228,7 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://pastefy.app/kBOmIOp0/raw", true)
+local redzlibContent = game:HttpGet("https://pastefy.app/SR1uXLU2/raw", true)
 local fn, loadErr = loadstring(redzlibContent)
 if not fn then error("Erro na lib: " .. tostring(loadErr)) end
 local redzlib = fn()
