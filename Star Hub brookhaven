@@ -230,7 +230,7 @@ local Camera = workspace.CurrentCamera
 local Workspace = game:GetService("Workspace")
 local UserInputService = game:GetService("UserInputService")
 
-local redzlibContent = game:HttpGet("https://pastefy.app/k4s4dylT/raw", true)
+local redzlibContent = game:HttpGet("https://pastefy.app/JmbV3QeK/raw", true)
 local redzlib = loadstring(redzlibContent)()
 if not redzlib then error("deu red") end
 
@@ -4002,6 +4002,133 @@ local Button = Tabs.JJ:AddButton({Translator:traduzir("Equipa Todos Items"), fun
     end
 end})
 
+-- ===========================
+-- SEÇÃO: PEGAR TOOLS (DROPDOWN)
+-- ===========================
+Tabs.JJ:AddSection({Translator:traduzir("Pegar Tools")})
+
+local toolsJJ = {
+    -- Items do fireclickdetector (001_GiveTools)
+    ["Basketball"]       = {path = "WorkspaceCom.001_GiveTools.Basketball",    type = "click"},
+    ["Book"]             = {path = "WorkspaceCom.001_GiveTools.Book",           type = "click"},
+    ["Laptop"]           = {path = "WorkspaceCom.001_GiveTools.Laptop",         type = "click"},
+    ["Iphone"]           = {path = "WorkspaceCom.001_GiveTools.Iphone",         type = "click"},
+    ["Ipad"]             = {path = "WorkspaceCom.001_GiveTools.Ipad",           type = "click"},
+    ["FireX"]            = {path = "WorkspaceCom.001_GiveTools.FireX",          type = "click"},
+    ["Ladder"]           = {path = "WorkspaceCom.001_GiveTools.Ladder",         type = "click"},
+    ["Ghost Meter"]      = {path = "WorkspaceCom.001_GiveTools.GhostMeter",     type = "click"},
+    ["Clipboard"]        = {path = "WorkspaceCom.001_GiveTools.ClipBoard",      type = "click"},
+    ["Stretcher"]        = {path = "WorkspaceCom.001_GiveTools.Stretcher",      type = "click"},
+    ["Electric Guitar"]  = {path = "WorkspaceCom.001_GiveTools.ElectricGuitar", type = "click"},
+    ["Guitar"]           = {path = "WorkspaceCom.001_GiveTools.Guitar",         type = "click"},
+    ["Box"]              = {path = "WorkspaceCom.001_GiveTools.Box",            type = "click"},
+    ["Burger Tray"]      = {path = "WorkspaceCom.001_GiveTools.BurgerTray",     type = "click"},
+    ["Paper Bag"]        = {path = "WorkspaceCom.001_GiveTools.Paperbag",       type = "click"},
+    ["Glock"]            = {path = "WorkspaceCom.001_CriminalWeapons.GiveTools.Glock", type = "click"},
+    ["Bomb"]             = {path = "WorkspaceCom.001_CriminalWeapons.GiveTools.Bomb",  type = "click"},
+    -- Items via RemoteEvent (1Playe1rTrigge1rEven1t)
+    ["Lança Ovo"]        = {name = "EggLauncher",        type = "remote"},
+    ["Canhão"]           = {name = "Cannon",              type = "remote"},
+    ["Planador"]         = {name = "Glider",              type = "remote"},
+    ["Pedra Nuclear"]    = {name = "UraniumRod",          type = "remote"},
+    ["Balão de Água"]    = {name = "Water Balloon",       type = "remote"},
+    ["Mangueira"]        = {name = "FireHose",            type = "remote"},
+    ["Canhão de Neve"]   = {name = "SnowballCannon",      type = "remote"},
+    ["Garrafa Térmica"]  = {name = "Thermos",             type = "remote"},
+    ["Motosserra"]       = {name = "Chainsaw",            type = "remote"},
+    ["Lança Azul"]       = {name = "JoustBlue",           type = "remote"},
+    ["Regador"]          = {name = "WateringCan",         type = "remote"},
+    ["Macaco Azul"]      = {name = "BlueMonkey",          type = "remote"},
+    ["Presente"]         = {name = "Present",             type = "remote"},
+    ["Bandeja"]          = {name = "CookieWindowTray",    type = "remote"},
+    ["Cristal"]          = {name = "Crystal",             type = "remote"},
+    ["Cristal 2"]        = {name = "Crystals",            type = "remote"},
+    ["Chave de Ouro"]    = {name = "OldKey",              type = "remote"},
+    ["Espada de Ouro"]   = {name = "SwordGold",           type = "remote"},
+    ["Livro Velho"]      = {name = "AgencyBook",          type = "remote"},
+    ["Sacola Diamantes"] = {name = "DuffleBagDiamonds",   type = "remote"},
+    ["Chave Velha"]      = {name = "BankGateKey",         type = "remote"},
+    ["Planador de Neve"] = {name = "SnowflakeGlider",     type = "remote"},
+    ["Lança Vermelha"]   = {name = "JoustRed",            type = "remote"},
+    ["Helicóptero"]      = {path = "WorkspaceCom.001_HeliCloneButton.Button",   type = "click"},
+    ["Canoa"]            = {path = "WorkspaceCom.001_CanoeCloneButton.Button",  type = "click"},
+}
+
+-- Monta lista de nomes pro dropdown
+local toolNamesList = {}
+for toolName, _ in pairs(toolsJJ) do
+    table.insert(toolNamesList, toolName)
+end
+table.sort(toolNamesList)
+
+local selectedTool = toolNamesList[1]
+
+local function getNodeFromPath(pathStr)
+    local ok, result = pcall(function()
+        local current = workspace
+        for _, part in ipairs(string.split(pathStr, ".")) do
+            current = current:FindFirstChild(part)
+            if not current then return nil end
+        end
+        return current
+    end)
+    return ok and result or nil
+end
+
+local ToolRemoteEvent = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Playe1rTrigge1rEven1t")
+
+local function GiveToolJJ(toolName)
+    local data = toolsJJ[toolName]
+    if not data then return end
+
+    if data.type == "click" then
+        local obj = getNodeFromPath(data.path)
+        if not obj then warn("Tool nao encontrada: "..data.path) return end
+        local detector = obj:FindFirstChildWhichIsA("ClickDetector")
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if detector and hrp then
+            hrp.CFrame = obj.CFrame + Vector3.new(0, 1.5, 0)
+            task.wait(0.05)
+            pcall(fireclickdetector, detector)
+        end
+    elseif data.type == "remote" then
+        pcall(function()
+            ToolRemoteEvent:FireServer("AcceptedToolToServer", data.name, LocalPlayer)
+        end)
+    end
+end
+
+local toolDropdown = Tabs.JJ:AddDropdown({
+    Name = Translator:traduzir("Selecionar Tool"),
+    Description = Translator:traduzir("Escolha a tool que deseja pegar"),
+    Options = toolNamesList,
+    Default = toolNamesList[1],
+    Callback = function(value)
+        selectedTool = value
+    end
+})
+
+Tabs.JJ:AddButton({
+    Name = Translator:traduzir("💎 Pegar Tool Selecionada"),
+    Callback = function()
+        if selectedTool then
+            GiveToolJJ(selectedTool)
+        end
+    end
+})
+
+Tabs.JJ:AddButton({
+    Name = Translator:traduzir("💎 Pegar Todas as Tools"),
+    Callback = function()
+        task.spawn(function()
+            for toolName, _ in pairs(toolsJJ) do
+                GiveToolJJ(toolName)
+                task.wait(0.2)
+            end
+        end)
+    end
+})
+
 RunService.Stepped:Connect(updateNoClip)
 UserInputService.JumpRequest:Connect(onJumpRequest)
 -- ================== SEÇÃO: SISTEMA DE TELEPORTE ==================
@@ -4082,6 +4209,10 @@ local playerDropdown = Tabs.JJ:AddDropdown({
     Options = getPlayersList(),
     Default = "Players",
     Callback = function(value)
+        if not value or value == "Players" or value == "" then
+            TeleportSystem.selectedPlayer = nil
+            return
+        end
         TeleportSystem.selectedPlayer = value
         if TeleportSystem.teleportEnabled then
             teleportToPlayer()
@@ -4265,7 +4396,7 @@ local Annoy = Tabs.TT:AddDropdown({
   Flag = "PlayerDropdown",
   Callback = function(value)
     selectedPlayer = value  -- salva o nome (string)
-    local plr = Players:FindFirstChild(value)
+    local plr = value and Players:FindFirstChild(value)
     if plr and flingEnabled then
       FlingPlayer(plr)
     end
@@ -10956,8 +11087,8 @@ local autoClickEnabled = false
 
 local function autoClickDoorBell()
     while autoClickEnabled do
-        if selectedHouseNumber then
-            local house = workspace["001_Lots"]:FindFirstChild(selectedHouseNumber)
+        if selectedHouseNumber and selectedHouseNumber ~= "" then
+            local house = workspace["001_Lots"]:FindFirstChild(tostring(selectedHouseNumber))
             if house and house:FindFirstChild("HousePickedByPlayer") then
                 local doorBell = house.HousePickedByPlayer.HouseModel:FindFirstChild("001_DoorBell")
                 if doorBell then
@@ -10977,9 +11108,9 @@ Tabs.HouseTab:AddToggle({
     Description = Translator:traduzir("Clica Na Campainha da casa"),
     Default = false,
     Callback = function(Value)
-        autoClickEnabled = Value
+        autoClickEnabled = Value == true
         if autoClickEnabled then
-            spawn(autoClickDoorBell)
+            task.spawn(autoClickDoorBell)
         end
     end
 })
@@ -10988,8 +11119,8 @@ local autoKnockEnabled = false
 
 local function autoKnockDoor()
     while autoKnockEnabled do
-        if selectedHouseNumber then
-            local house = workspace["001_Lots"]:FindFirstChild(selectedHouseNumber)
+        if selectedHouseNumber and selectedHouseNumber ~= "" then
+            local house = pcall(function() return workspace["001_Lots"]:FindFirstChild(tostring(selectedHouseNumber)) end) and workspace["001_Lots"]:FindFirstChild(tostring(selectedHouseNumber))
             if house and house:FindFirstChild("HousePickedByPlayer") then
                 local frontDoor = house.HousePickedByPlayer.HouseModel:FindFirstChild("001_HouseDoors"):FindFirstChild("HouseDoorFront")
                 if frontDoor then
@@ -11101,7 +11232,9 @@ local Players11 = Tabs.HouseTab:AddDropdown({
     Options = {},
     Default = "Players",
     Callback = function(playerName)
-        selectedPlayer = Players:FindFirstChild(playerName)
+        if playerName and playerName ~= "Players" then
+            selectedPlayer = Players:FindFirstChild(playerName)
+        end
     end
 })
 
