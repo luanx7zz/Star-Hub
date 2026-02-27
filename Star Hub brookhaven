@@ -409,6 +409,7 @@ local Tabs = {
     Client = Window:MakeTab({Translator:traduzir("Spam/Client"), "eye"}),
     JJ = Window:MakeTab({Translator:traduzir("Personagem"), "userplus"}),
     TT = Window:MakeTab({Translator:traduzir("Trolar"), "flame"}),
+    Props = Window:MakeTab({Translator:traduzir("Props"), "package"}),
     LG = Window:MakeTab({Translator:traduzir("Lag Servidor"), "bomb"}),
     AD = Window:MakeTab({Translator:traduzir("Audio/Musica"), "headphones"}),
     AVT = Window:MakeTab({Translator:traduzir("Roupas"), "shirt"}),
@@ -2351,6 +2352,220 @@ local function stopJetSpam()
         end
     end
 end
+
+
+-----------------///////SPAM VEÍCULOS & ITEMS///////-----------------
+-- Variáveis compartilhadas para spams
+local function getSpamVars()
+    local Player = LocalPlayer
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+    local RootPart = Character:FindFirstChild("HumanoidRootPart")
+    local Mouse = Player:GetMouse()
+    return Player, Character, Humanoid, RootPart, Mouse
+end
+
+-- SPAM HELICÓPTERO
+Tabs.Client:AddSection({Translator:traduzir("Spam Helicóptero")})
+Tabs.Client:AddToggle({
+    Name = Translator:traduzir("Spam Helicóptero"),
+    Description = Translator:traduzir("Spawna helicópteros repetidamente"),
+    Default = false,
+    Callback = function(state)
+        getgenv().HeliToggle = state
+        if state then
+            task.spawn(function()
+                while getgenv().HeliToggle do
+                    local _, _, Humanoid, RootPart = getSpamVars()
+                    if not RootPart then task.wait(1) continue end
+                    local ok, btn = pcall(function()
+                        return workspace.WorkspaceCom["001_HeliCloneButton"].Button
+                    end)
+                    if not ok or not btn then task.wait(1) continue end
+                    RootPart.CFrame = btn.CFrame
+                    task.wait(0.1)
+                    pcall(fireclickdetector, btn.ClickDetector)
+                    task.wait(0.5)
+                    local molestado2 = workspace.WorkspaceCom["001_HeliStorage"]:FindFirstChild("PoliceStationHeli")
+                    if molestado2 and molestado2.PrimaryPart then
+                        local waited = 0
+                        repeat RootPart.CFrame = molestado2.PrimaryPart.CFrame + Vector3.new(0, math.random(-1,1), 0) task.wait() waited += 1 until Humanoid.Sit or waited > 60
+                        task.wait(0.1)
+                        Humanoid.Sit = false
+                        task.wait()
+                        if molestado2:FindFirstChild("Passenger1") then
+                            waited = 0
+                            repeat RootPart.CFrame = molestado2.Passenger1.CFrame + Vector3.new(0, math.random(-1,1), 0) task.wait() waited += 1 until Humanoid.Sit or waited > 60
+                        end
+                        task.wait(0.2)
+                        RootPart.CFrame = CFrame.new(math.random(-40,40), 4.549, math.random(-40,40))
+                        task.wait(0.2)
+                        Humanoid.Sit = false
+                        pcall(function() molestado2.Name = "PoliceStationHeliStarHub" end)
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- SPAM CANOA
+Tabs.Client:AddSection({Translator:traduzir("Spam Canoa")})
+Tabs.Client:AddToggle({
+    Name = Translator:traduzir("Spam Canoa"),
+    Description = Translator:traduzir("Spawna canoas repetidamente"),
+    Default = false,
+    Callback = function(state)
+        getgenv().CanoeToggle = state
+        if state then
+            task.spawn(function()
+                while getgenv().CanoeToggle do
+                    local _, _, Humanoid, RootPart = getSpamVars()
+                    if not RootPart then task.wait(1) continue end
+                    local ok, btn = pcall(function()
+                        return workspace.WorkspaceCom["001_CanoeCloneButton"].Button
+                    end)
+                    if not ok or not btn then task.wait(1) continue end
+                    RootPart.CFrame = btn.CFrame
+                    task.wait(0.1)
+                    pcall(fireclickdetector, btn.ClickDetector)
+                    task.wait(0.5)
+                    local molestado2 = workspace.WorkspaceCom["001_CanoeStorage"]:FindFirstChild("Canoe")
+                    if molestado2 and molestado2:FindFirstChild("VehicleSeat") then
+                        local waited = 0
+                        repeat RootPart.CFrame = molestado2.VehicleSeat.CFrame + Vector3.new(0, math.random(-1,1), 0) task.wait() waited += 1 until Humanoid.Sit or waited > 60
+                        task.wait(0.2)
+                        RootPart.CFrame = CFrame.new(math.random(-40,40), 4.549, math.random(-40,40))
+                        task.wait(0.2)
+                        Humanoid.Sit = false
+                        pcall(function() molestado2.Name = "CanoeStarHub" end)
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- SPAM BASKETBALL
+Tabs.Client:AddSection({Translator:traduzir("Spam Items (Tools)")})
+Tabs.Client:AddToggle({
+    Name = Translator:traduzir("Spam Basketball"),
+    Default = false,
+    Callback = function(state)
+        getgenv().BasketballToggle = state
+        if state then
+            local Player, Character, _, RootPart, Mouse = getSpamVars()
+            local Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball") end) and workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
+            if not Clone or not RootPart then return end
+            local OldPos = RootPart.CFrame
+            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
+            task.wait() RootPart.CFrame = OldPos
+            task.spawn(function()
+                while getgenv().BasketballToggle do
+                    task.wait()
+                    Character = LocalPlayer.Character
+                    if not Character then continue end
+                    for _, tool in ipairs(Character:GetChildren()) do
+                        if tool.Name == "Basketball" then
+                            task.wait(0.0003)
+                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- SPAM IPHONE
+Tabs.Client:AddToggle({
+    Name = Translator:traduzir("Spam iPhone"),
+    Default = false,
+    Callback = function(state)
+        getgenv().iPhoneToggle = state
+        if state then
+            local Player, Character, _, RootPart, Mouse = getSpamVars()
+            local ok, Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("iPhone") end)
+            if not ok or not Clone or not RootPart then return end
+            local OldPos = RootPart.CFrame
+            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
+            task.wait() RootPart.CFrame = OldPos
+            task.spawn(function()
+                while getgenv().iPhoneToggle do
+                    task.wait()
+                    Character = LocalPlayer.Character
+                    if not Character then continue end
+                    for _, tool in ipairs(Character:GetChildren()) do
+                        if tool.Name == "iPhone" then
+                            task.wait(0.0003)
+                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- SPAM LAPTOP
+Tabs.Client:AddToggle({
+    Name = Translator:traduzir("Spam Laptop"),
+    Default = false,
+    Callback = function(state)
+        getgenv().LaptopToggle = state
+        if state then
+            local Player, Character, _, RootPart, Mouse = getSpamVars()
+            local ok, Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Laptop") end)
+            if not ok or not Clone or not RootPart then return end
+            local OldPos = RootPart.CFrame
+            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
+            task.wait() RootPart.CFrame = OldPos
+            task.spawn(function()
+                while getgenv().LaptopToggle do
+                    task.wait()
+                    Character = LocalPlayer.Character
+                    if not Character then continue end
+                    for _, tool in ipairs(Character:GetChildren()) do
+                        if tool.Name == "Laptop" then
+                            task.wait(0.0003)
+                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
+
+-- SPAM BOOK
+Tabs.Client:AddToggle({
+    Name = Translator:traduzir("Spam Book"),
+    Default = false,
+    Callback = function(state)
+        getgenv().BookToggle = state
+        if state then
+            local Player, Character, _, RootPart, Mouse = getSpamVars()
+            local ok, Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Book") end)
+            if not ok or not Clone or not RootPart then return end
+            local OldPos = RootPart.CFrame
+            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
+            task.wait() RootPart.CFrame = OldPos
+            task.spawn(function()
+                while getgenv().BookToggle do
+                    task.wait()
+                    Character = LocalPlayer.Character
+                    if not Character then continue end
+                    for _, tool in ipairs(Character:GetChildren()) do
+                        if tool.Name == "Book" then
+                            task.wait(0.0003)
+                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+})
 
 Tabs.Client:AddButton({
     Translator:traduzir("Como funciona?"),
@@ -7864,6 +8079,573 @@ Tabs.TT:AddToggle({
     end
 })
 end
+
+
+-----------------///////TAB PROPS///////-----------------
+do
+local propConnections_StarHub = {}
+local meusProps_StarHub = {}
+local rgbAtivo_StarHub = false
+local rgbConnection_StarHub = nil
+
+local function IsMeuProp_SH(obj)
+    return obj:IsA("Model")
+        and obj.Name:find(LocalPlayer.Name)
+        and obj:FindFirstChild("ChangePropColor")
+end
+
+local function AddProp_SH(prop)
+    if not table.find(meusProps_StarHub, prop) then
+        table.insert(meusProps_StarHub, prop)
+    end
+end
+
+local function ScanProps_SH()
+    meusProps_StarHub = {}
+    local workspaceCom = workspace:FindFirstChild("WorkspaceCom")
+    if not workspaceCom then return end
+    for _, obj in ipairs(workspaceCom:GetDescendants()) do
+        if IsMeuProp_SH(obj) then AddProp_SH(obj) end
+    end
+end
+
+local function MonitorarNovosProps_SH()
+    local workspaceCom = workspace:FindFirstChild("WorkspaceCom")
+    if not workspaceCom then return end
+    local conn = workspaceCom.DescendantAdded:Connect(function(obj)
+        if rgbAtivo_StarHub and IsMeuProp_SH(obj) then AddProp_SH(obj) end
+    end)
+    table.insert(propConnections_StarHub, conn)
+end
+
+local function GetMyPropsRaid_SH()
+    local props = {}
+    local ws = workspace:FindFirstChild("WorkspaceCom")
+    if not ws then return props end
+    for _, folder in ipairs(ws:GetChildren()) do
+        for _, prop in ipairs(folder:GetChildren()) do
+            if prop:FindFirstChild("SetCurrentCFrame")
+            and prop.Name:lower():find(LocalPlayer.Name:lower()) then
+                table.insert(props, prop)
+            end
+        end
+    end
+    return props
+end
+
+-- Variáveis de controle
+local PROP_RAID_ENABLED_SH = false
+local PROP_RAID_CONNECTION_SH
+local PROP_RAID_Targets_SH = {}
+local HUNT_ENABLED_SH = false
+local HUNT_CONNECTION_SH
+local PropTargetMap_SH = {}
+local DroppedProps_SH = {}
+local COBRA_ENABLED_SH = false
+local COBRA_CONNECTION_SH
+local FURACAO_ENABLED_SH = false
+local FURACAO_CONNECTION_SH
+local WAIST_RING_ENABLED_SH = false
+local WAIST_RING_CONNECTION_SH
+local CHAOS_ENABLED_SH = false
+local CHAOS_CONNECTION_SH
+local AIR_ENABLED_SH = false
+local AIR_CONNECTION_SH
+local FRONT_CIRCLE_ENABLED_SH = false
+local FRONT_CIRCLE_CONNECTION_SH
+local TARGET_ENABLED_SH = false
+local TARGET_CONNECTION_SH
+local SentProps_SH = {}
+local RING_ENABLED_SH = false
+local RING_CONNECTION_SH
+local COBRA_TARGET_CONNECTION_SH
+local COBRA_TARGET_ACTIVE_SH = false
+local CHARACTER_SH, HRP_SH, HUMANOID_SH
+
+local function UpdatePropsChar(char)
+    CHARACTER_SH = char
+    HRP_SH = char:WaitForChild("HumanoidRootPart", 5)
+    HUMANOID_SH = char:WaitForChild("Humanoid", 5)
+end
+if LocalPlayer.Character then UpdatePropsChar(LocalPlayer.Character) end
+LocalPlayer.CharacterAdded:Connect(function(char)
+    task.wait(0.5)
+    UpdatePropsChar(char)
+end)
+
+-- Dropdown de player selecionado para props
+local selectedPropPlayer = nil
+
+-- ===== EQUIP PROPMAKER =====
+pcall(function()
+    ReplicatedStorage.RE["1Too1l"]:InvokeServer("PickingTools", "PropMaker")
+end)
+task.wait(0.3)
+pcall(function()
+    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer("RequestingPropName", "FurnitureBleachers", "Furniture")
+end)
+
+-- ===== UI DA TAB PROPS =====
+Tabs.Props:AddSection({Translator:traduzir("Selecionar Jogador")})
+
+local propPlayerDropdown = Tabs.Props:AddDropdown({
+    Name = Translator:traduzir("Escolher Player"),
+    Options = (function()
+        local t = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then table.insert(t, p.Name) end
+        end
+        return t
+    end)(),
+    Callback = function(v) selectedPropPlayer = v end
+})
+
+Tabs.Props:AddButton({
+    Name = Translator:traduzir("Atualizar Lista"),
+    Callback = function()
+        local t = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then table.insert(t, p.Name) end
+        end
+        propPlayerDropdown:Set(t)
+    end
+})
+
+-- ===== RGB PROPS =====
+Tabs.Props:AddSection({Translator:traduzir("Efeitos Visuais")})
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Auto RGB Props"),
+    Default = false,
+    Callback = function(state)
+        rgbAtivo_StarHub = state
+        if rgbAtivo_StarHub then
+            ScanProps_SH()
+            MonitorarNovosProps_SH()
+            rgbConnection_StarHub = RunService.Heartbeat:Connect(function()
+                local hue = (tick() * 0.5) % 1
+                local color = Color3.fromHSV(hue, 1, 1)
+                for i = #meusProps_StarHub, 1, -1 do
+                    local prop = meusProps_StarHub[i]
+                    if not prop or not prop.Parent then
+                        table.remove(meusProps_StarHub, i)
+                    else
+                        pcall(function() prop.ChangePropColor:InvokeServer(color) end)
+                    end
+                end
+            end)
+        else
+            if rgbConnection_StarHub then rgbConnection_StarHub:Disconnect() rgbConnection_StarHub = nil end
+            for _, c in ipairs(propConnections_StarHub) do c:Disconnect() end
+            propConnections_StarHub = {}
+            meusProps_StarHub = {}
+        end
+    end
+})
+
+-- ===== PROP RAID TODOS =====
+Tabs.Props:AddSection({Translator:traduzir("Props nos Jogadores")})
+
+local function getTargetsRaid_SH()
+    local t = {}
+    if not HRP_SH then return t end
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = (p.Character.HumanoidRootPart.Position - HRP_SH.Position).Magnitude
+            if dist <= 222 then table.insert(t, p) end
+        end
+    end
+    return t
+end
+
+local angle_SH, height_SH, dir_SH = 0, 0, 1
+
+local function StartPropRaid_SH()
+    if PROP_RAID_CONNECTION_SH then PROP_RAID_CONNECTION_SH:Disconnect() end
+    PROP_RAID_CONNECTION_SH = RunService.Heartbeat:Connect(function()
+        if not CHARACTER_SH or not HRP_SH then return end
+        local props = GetMyPropsRaid_SH()
+        local targets = getTargetsRaid_SH()
+        if #props == 0 or #targets == 0 then return end
+        angle_SH += math.rad(20)
+        if height_SH > 4 then dir_SH = -1 end
+        if height_SH < -4 then dir_SH = 1 end
+        height_SH += 0.3 * dir_SH
+        for i, prop in ipairs(props) do
+            local target = PROP_RAID_Targets_SH[prop]
+            if not target or not target.Character then
+                PROP_RAID_Targets_SH[prop] = targets[((i-1) % #targets) + 1]
+                continue
+            end
+            local root = target.Character:FindFirstChild("HumanoidRootPart")
+            local hum = target.Character:FindFirstChild("Humanoid")
+            if not root or not hum or hum.Sit then continue end
+            local radius = math.random(2,5)
+            local offset = Vector3.new(math.cos(angle_SH)*radius, height_SH, math.sin(angle_SH)*radius)
+            pcall(function() prop.SetCurrentCFrame:InvokeServer(root.CFrame * CFrame.new(offset)) end)
+        end
+    end)
+end
+
+local function StopPropRaid_SH()
+    if PROP_RAID_CONNECTION_SH then PROP_RAID_CONNECTION_SH:Disconnect() PROP_RAID_CONNECTION_SH = nil end
+    PROP_RAID_Targets_SH = {}
+end
+
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Prop Sit All"),
+    Default = false,
+    Callback = function(v)
+        PROP_RAID_ENABLED_SH = v
+        if v then StartPropRaid_SH() else StopPropRaid_SH() end
+    end
+})
+
+-- ===== PROP KILL ALL =====
+local function StartHunter_SH()
+    if HUNT_CONNECTION_SH then HUNT_CONNECTION_SH:Disconnect() end
+    local t = 0
+    HUNT_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+        if not CHARACTER_SH or not HRP_SH then return end
+        t += dt
+        local props = GetMyPropsRaid_SH()
+        if #props == 0 then return end
+        local targets = {}
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local d = (p.Character.HumanoidRootPart.Position - HRP_SH.Position).Magnitude
+                if d <= 150 then table.insert(targets, p) end
+            end
+        end
+        for i, prop in ipairs(props) do
+            local curTarget = PropTargetMap_SH[prop]
+            if curTarget then
+                local char = curTarget.Character
+                if not char or not char:FindFirstChild("HumanoidRootPart") then PropTargetMap_SH[prop] = nil curTarget = nil end
+            end
+            if not curTarget and #targets > 0 then
+                PropTargetMap_SH[prop] = targets[((i-1)%#targets)+1]
+                curTarget = PropTargetMap_SH[prop]
+            end
+            if not curTarget then continue end
+            local root = curTarget.Character and curTarget.Character:FindFirstChild("HumanoidRootPart")
+            local hum = curTarget.Character and curTarget.Character:FindFirstChild("Humanoid")
+            if not root or not hum then continue end
+            if hum.Sit then
+                if not DroppedProps_SH[prop] then
+                    DroppedProps_SH[prop] = true
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(CFrame.new(root.Position.X, -460, root.Position.Z)) end)
+                end
+                continue
+            end
+            DroppedProps_SH[prop] = nil
+            local move = Vector3.new(math.cos(t*3+i)*2, -1.5+math.sin(t*4+i), math.sin(t*3+i)*2)
+            local cf = root.CFrame * CFrame.new(move) * CFrame.Angles(math.rad(math.sin(t*5+i)*120), math.rad(t*180), 0)
+            pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(cf, 0.35)) end)
+        end
+    end)
+end
+
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Prop Kill All"),
+    Default = false,
+    Callback = function(v)
+        HUNT_ENABLED_SH = v
+        if v then StartHunter_SH()
+        else
+            if HUNT_CONNECTION_SH then HUNT_CONNECTION_SH:Disconnect() HUNT_CONNECTION_SH = nil end
+            PropTargetMap_SH = {} DroppedProps_SH = {}
+        end
+    end
+})
+
+-- ===== EFEITOS EM MIM =====
+Tabs.Props:AddSection({Translator:traduzir("Props em Mim")})
+
+-- Cobra
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Prop Cobra"),
+    Default = false,
+    Callback = function(v)
+        COBRA_ENABLED_SH = v
+        if v then
+            if COBRA_CONNECTION_SH then COBRA_CONNECTION_SH:Disconnect() end
+            local time_c = 0
+            COBRA_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                time_c += dt * 10
+                for i, prop in ipairs(props) do
+                    local phase = time_c - i * 1.1
+                    local backDir = -HRP_SH.CFrame.LookVector
+                    local pos = HRP_SH.Position + backDir*(3.5*i) + HRP_SH.CFrame.RightVector*(math.sin(phase)*3.2) + Vector3.new(0, math.cos(phase*0.8)*1.2, 0)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(CFrame.new(pos, pos+backDir), 0.35)) end)
+                end
+            end)
+        else
+            if COBRA_CONNECTION_SH then COBRA_CONNECTION_SH:Disconnect() COBRA_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- Furacão
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Props Furacão"),
+    Default = false,
+    Callback = function(v)
+        FURACAO_ENABLED_SH = v
+        if v then
+            if FURACAO_CONNECTION_SH then FURACAO_CONNECTION_SH:Disconnect() end
+            local t = 0
+            FURACAO_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 4
+                for i, prop in ipairs(props) do
+                    local ang = t + (i*0.7)
+                    local radius = 4 + math.sin(t+i)*3
+                    local h = math.cos(t*2+i)*4
+                    local pos = HRP_SH.Position + Vector3.new(math.cos(ang)*radius, h, math.sin(ang)*radius)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(CFrame.new(pos, HRP_SH.Position), 0.35)) end)
+                end
+            end)
+        else
+            if FURACAO_CONNECTION_SH then FURACAO_CONNECTION_SH:Disconnect() FURACAO_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- Círculo
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Props Círculo"),
+    Default = false,
+    Callback = function(v)
+        WAIST_RING_ENABLED_SH = v
+        if v then
+            if WAIST_RING_CONNECTION_SH then WAIST_RING_CONNECTION_SH:Disconnect() end
+            local spin = 0
+            WAIST_RING_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                spin += dt * 1.5
+                local total = #props
+                for i, prop in ipairs(props) do
+                    local angle = ((i-1)/total)*math.pi*2 + spin
+                    local pos = HRP_SH.Position + Vector3.new(math.cos(angle)*35, -0.5, math.sin(angle)*35)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(CFrame.new(pos), 0.15)) end)
+                end
+            end)
+        else
+            if WAIST_RING_CONNECTION_SH then WAIST_RING_CONNECTION_SH:Disconnect() WAIST_RING_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- Caótico
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Props Caótico"),
+    Default = false,
+    Callback = function(v)
+        CHAOS_ENABLED_SH = v
+        if v then
+            if CHAOS_CONNECTION_SH then CHAOS_CONNECTION_SH:Disconnect() end
+            local t = 0
+            CHAOS_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 2.5
+                for i, prop in ipairs(props) do
+                    local phase = t + i
+                    local dir = (HRP_SH.CFrame.LookVector * math.cos(phase*1.3)*8) + (HRP_SH.CFrame.RightVector * math.sin(phase*1.7)*8)
+                    local distance = (math.sin(phase*0.8)+1)/2 * 23
+                    local pos = HRP_SH.Position + dir.Unit*distance + Vector3.new(0, math.sin(phase*2)*20, 0)
+                    local cf = CFrame.new(pos) * CFrame.Angles(math.rad(t*200+i*40), math.rad(t*180+i*25), math.rad(math.sin(phase)*180))
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(cf, 0.25)) end)
+                end
+            end)
+        else
+            if CHAOS_CONNECTION_SH then CHAOS_CONNECTION_SH:Disconnect() CHAOS_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- Portal
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Props Portal"),
+    Default = false,
+    Callback = function(v)
+        FRONT_CIRCLE_ENABLED_SH = v
+        if v then
+            if FRONT_CIRCLE_CONNECTION_SH then FRONT_CIRCLE_CONNECTION_SH:Disconnect() end
+            local t = 0
+            FRONT_CIRCLE_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 1.8
+                local center = HRP_SH.Position + HRP_SH.CFrame.LookVector*8 + Vector3.new(0,2,0)
+                local total = #props
+                for i, prop in ipairs(props) do
+                    local ang = ((i-1)/total)*math.pi*2 + t
+                    local pos = center + HRP_SH.CFrame.RightVector*(math.cos(ang)*6) + Vector3.new(0, math.sin(ang)*6, 0)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(CFrame.new(pos), 0.25)) end)
+                end
+            end)
+        else
+            if FRONT_CIRCLE_CONNECTION_SH then FRONT_CIRCLE_CONNECTION_SH:Disconnect() FRONT_CIRCLE_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- ===== EFEITOS NO PLAYER SELECIONADO =====
+Tabs.Props:AddSection({Translator:traduzir("Props no Player Selecionado")})
+
+local function getSelectedPropTarget()
+    if not selectedPropPlayer then return nil end
+    return Players:FindFirstChild(selectedPropPlayer)
+end
+
+-- Fling Player (props mandadas pra cima quando sentar)
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Fling Player"),
+    Default = false,
+    Callback = function(v)
+        TARGET_ENABLED_SH = v
+        if v then
+            if TARGET_CONNECTION_SH then TARGET_CONNECTION_SH:Disconnect() end
+            local t = 0
+            TARGET_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local target = getSelectedPropTarget()
+                if not target or not target.Character then return end
+                local root = target.Character:FindFirstChild("HumanoidRootPart")
+                local hum = target.Character:FindFirstChild("Humanoid")
+                if not root or not hum then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 3
+                for i, prop in ipairs(props) do
+                    if hum.Sit then
+                        if not SentProps_SH[prop] then
+                            SentProps_SH[prop] = true
+                            pcall(function() prop.SetCurrentCFrame:InvokeServer(CFrame.new(root.Position.X, 1000000, root.Position.Z)) end)
+                        end
+                        continue
+                    end
+                    SentProps_SH[prop] = nil
+                    local move = Vector3.new(math.cos(t+i)*3, math.sin(t*2+i)*2, math.sin(t+i*2)*3)
+                    local cf = root.CFrame * CFrame.new(move) * CFrame.Angles(math.rad(math.sin(t*4+i)*180), math.rad(t*200), math.rad(math.cos(t*3+i)*180))
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(cf, 0.35)) end)
+                end
+            end)
+        else
+            if TARGET_CONNECTION_SH then TARGET_CONNECTION_SH:Disconnect() TARGET_CONNECTION_SH = nil end
+            SentProps_SH = {}
+        end
+    end
+})
+
+-- Kill Player (props vão pra -460 quando sentar)
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Kill Player"),
+    Default = false,
+    Callback = function(v)
+        if v then
+            if RING_CONNECTION_SH then RING_CONNECTION_SH:Disconnect() end
+            local t = 0
+            RING_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local target = getSelectedPropTarget()
+                if not target or not target.Character then return end
+                local root = target.Character:FindFirstChild("HumanoidRootPart")
+                local hum = target.Character:FindFirstChild("Humanoid")
+                if not root or not hum then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 3
+                for i, prop in ipairs(props) do
+                    if hum.Sit then
+                        pcall(function() prop.SetCurrentCFrame:InvokeServer(CFrame.new(root.Position.X, -460, root.Position.Z)) end)
+                        continue
+                    end
+                    local move = Vector3.new(math.cos(t+i)*3, math.sin(t*2+i)*2, math.sin(t+i*2)*3)
+                    local cf = root.CFrame * CFrame.new(move) * CFrame.Angles(math.rad(math.sin(t*4+i)*180), math.rad(t*200), 0)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(cf, 0.35)) end)
+                end
+            end)
+        else
+            if RING_CONNECTION_SH then RING_CONNECTION_SH:Disconnect() RING_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- Cobra no Player
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Prop Cobra Player"),
+    Default = false,
+    Callback = function(v)
+        COBRA_TARGET_ACTIVE_SH = v
+        if v then
+            if COBRA_TARGET_CONNECTION_SH then COBRA_TARGET_CONNECTION_SH:Disconnect() end
+            local t = 0
+            COBRA_TARGET_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                local target = getSelectedPropTarget()
+                if not target or not target.Character then return end
+                local root = target.Character:FindFirstChild("HumanoidRootPart")
+                local hum = target.Character:FindFirstChild("Humanoid")
+                if not root or not hum or hum.Health <= 0 then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 10
+                for i, prop in ipairs(props) do
+                    local phase = t - i*1.1
+                    local backDir = -root.CFrame.LookVector
+                    local pos = root.Position + backDir*(3.5*i) + root.CFrame.RightVector*(math.sin(phase)*3.2) + Vector3.new(0, math.cos(phase*0.8)*1.2, 0)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(CFrame.new(pos, pos+backDir), 0.35)) end)
+                end
+            end)
+        else
+            if COBRA_TARGET_CONNECTION_SH then COBRA_TARGET_CONNECTION_SH:Disconnect() COBRA_TARGET_CONNECTION_SH = nil end
+        end
+    end
+})
+
+-- Círculo no Player
+Tabs.Props:AddToggle({
+    Name = Translator:traduzir("Círculo no Player"),
+    Default = false,
+    Callback = function(v)
+        if v then
+            if RING_CONNECTION_SH then RING_CONNECTION_SH:Disconnect() end
+            local t = 0
+            RING_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
+                if not CHARACTER_SH or not HRP_SH then return end
+                local target = getSelectedPropTarget()
+                if not target or not target.Character then return end
+                local root = target.Character:FindFirstChild("HumanoidRootPart")
+                if not root then return end
+                local props = GetMyPropsRaid_SH()
+                if #props == 0 then return end
+                t += dt * 1.8
+                local total = #props
+                local gapAngle = math.rad(70)
+                local usableAngle = (math.pi*2) - gapAngle
+                for i, prop in ipairs(props) do
+                    local ang = ((i-1)/total)*usableAngle + t
+                    local pos = root.Position + Vector3.new(math.cos(ang)*8, -2.7, math.sin(ang)*8)
+                    pcall(function() prop.SetCurrentCFrame:InvokeServer(prop:GetPivot():Lerp(CFrame.new(pos), 0.28)) end)
+                end
+            end)
+        else
+            if RING_CONNECTION_SH then RING_CONNECTION_SH:Disconnect() RING_CONNECTION_SH = nil end
+        end
+    end
+})
+end -- end Props do block
+
 -----------------///////TABS - LG///////-----------------
 do
 Tabs.LG:AddSection({"Lag Server Controle"})
