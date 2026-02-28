@@ -765,6 +765,305 @@ Toggle:Callback(function(state)
 end)
 ]]--
 
+-----------------///////TABS - RGB///////-----------------
+do
+local rgbSpeed = 3
+
+Tabs.RGB:AddSection({Translator:traduzir("Configuração RGB")})
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade RGB"),
+    Description = Translator:traduzir("Velocidade geral dos efeitos RGB"),
+    Min = 1,
+    Max = 10,
+    Increase = 1,
+    Default = 3,
+    Callback = function(Value)
+        rgbSpeed = Value
+    end
+})
+
+local function getRainbowColor_RGB(speedMult)
+    local h = (tick() * speedMult % 10) / 10
+    return Color3.fromHSV(h, 1, 1)
+end
+
+local function fireServerRGB(eventName, args)
+    local RE = ReplicatedStorage:FindFirstChild("RE")
+    if RE and RE:FindFirstChild(eventName) then
+        pcall(function() RE[eventName]:FireServer(unpack(args)) end)
+    end
+end
+
+-- RGB Cabelo (modo rainbow suave)
+local rgbCabeloActive = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Cabelo"),
+    Default = false,
+    Callback = function(Value)
+        rgbCabeloActive = Value
+        if Value then
+            task.spawn(function()
+                while rgbCabeloActive do
+                    fireServerRGB("1Max1y", {"ChangeHairColor2", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+-- RGB Corpo (lista de cores nomeadas)
+local rgbAtivo_new = false
+local rgbThread_new = nil
+local cores_new = {
+    "Light reddish violet","Salmon","Sunrise","Carnation pink","Pink","Hot pink",
+    "Really red","Tawny","Burgundy","Maroon","Cocoa","Rust","CGA brown","Beige",
+    "Brick yellow","Burlap","Fawn brown","Br. yellowish orange","Olive","New Yeller",
+    "Br. yellowish green","Mint","Artichoke","Lime green","Grime","Forest green",
+    "Parsley green","Earth green","Slime green","Toothpaste","Pastel light blue",
+    "Cyan","Bright blue","Really blue","Dark blue","Navy blue","Royal purple",
+    "Magenta","Bright violet","Eggplant","Mulberry","Institutional white",
+    "Mid gray","Cloudy grey","Flint","Fossil","Medium stone grey",
+    "Dark stone grey","Smoky grey","Black","Really black","Dirt brown",
+    "Pine Cone","Brown","Dark nougat","Light orange","Pastel brown"
+}
+
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Corpo"),
+    Default = false,
+    Callback = function(v)
+        rgbAtivo_new = v
+        if v and not rgbThread_new then
+            rgbThread_new = task.spawn(function()
+                while rgbAtivo_new do
+                    for _, cor in ipairs(cores_new) do
+                        if not rgbAtivo_new then break end
+                        pcall(function() ReplicatedStorage.Remotes.ChangeBodyColor:FireServer(cor) end)
+                        task.wait(0.02)
+                    end
+                end
+                rgbThread_new = nil
+            end)
+        end
+    end
+})
+
+-- Veículos e Casa
+Tabs.RGB:AddSection({Translator:traduzir("Veículos & Casa")})
+
+local rgbCasaActive = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Casa"),
+    Default = false,
+    Callback = function(Value)
+        rgbCasaActive = Value
+        if Value then
+            task.spawn(function()
+                while rgbCasaActive do
+                    fireServerRGB("1Player1sHous1e", {"ColorPickHouse", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+local carRGBActive_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Carro RGB (Premium)"),
+    Default = false,
+    Callback = function(state)
+        carRGBActive_new = state
+        if state then
+            task.spawn(function()
+                while carRGBActive_new do
+                    fireServerRGB("1Player1sCa1r", {"PickingCarColor", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.03)
+                end
+            end)
+        end
+    end
+})
+
+local rgbNoMotor_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Veículos Sem Motor"),
+    Description = Translator:traduzir("Skate, Bicicleta, Scooter, etc"),
+    Default = false,
+    Callback = function(Value)
+        rgbNoMotor_new = Value
+        if Value then
+            task.spawn(function()
+                while rgbNoMotor_new do
+                    fireServerRGB("1Player1sCa1r", {"NoMotorColor", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.08)
+                end
+            end)
+        end
+    end
+})
+
+local rgbHorse_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Cavalo"),
+    Default = false,
+    Callback = function(Value)
+        rgbHorse_new = Value
+        if Value then
+            task.spawn(function()
+                while rgbHorse_new do
+                    pcall(function() ReplicatedStorage.RE["1Hors1eRemot1e"]:FireServer("DefaultHorse") end)
+                    task.wait(0.9)
+                    if not rgbHorse_new then break end
+                    pcall(function() ReplicatedStorage.RE["1Hors1eRemot1e"]:FireServer("SecondaryHorse") end)
+                    task.wait(0.9)
+                end
+            end)
+        end
+    end
+})
+
+-- Itens / Tools
+Tabs.RGB:AddSection({Translator:traduzir("Itens & Tools")})
+
+local radioRGBActive_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Rádio RGB"),
+    Default = false,
+    Callback = function(state)
+        radioRGBActive_new = state
+        if state then
+            task.spawn(function()
+                while radioRGBActive_new do
+                    local color = getRainbowColor_RGB(rgbSpeed)
+                    pcall(function()
+                        LocalPlayer.PlayerGui.ToolGui.ToolSettings.Settings.PropsColor.SetColor:FireServer(color)
+                    end)
+                    task.wait(0.03)
+                end
+            end)
+        end
+    end
+})
+
+local function toolRGB_new(toggleVar)
+    task.spawn(function()
+        while getgenv()[toggleVar] do
+            local color = getRainbowColor_RGB(rgbSpeed)
+            local gui = LocalPlayer:FindFirstChild("PlayerGui")
+            if gui and gui:FindFirstChild("ToolGui") then
+                local props = gui.ToolGui.ToolSettings.Settings.PropsColor
+                if props and props:FindFirstChild("SetColor") then
+                    pcall(function() props.SetColor:FireServer(color) end)
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Megafone"),
+    Default = false,
+    Callback = function(Value)
+        getgenv().rgbMegafone2 = Value
+        toolRGB_new("rgbMegafone2")
+    end
+})
+
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Rosquinha"),
+    Default = false,
+    Callback = function(Value)
+        getgenv().rgbRosquinha2 = Value
+        toolRGB_new("rgbRosquinha2")
+    end
+})
+
+-- RP Name & Bio animado
+Tabs.RGB:AddSection({Translator:traduzir("RP Name & Bio Animado")})
+
+local RPTextRemote_new = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1RPNam1eTex1t")
+local RPNameText_new, RPBioText_new = "", ""
+local RPNameEnabled_new, RPBioEnabled_new = false, false
+local NameSpeed_new, BioSpeed_new = 30, 30
+
+local function getDelay_new(speed)
+    return 0.02 + (60 - math.clamp(speed, 1, 60)) * 0.003
+end
+
+Tabs.RGB:AddTextBox({
+    Name = Translator:traduzir("RP Name Texto"),
+    Placeholder = "Digite o RP Name",
+    Callback = function(v) RPNameText_new = v end
+})
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade RP Name"),
+    Min = 1, Max = 60, Default = 30,
+    Callback = function(v) NameSpeed_new = v end
+})
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RP Name ON / OFF"),
+    Default = false,
+    Callback = function(state)
+        RPNameEnabled_new = state
+        if not state or RPNameText_new == "" then return end
+        task.spawn(function()
+            while RPNameEnabled_new do
+                for i = 1, #RPNameText_new do
+                    if not RPNameEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayName", string.sub(RPNameText_new, 1, i))
+                    task.wait(getDelay_new(NameSpeed_new))
+                end
+                task.wait(0.4)
+                for i = #RPNameText_new - 1, 0, -1 do
+                    if not RPNameEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayName", string.sub(RPNameText_new, 1, i))
+                    task.wait(getDelay_new(NameSpeed_new))
+                end
+                task.wait(0.4)
+            end
+        end)
+    end
+})
+
+Tabs.RGB:AddTextBox({
+    Name = Translator:traduzir("RP Bio Texto"),
+    Placeholder = "Digite o RP Bio",
+    Callback = function(v) RPBioText_new = v end
+})
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade RP Bio"),
+    Min = 1, Max = 60, Default = 30,
+    Callback = function(v) BioSpeed_new = v end
+})
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RP Bio ON / OFF"),
+    Default = false,
+    Callback = function(state)
+        RPBioEnabled_new = state
+        if not state or RPBioText_new == "" then return end
+        task.spawn(function()
+            while RPBioEnabled_new do
+                for i = 1, #RPBioText_new do
+                    if not RPBioEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayBio", string.sub(RPBioText_new, 1, i))
+                    task.wait(getDelay_new(BioSpeed_new))
+                end
+                task.wait(0.4)
+                for i = #RPBioText_new - 1, 0, -1 do
+                    if not RPBioEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayBio", string.sub(RPBioText_new, 1, i))
+                    task.wait(getDelay_new(BioSpeed_new))
+                end
+                task.wait(0.4)
+            end
+        end)
+    end
+})
+end -- end RGB do block
+
+
 Tabs.RGB:AddSection({Translator:traduzir("Personagem RGB")})
 
 local colorSpeed = Config.colorSpeed
@@ -821,14 +1120,6 @@ Tabs.RGB:AddToggle({
     end
 })
 
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Rosas Lgbt"),
-    Description = Translator:traduzir("Muda a cor da rosa automaticamente"),
-    Default = false,
-    Callback = function(value)
-        toggleActive = value
-    end
-})
 
 Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Personagem Lgbt"),
@@ -864,24 +1155,6 @@ task.spawn(function()
             local bodyArg = { colors[iChar] }
             ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeBodyColor"):FireServer(unpack(bodyArg))
             iChar = iChar % #colors + 1
-        end
-
-        if toggleActive then
-            local char = LocalPlayer.Character
-            local rosas = char and char:FindFirstChild("Roses")
-            if rosas and rosas:FindFirstChild("ToolSound") then
-                local ids = {
-                    "rbxassetid://5210399458",
-                    "rbxassetid://5210414520",
-                    "rbxassetid://5216708760",
-                    "rbxassetid://5210414112"
-                }
-                for _, id in ipairs(ids) do
-                    local args = { "Roses", id }
-                    rosas.ToolSound:FireServer(unpack(args))
-                    task.wait(0.1)
-                end
-            end
         end
 
         task.wait(1 / colorSpeed)
@@ -2931,8 +3204,12 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
     }
 
     -- GUI de carregamento
-    local screenGui = Instance.new("ScreenGui", CoreGui)
+    local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "LoadingUI"
+    local _cg = pcall(function() screenGui.Parent = CoreGui end)
+    if not _cg or not screenGui.Parent then
+        screenGui.Parent = Players.LocalPlayer:FindFirstChild("PlayerGui") or CoreGui
+    end
     screenGui.IgnoreGuiInset = true
     screenGui.DisplayOrder = 999999
     screenGui.ResetOnSpawn = false
@@ -2989,8 +3266,13 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
     local function countTools()
         local total = 0
         for _, c in ipairs({player.Backpack, player.Character}) do
-            for _, tool in ipairs(c:GetChildren()) do
-                if tool:IsA("Tool") then total += 1 end
+            if c and typeof(c) == "Instance" then
+                local ok, children = pcall(function() return c:GetChildren() end)
+                if ok and children then
+                    for _, tool in ipairs(children) do
+                        if tool:IsA("Tool") then total += 1 end
+                    end
+                end
             end
         end
         return total
@@ -8251,7 +8533,7 @@ Tabs.Props:AddToggle({
 })
 
 -- ===== PROP RAID TODOS =====
-Tabs.Props:AddSection({Translator:traduzir("Props nos Jogadores")})
+Tabs.Props:AddSection({Translator:traduzir("🎯 Atacar Jogadores")})
 
 local function getTargetsRaid_SH()
     local t = {}
@@ -8300,7 +8582,7 @@ local function StopPropRaid_SH()
 end
 
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Prop Sit All"),
+    Name = Translator:traduzir("⚡ Sentar Forçado (Todos)"),
     Default = false,
     Callback = function(v)
         PROP_RAID_ENABLED_SH = v
@@ -8354,7 +8636,7 @@ local function StartHunter_SH()
 end
 
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Prop Kill All"),
+    Name = Translator:traduzir("💀 Afundar Todos"),
     Default = false,
     Callback = function(v)
         HUNT_ENABLED_SH = v
@@ -8367,11 +8649,11 @@ Tabs.Props:AddToggle({
 })
 
 -- ===== EFEITOS EM MIM =====
-Tabs.Props:AddSection({Translator:traduzir("Props em Mim")})
+Tabs.Props:AddSection({Translator:traduzir("✨ Efeitos em Mim")})
 
 -- Cobra
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Prop Cobra"),
+    Name = Translator:traduzir("🐍 Modo Serpente"),
     Default = false,
     Callback = function(v)
         COBRA_ENABLED_SH = v
@@ -8398,7 +8680,7 @@ Tabs.Props:AddToggle({
 
 -- Furacão
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Props Furacão"),
+    Name = Translator:traduzir("🌀 Vórtice Giratório"),
     Default = false,
     Callback = function(v)
         FURACAO_ENABLED_SH = v
@@ -8426,7 +8708,7 @@ Tabs.Props:AddToggle({
 
 -- Círculo
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Props Círculo"),
+    Name = Translator:traduzir("💫 Anel Orbital"),
     Default = false,
     Callback = function(v)
         WAIST_RING_ENABLED_SH = v
@@ -8453,7 +8735,7 @@ Tabs.Props:AddToggle({
 
 -- Caótico
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Props Caótico"),
+    Name = Translator:traduzir("💥 Modo Explosivo"),
     Default = false,
     Callback = function(v)
         CHAOS_ENABLED_SH = v
@@ -8482,7 +8764,7 @@ Tabs.Props:AddToggle({
 
 -- Portal
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Props Portal"),
+    Name = Translator:traduzir("🌀 Portal Dimensional"),
     Default = false,
     Callback = function(v)
         FRONT_CIRCLE_ENABLED_SH = v
@@ -8509,7 +8791,7 @@ Tabs.Props:AddToggle({
 })
 
 -- ===== EFEITOS NO PLAYER SELECIONADO =====
-Tabs.Props:AddSection({Translator:traduzir("Props no Player Selecionado")})
+Tabs.Props:AddSection({Translator:traduzir("🎯 Focar no Alvo")})
 
 local function getSelectedPropTarget()
     if not selectedPropPlayer then return nil end
@@ -8518,7 +8800,7 @@ end
 
 -- Fling Player (props mandadas pra cima quando sentar)
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Fling Player"),
+    Name = Translator:traduzir("🚀 Lançar no Espaço"),
     Default = false,
     Callback = function(v)
         TARGET_ENABLED_SH = v
@@ -8558,7 +8840,7 @@ Tabs.Props:AddToggle({
 
 -- Kill Player (props vão pra -460 quando sentar)
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Kill Player"),
+    Name = Translator:traduzir("🕳️ Engolir no Chão"),
     Default = false,
     Callback = function(v)
         if v then
@@ -8592,7 +8874,7 @@ Tabs.Props:AddToggle({
 
 -- Cobra no Player
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Prop Cobra Player"),
+    Name = Translator:traduzir("🐍 Serpente no Alvo"),
     Default = false,
     Callback = function(v)
         COBRA_TARGET_ACTIVE_SH = v
@@ -8623,7 +8905,7 @@ Tabs.Props:AddToggle({
 
 -- Círculo no Player
 Tabs.Props:AddToggle({
-    Name = Translator:traduzir("Círculo no Player"),
+    Name = Translator:traduzir("🌑 Eclipse no Alvo"),
     Default = false,
     Callback = function(v)
         if v then
@@ -8655,324 +8937,6 @@ Tabs.Props:AddToggle({
 end -- end Props do block
 
 
------------------///////TABS - RGB///////-----------------
-do
-local rgbSpeed = 3
-
-Tabs.RGB:AddSection({Translator:traduzir("Configuração RGB")})
-Tabs.RGB:AddSlider({
-    Name = Translator:traduzir("Velocidade RGB"),
-    Description = Translator:traduzir("Velocidade geral dos efeitos RGB"),
-    Min = 1,
-    Max = 10,
-    Increase = 1,
-    Default = 3,
-    Callback = function(Value)
-        rgbSpeed = Value
-    end
-})
-
-local function getRainbowColor_RGB(speedMult)
-    local h = (tick() * speedMult % 10) / 10
-    return Color3.fromHSV(h, 1, 1)
-end
-
-local function fireServerRGB(eventName, args)
-    local RE = ReplicatedStorage:FindFirstChild("RE")
-    if RE and RE:FindFirstChild(eventName) then
-        pcall(function() RE[eventName]:FireServer(unpack(args)) end)
-    end
-end
-
--- Nome + Bio RGB
-Tabs.RGB:AddSection({Translator:traduzir("Nome & Bio RGB")})
-local nameBioRGBActive = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Nome + Bio RGB"),
-    Default = false,
-    Callback = function(state)
-        nameBioRGBActive = state
-        if state then
-            task.spawn(function()
-                while nameBioRGBActive do
-                    local color = getRainbowColor_RGB(rgbSpeed)
-                    fireServerRGB("1RPNam1eColo1r", {"PickingRPNameColor", color})
-                    fireServerRGB("1RPNam1eColo1r", {"PickingRPBioColor", color})
-                    task.wait(0.03)
-                end
-            end)
-        end
-    end
-})
-
--- RGB Cabelo (modo rainbow suave)
-local rgbCabeloActive = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Cabelo"),
-    Default = false,
-    Callback = function(Value)
-        rgbCabeloActive = Value
-        if Value then
-            task.spawn(function()
-                while rgbCabeloActive do
-                    fireServerRGB("1Max1y", {"ChangeHairColor2", getRainbowColor_RGB(rgbSpeed)})
-                    task.wait(0.5)
-                end
-            end)
-        end
-    end
-})
-
--- RGB Corpo (lista de cores nomeadas)
-local rgbAtivo_new = false
-local rgbThread_new = nil
-local cores_new = {
-    "Light reddish violet","Salmon","Sunrise","Carnation pink","Pink","Hot pink",
-    "Really red","Tawny","Burgundy","Maroon","Cocoa","Rust","CGA brown","Beige",
-    "Brick yellow","Burlap","Fawn brown","Br. yellowish orange","Olive","New Yeller",
-    "Br. yellowish green","Mint","Artichoke","Lime green","Grime","Forest green",
-    "Parsley green","Earth green","Slime green","Toothpaste","Pastel light blue",
-    "Cyan","Bright blue","Really blue","Dark blue","Navy blue","Royal purple",
-    "Magenta","Bright violet","Eggplant","Mulberry","Institutional white",
-    "Mid gray","Cloudy grey","Flint","Fossil","Medium stone grey",
-    "Dark stone grey","Smoky grey","Black","Really black","Dirt brown",
-    "Pine Cone","Brown","Dark nougat","Light orange","Pastel brown"
-}
-
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Corpo"),
-    Default = false,
-    Callback = function(v)
-        rgbAtivo_new = v
-        if v and not rgbThread_new then
-            rgbThread_new = task.spawn(function()
-                while rgbAtivo_new do
-                    for _, cor in ipairs(cores_new) do
-                        if not rgbAtivo_new then break end
-                        pcall(function() ReplicatedStorage.Remotes.ChangeBodyColor:FireServer(cor) end)
-                        task.wait(0.02)
-                    end
-                end
-                rgbThread_new = nil
-            end)
-        end
-    end
-})
-
--- Veículos e Casa
-Tabs.RGB:AddSection({Translator:traduzir("Veículos & Casa")})
-
-local rgbCasaActive = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Casa"),
-    Default = false,
-    Callback = function(Value)
-        rgbCasaActive = Value
-        if Value then
-            task.spawn(function()
-                while rgbCasaActive do
-                    fireServerRGB("1Player1sHous1e", {"ColorPickHouse", getRainbowColor_RGB(rgbSpeed)})
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end
-})
-
-local carRGBActive_new = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Carro RGB (Premium)"),
-    Default = false,
-    Callback = function(state)
-        carRGBActive_new = state
-        if state then
-            task.spawn(function()
-                while carRGBActive_new do
-                    fireServerRGB("1Player1sCa1r", {"PickingCarColor", getRainbowColor_RGB(rgbSpeed)})
-                    task.wait(0.03)
-                end
-            end)
-        end
-    end
-})
-
-local rgbNoMotor_new = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Veículos Sem Motor"),
-    Description = Translator:traduzir("Skate, Bicicleta, Scooter, etc"),
-    Default = false,
-    Callback = function(Value)
-        rgbNoMotor_new = Value
-        if Value then
-            task.spawn(function()
-                while rgbNoMotor_new do
-                    fireServerRGB("1Player1sCa1r", {"NoMotorColor", getRainbowColor_RGB(rgbSpeed)})
-                    task.wait(0.08)
-                end
-            end)
-        end
-    end
-})
-
-local rgbHorse_new = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Cavalo"),
-    Default = false,
-    Callback = function(Value)
-        rgbHorse_new = Value
-        if Value then
-            task.spawn(function()
-                while rgbHorse_new do
-                    pcall(function() ReplicatedStorage.RE["1Hors1eRemot1e"]:FireServer("DefaultHorse") end)
-                    task.wait(0.9)
-                    if not rgbHorse_new then break end
-                    pcall(function() ReplicatedStorage.RE["1Hors1eRemot1e"]:FireServer("SecondaryHorse") end)
-                    task.wait(0.9)
-                end
-            end)
-        end
-    end
-})
-
--- Itens / Tools
-Tabs.RGB:AddSection({Translator:traduzir("Itens & Tools")})
-
-local radioRGBActive_new = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Rádio RGB"),
-    Default = false,
-    Callback = function(state)
-        radioRGBActive_new = state
-        if state then
-            task.spawn(function()
-                while radioRGBActive_new do
-                    local color = getRainbowColor_RGB(rgbSpeed)
-                    pcall(function()
-                        LocalPlayer.PlayerGui.ToolGui.ToolSettings.Settings.PropsColor.SetColor:FireServer(color)
-                    end)
-                    task.wait(0.03)
-                end
-            end)
-        end
-    end
-})
-
-local function toolRGB_new(toggleVar)
-    task.spawn(function()
-        while getgenv()[toggleVar] do
-            local color = getRainbowColor_RGB(rgbSpeed)
-            local gui = LocalPlayer:FindFirstChild("PlayerGui")
-            if gui and gui:FindFirstChild("ToolGui") then
-                local props = gui.ToolGui.ToolSettings.Settings.PropsColor
-                if props and props:FindFirstChild("SetColor") then
-                    pcall(function() props.SetColor:FireServer(color) end)
-                end
-            end
-            task.wait(0.1)
-        end
-    end)
-end
-
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Megafone"),
-    Default = false,
-    Callback = function(Value)
-        getgenv().rgbMegafone2 = Value
-        toolRGB_new("rgbMegafone2")
-    end
-})
-
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Rosquinha"),
-    Default = false,
-    Callback = function(Value)
-        getgenv().rgbRosquinha2 = Value
-        toolRGB_new("rgbRosquinha2")
-    end
-})
-
--- RP Name & Bio animado
-Tabs.RGB:AddSection({Translator:traduzir("RP Name & Bio Animado")})
-
-local RPTextRemote_new = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1RPNam1eTex1t")
-local RPNameText_new, RPBioText_new = "", ""
-local RPNameEnabled_new, RPBioEnabled_new = false, false
-local NameSpeed_new, BioSpeed_new = 30, 30
-
-local function getDelay_new(speed)
-    return 0.02 + (60 - math.clamp(speed, 1, 60)) * 0.003
-end
-
-Tabs.RGB:AddTextBox({
-    Name = Translator:traduzir("RP Name Texto"),
-    Placeholder = "Digite o RP Name",
-    Callback = function(v) RPNameText_new = v end
-})
-Tabs.RGB:AddSlider({
-    Name = Translator:traduzir("Velocidade RP Name"),
-    Min = 1, Max = 60, Default = 30,
-    Callback = function(v) NameSpeed_new = v end
-})
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RP Name ON / OFF"),
-    Default = false,
-    Callback = function(state)
-        RPNameEnabled_new = state
-        if not state or RPNameText_new == "" then return end
-        task.spawn(function()
-            while RPNameEnabled_new do
-                for i = 1, #RPNameText_new do
-                    if not RPNameEnabled_new then return end
-                    RPTextRemote_new:FireServer("RolePlayName", string.sub(RPNameText_new, 1, i))
-                    task.wait(getDelay_new(NameSpeed_new))
-                end
-                task.wait(0.4)
-                for i = #RPNameText_new - 1, 0, -1 do
-                    if not RPNameEnabled_new then return end
-                    RPTextRemote_new:FireServer("RolePlayName", string.sub(RPNameText_new, 1, i))
-                    task.wait(getDelay_new(NameSpeed_new))
-                end
-                task.wait(0.4)
-            end
-        end)
-    end
-})
-
-Tabs.RGB:AddTextBox({
-    Name = Translator:traduzir("RP Bio Texto"),
-    Placeholder = "Digite o RP Bio",
-    Callback = function(v) RPBioText_new = v end
-})
-Tabs.RGB:AddSlider({
-    Name = Translator:traduzir("Velocidade RP Bio"),
-    Min = 1, Max = 60, Default = 30,
-    Callback = function(v) BioSpeed_new = v end
-})
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RP Bio ON / OFF"),
-    Default = false,
-    Callback = function(state)
-        RPBioEnabled_new = state
-        if not state or RPBioText_new == "" then return end
-        task.spawn(function()
-            while RPBioEnabled_new do
-                for i = 1, #RPBioText_new do
-                    if not RPBioEnabled_new then return end
-                    RPTextRemote_new:FireServer("RolePlayBio", string.sub(RPBioText_new, 1, i))
-                    task.wait(getDelay_new(BioSpeed_new))
-                end
-                task.wait(0.4)
-                for i = #RPBioText_new - 1, 0, -1 do
-                    if not RPBioEnabled_new then return end
-                    RPTextRemote_new:FireServer("RolePlayBio", string.sub(RPBioText_new, 1, i))
-                    task.wait(getDelay_new(BioSpeed_new))
-                end
-                task.wait(0.4)
-            end
-        end)
-    end
-})
-end -- end RGB do block
 
 -----------------///////TABS - LG///////-----------------
 do
@@ -12060,11 +12024,11 @@ for _, wvwvwasc in pairs(game.workspace.Vehicles:GetChildren()) do
                 pos.y = pos.y + targetcar.Velocity.Y / 2
                 pos.z = pos.z + targetcar.Velocity.Z / 2
                 if pos.y <= -200 then
-                    game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(0,1000,0)
+                    pcall(function() game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(0,1000,0) end)
                 else
-                    game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(Vector3.new(pos.x,pos.y,pos.z))
+                    pcall(function() game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(Vector3.new(pos.x,pos.y,pos.z)) end)
                     task.wait()
-                    game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(Vector3.new(pos.x,pos.y,pos.z)) + Vector3.new(0,-2,0)
+                    pcall(function() game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(Vector3.new(pos.x,pos.y,pos.z)) + Vector3.new(0,-2,0) end)
                     task.wait()
                     game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"].Chassis.Mass.CFrame = CFrame.new(Vector3.new(pos.x,pos.y,pos.z)) * CFrame.new(0,0,2)
                     task.wait()
@@ -12637,31 +12601,37 @@ local function createBillboard(playerName, displayText, guiName)
     billboard.MaxDistance = 80
     billboard.Parent = head
 
+    -- Fundo do texto (amarelo/dourado)
     local textBackground = Instance.new("Frame", billboard)
     textBackground.Name = "TextBG"
-    textBackground.Size = UDim2.new(1, 0, 0.5, 0)
-    textBackground.Position = UDim2.new(0, 0, 0.5, 0)
-    textBackground.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    textBackground.BackgroundTransparency = 0.3
-    textBackground.BorderSizePixel = 2
-    textBackground.BorderColor3 = Color3.new(0, 0, 0)
+    textBackground.Size = UDim2.new(1, 0, 0.55, 0)
+    textBackground.Position = UDim2.new(0, 0, 0.45, 0)
+    textBackground.BackgroundColor3 = Color3.fromRGB(30, 22, 0)
+    textBackground.BackgroundTransparency = 0.1
+    textBackground.BorderSizePixel = 0
 
     local corner = Instance.new("UICorner", textBackground)
-    corner.CornerRadius = UDim.new(0, 10)
+    corner.CornerRadius = UDim.new(0, 8)
+
+    local stroke = Instance.new("UIStroke", textBackground)
+    stroke.Color = Color3.fromRGB(255, 200, 0)
+    stroke.Thickness = 2
 
     local label = Instance.new("TextLabel", textBackground)
     label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
-    label.Text = displayText
-    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Text = "⭐ " .. displayText
+    label.TextColor3 = Color3.fromRGB(255, 215, 0)  -- dourado
     label.TextScaled = true
     label.Font = Enum.Font.GothamBold
 
+    -- Imagem do botão de abrir/fechar UI
     local image = Instance.new("ImageLabel", billboard)
-    image.Size = UDim2.new(0, 40, 0, 40)
-    image.Position = UDim2.new(0.5, -20, 0, 0)
+    image.Size = UDim2.new(0, 44, 0, 44)
+    image.Position = UDim2.new(0.5, -22, 0, -4)
     image.BackgroundTransparency = 1
-    image.Image = "rbxassetid://15298567397"
+    image.Image = "rbxassetid://123419106595949"  -- mesmo do botão minimizar
+    image.ImageColor3 = Color3.fromRGB(255, 200, 0)
 end
 
 local runningLoops = {}
@@ -12878,119 +12848,154 @@ end
 
 local function createInterface()
     if not isAuthorized then return end
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "AdminPanel"
     screenGui.Parent = PlayerGui
     screenGui.ResetOnSpawn = false
+    screenGui.DisplayOrder = 9999
+
+    -- Frame principal
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
-    mainFrame.Size = UDim2.new(0, 520, 0, 420)
-    mainFrame.Position = UDim2.new(0.5, -260, 0.5, -210)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 16, 2)  -- Fundo escuro dourado
-    mainFrame.BackgroundTransparency = 0.08
+    mainFrame.Size = UDim2.new(0, 560, 0, 460)
+    mainFrame.Position = UDim2.new(0.5, -280, 0.5, -230)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(14, 12, 4)
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
     mainFrame.Draggable = true
     mainFrame.Parent = screenGui
     mainFrame.ClipsDescendants = true
-    
-    local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 12)
-    mainCorner.Parent = mainFrame
-    
-    local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = Color3.fromRGB(255, 200, 0)
-    mainStroke.Thickness = 2.5
-    mainStroke.Parent = mainFrame
-    
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Name = "Title"
-    titleLabel.Size = UDim2.new(1, 0, 0, 45)
-    titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.BackgroundColor3 = Color3.fromRGB(255, 200, 0)  -- Amarelo dourado
-    titleLabel.BorderSizePixel = 0
-    titleLabel.Text = "⭐ Star Hub Admin ⭐"
-    titleLabel.TextColor3 = Color3.fromRGB(20, 16, 2)
-    titleLabel.TextSize = 16
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.Parent = mainFrame
-    
-    local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 12)
-    titleCorner.Parent = titleLabel
+    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 16)
+    local ms = Instance.new("UIStroke", mainFrame)
+    ms.Color = Color3.fromRGB(255, 200, 0)
+    ms.Thickness = 2
 
-    local titleStroke = Instance.new("UIStroke")
-    titleStroke.Color = Color3.fromRGB(200, 150, 0)
-    titleStroke.Thickness = 1
-    titleStroke.Parent = titleLabel
-    
-    local contentFrame = Instance.new("Frame")
+    -- Barra de título com gradiente dourado
+    local titleBar = Instance.new("Frame")
+    titleBar.Name = "TitleBar"
+    titleBar.Size = UDim2.new(1, 0, 0, 52)
+    titleBar.BackgroundColor3 = Color3.fromRGB(20, 16, 0)
+    titleBar.BorderSizePixel = 0
+    titleBar.Parent = mainFrame
+    Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 16)
+    local tg = Instance.new("UIGradient", titleBar)
+    tg.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+        ColorSequenceKeypoint.new(0.6, Color3.fromRGB(160, 110, 0)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 40, 0))
+    }
+    tg.Rotation = 90
+
+    -- Ícone (botão abrir/fechar UI)
+    local icon = Instance.new("ImageLabel", titleBar)
+    icon.Size = UDim2.new(0, 30, 0, 30)
+    icon.Position = UDim2.new(0, 11, 0.5, -15)
+    icon.BackgroundTransparency = 1
+    icon.Image = "rbxassetid://123419106595949"
+    icon.ImageColor3 = Color3.fromRGB(14, 12, 4)
+
+    local titleLabel = Instance.new("TextLabel", titleBar)
+    titleLabel.Name = "Title"
+    titleLabel.Size = UDim2.new(1, -90, 1, 0)
+    titleLabel.Position = UDim2.new(0, 48, 0, 0)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "⭐ STAR HUB ADMIN"
+    titleLabel.TextColor3 = Color3.fromRGB(14, 12, 4)
+    titleLabel.TextSize = 17
+    titleLabel.Font = Enum.Font.GothamBlack
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Botão fechar
+    local closeBtn = Instance.new("TextButton", titleBar)
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(14, 12, 4)
+    closeBtn.BackgroundTransparency = 0.3
+    closeBtn.Text = "✕"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 200, 0)
+    closeBtn.TextSize = 15
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.BorderSizePixel = 0
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
+    closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
+
+    -- Separador
+    local sep = Instance.new("Frame", mainFrame)
+    sep.Size = UDim2.new(1, -20, 0, 1)
+    sep.Position = UDim2.new(0, 10, 0, 53)
+    sep.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+    sep.BackgroundTransparency = 0.5
+    sep.BorderSizePixel = 0
+
+    -- ScrollFrame
+    local contentFrame = Instance.new("Frame", mainFrame)
     contentFrame.Name = "ContentFrame"
-    contentFrame.Size = UDim2.new(1, -20, 1, -75)
-    contentFrame.Position = UDim2.new(0, 10, 0, 65)
+    contentFrame.Size = UDim2.new(1, -14, 1, -62)
+    contentFrame.Position = UDim2.new(0, 7, 0, 57)
     contentFrame.BackgroundTransparency = 1
-    contentFrame.Parent = mainFrame
     contentFrame.ClipsDescendants = true
-    
-    local scrollFrame = Instance.new("ScrollingFrame")
+
+    local scrollFrame = Instance.new("ScrollingFrame", contentFrame)
     scrollFrame.Name = "ScrollFrame"
     scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-    scrollFrame.Position = UDim2.new(0, 0, 0, 0)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
     scrollFrame.BackgroundTransparency = 1
     scrollFrame.BorderSizePixel = 0
-    scrollFrame.ScrollBarThickness = 4
+    scrollFrame.ScrollBarThickness = 3
     scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 200, 0)
-    scrollFrame.Parent = contentFrame
-    
-    local layout = Instance.new("UIListLayout")
+    scrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+
+    local layout = Instance.new("UIListLayout", scrollFrame)
     layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Padding = UDim.new(0, 6)
-    layout.Parent = scrollFrame
-    
+    layout.Padding = UDim.new(0, 5)
+
+    local pad = Instance.new("UIPadding", scrollFrame)
+    pad.PaddingLeft = UDim.new(0, 3)
+    pad.PaddingRight = UDim.new(0, 3)
+    pad.PaddingTop = UDim.new(0, 4)
+
     return screenGui, mainFrame, scrollFrame, layout
 end
 
 local function createButton(parent, text, callback)
     local button = Instance.new("TextButton")
     button.Name = text:gsub(" ", "")
-    button.Size = UDim2.new(1, 0, 0, 32)
-    button.BackgroundColor3 = Color3.fromRGB(200, 155, 0)  -- Botão dourado
-    button.BackgroundTransparency = 0.2
+    button.Size = UDim2.new(1, 0, 0, 36)
+    button.BackgroundColor3 = Color3.fromRGB(28, 22, 2)
+    button.BackgroundTransparency = 0
     button.BorderSizePixel = 0
     button.Text = text
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.TextSize = 15
-    button.Font = Enum.Font.FredokaOne
+    button.TextColor3 = Color3.fromRGB(255, 215, 0)
+    button.TextSize = 14
+    button.Font = Enum.Font.GothamBold
     button.Parent = parent
-    
+
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
+    corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = button
-    
+
     local buttonStroke = Instance.new("UIStroke")
-    buttonStroke.Color = Color3.fromRGB(0, 0, 0)
+    buttonStroke.Color = Color3.fromRGB(180, 130, 0)
     buttonStroke.Thickness = 1
     buttonStroke.Parent = button
-    
+
     button.MouseEnter:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {
-            BackgroundTransparency = 0.05
-        }):Play()
+        button.BackgroundColor3 = Color3.fromRGB(55, 42, 4)
     end)
-    
+
     button.MouseLeave:Connect(function()
-        TweenService:Create(button, TweenInfo.new(0.2), {
-            BackgroundTransparency = 0.2
-        }):Play()
+        button.BackgroundColor3 = Color3.fromRGB(28, 22, 2)
     end)
-    
+
     button.MouseButton1Click:Connect(function()
         button.Active = false
-        callback()
+        pcall(callback)
         task.wait(0.5)
         button.Active = true
     end)
-    
+
     return button
 end
 
@@ -13251,25 +13256,30 @@ end
 local function createSection(parent, text)
     local section = Instance.new("TextLabel")
     section.Name = text:gsub(" ", "")
-    section.Size = UDim2.new(1, 0, 0, 20)
-    section.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    section.BackgroundTransparency = 0.3
+    section.Size = UDim2.new(1, 0, 0, 26)
+    section.BackgroundColor3 = Color3.fromRGB(50, 38, 0)
+    section.BackgroundTransparency = 0
     section.BorderSizePixel = 0
-    section.Text = " " .. text
-    section.TextColor3 = Color3.fromRGB(220, 220, 220)
-    section.TextSize = 15
-    section.Font = Enum.Font.SourceSansBold
+    section.Text = "  ◆ " .. text:upper()
+    section.TextColor3 = Color3.fromRGB(255, 200, 0)
+    section.TextSize = 12
+    section.Font = Enum.Font.GothamBlack
     section.TextXAlignment = Enum.TextXAlignment.Left
     section.Parent = parent
-    
+
     local padding = Instance.new("UIPadding")
-    padding.PaddingLeft = UDim.new(0, 8)
+    padding.PaddingLeft = UDim.new(0, 4)
     padding.Parent = section
-    
+
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 4)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = section
-    
+
+    local st = Instance.new("UIStroke", section)
+    st.Color = Color3.fromRGB(255, 200, 0)
+    st.Thickness = 1
+    st.Transparency = 0.5
+
     return section
 end
 
@@ -13515,7 +13525,7 @@ function CoolkidAvatar(targetPlayer)
 end
 
 local function getPlayerList()
-    local list = {}
+    local list = {"[EU] " .. LocalPlayer.Name}  -- inclui o próprio player
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             table.insert(list, player.Name)
@@ -13864,10 +13874,14 @@ local function showAdminTab()
     createSection(scrollFrame, "Seleção de Jogador")
     
     local playerDropdown = createDropdown(scrollFrame, "Selecione um jogador", getPlayerList(), function(value)
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player.Name == value and player ~= LocalPlayer then
-                selectedPlayer = player
-                break
+        if value == "[EU] " .. LocalPlayer.Name then
+            selectedPlayer = LocalPlayer
+        else
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Name == value then
+                    selectedPlayer = player
+                    break
+                end
             end
         end
     end)
