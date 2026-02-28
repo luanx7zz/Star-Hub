@@ -408,6 +408,7 @@ local Tabs = {
     PR = Window:MakeTab({Translator:traduzir("Proteção"), "shield"}),
     Client = Window:MakeTab({Translator:traduzir("Spam/Client"), "eye"}),
     JJ = Window:MakeTab({Translator:traduzir("Personagem"), "userplus"}),
+    RGB = Window:MakeTab({Translator:traduzir("RGB"), "rainbow"}),
     TT = Window:MakeTab({Translator:traduzir("Trolar"), "flame"}),
     Props = Window:MakeTab({Translator:traduzir("Props"), "package"}),
     LG = Window:MakeTab({Translator:traduzir("Lag Servidor"), "bomb"}),
@@ -764,10 +765,10 @@ Toggle:Callback(function(state)
 end)
 ]]--
 
-Tabs.H:AddSection({Translator:traduzir("Sistema Lgbt")})
+Tabs.RGB:AddSection({Translator:traduzir("Personagem RGB")})
 
 local colorSpeed = Config.colorSpeed
-Tabs.H:AddSlider({
+Tabs.RGB:AddSlider({
     Name = Translator:traduzir("Velocidade das cores"),
     Min = 1,
     Max = 25,
@@ -793,7 +794,7 @@ local colors = { "Bright red", "Lime green", "Bright blue", "Bright yellow", "Br
 
 local isHairActive, isNameActive, isBioActive, toggleActive, rgbEnabled = false, false, false, false, false
 
-Tabs.H:AddToggle({
+Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Cabelo lgbt"),
     Description = Translator:traduzir("Mudar a cor de cabelo automático"),
     Default = false,
@@ -802,7 +803,7 @@ Tabs.H:AddToggle({
     end
 })
 
-Tabs.H:AddToggle({
+Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Nome lgbt"),
     Description = Translator:traduzir("Mudar a cor do nome automático"),
     Default = false,
@@ -811,7 +812,7 @@ Tabs.H:AddToggle({
     end
 })
 
-Tabs.H:AddToggle({
+Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Bio lgbt"),
     Description = Translator:traduzir("Mudar a cor da bio automático"),
     Default = false,
@@ -820,7 +821,7 @@ Tabs.H:AddToggle({
     end
 })
 
-Tabs.H:AddToggle({
+Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Rosas Lgbt"),
     Description = Translator:traduzir("Muda a cor da rosa automaticamente"),
     Default = false,
@@ -829,7 +830,7 @@ Tabs.H:AddToggle({
     end
 })
 
-Tabs.H:AddToggle({
+Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Personagem Lgbt"),
     Description = Translator:traduzir("Deixa seu personagem RGB automaticamente"),
     Default = false,
@@ -887,13 +888,13 @@ task.spawn(function()
     end
 end)
 
-Tabs.H:AddSection({Translator:traduzir("Repetição De Nomes")})
+Tabs.RGB:AddSection({Translator:traduzir("Repetição De Nomes")})
 
 local Remote = ReplicatedStorage.RE:FindFirstChild("1RPNam1eTex1t")
 local name1, name2, name3 = "", "", ""
 local repeatNames = false
 
-Tabs.H:AddTextBox({
+Tabs.RGB:AddTextBox({
     Title = Translator:traduzir("Nome"),
     Description = Translator:traduzir("Primeiro Nome Da Repetição!"),
     Default = "",
@@ -904,7 +905,7 @@ Tabs.H:AddTextBox({
     end
 })
 
-Tabs.H:AddTextBox({
+Tabs.RGB:AddTextBox({
     Title = Translator:traduzir("Nome"),
     Description = Translator:traduzir("Segundo Nome Da Repetição!"),
     Default = "",
@@ -915,7 +916,7 @@ Tabs.H:AddTextBox({
     end
 })
 
-Tabs.H:AddTextBox({
+Tabs.RGB:AddTextBox({
     Title = Translator:traduzir("Nome"),
     Description = Translator:traduzir("Terceiro Nome Da Repetição!"),
     Default = "",
@@ -945,7 +946,7 @@ local function changeNameColor()
     end
 end
 
-local Toggle = Tabs.H:AddToggle({
+local Toggle = Tabs.RGB:AddToggle({
     Name = Translator:traduzir("NOME RGB"),
     Description = Translator:traduzir("mudar a cor dos nomes automático"),
     Default = false
@@ -958,7 +959,7 @@ Toggle:Callback(function(Value)
     end
 end)
 
-local Toggle = Tabs.H:AddToggle({
+local Toggle = Tabs.RGB:AddToggle({
     Name = Translator:traduzir("Reptir Nomes"), 
     Description = Translator:traduzir("Repitir nomes da textbox automaticamente"),
     Default = false
@@ -982,7 +983,7 @@ Toggle:Callback(function(R)
     end
 end)
 
-Tabs.H:AddSection({Translator:traduzir("Nomes Ja feitos!")})
+Tabs.RGB:AddSection({Translator:traduzir("Nomes Ja feitos!")})
 
 local names = {
     {"TINTALEY", " TINTALEY "},
@@ -994,7 +995,7 @@ local names = {
 }
 
 for _, name in ipairs(names) do
-    Tabs.H:AddButton({
+    Tabs.RGB:AddButton({
         Name = "Nomes Feitos: " .. name[1],
         Callback = function()
             game:GetService("ReplicatedStorage").RE["1RPNam1eTex1t"]:FireServer("RolePlayName", name[2])
@@ -2365,50 +2366,6 @@ local function getSpamVars()
     return Player, Character, Humanoid, RootPart, Mouse
 end
 
--- SPAM HELICÓPTERO
-Tabs.Client:AddSection({Translator:traduzir("Spam Helicóptero")})
-Tabs.Client:AddToggle({
-    Name = Translator:traduzir("Spam Helicóptero"),
-    Description = Translator:traduzir("Spawna helicópteros repetidamente"),
-    Default = false,
-    Callback = function(state)
-        getgenv().HeliToggle = state
-        if state then
-            task.spawn(function()
-                while getgenv().HeliToggle do
-                    local _, _, Humanoid, RootPart = getSpamVars()
-                    if not RootPart then task.wait(1) continue end
-                    local ok, btn = pcall(function()
-                        return workspace.WorkspaceCom["001_HeliCloneButton"].Button
-                    end)
-                    if not ok or not btn then task.wait(1) continue end
-                    RootPart.CFrame = btn.CFrame
-                    task.wait(0.1)
-                    pcall(fireclickdetector, btn.ClickDetector)
-                    task.wait(0.5)
-                    local molestado2 = workspace.WorkspaceCom["001_HeliStorage"]:FindFirstChild("PoliceStationHeli")
-                    if molestado2 and molestado2.PrimaryPart then
-                        local waited = 0
-                        repeat RootPart.CFrame = molestado2.PrimaryPart.CFrame + Vector3.new(0, math.random(-1,1), 0) task.wait() waited += 1 until Humanoid.Sit or waited > 60
-                        task.wait(0.1)
-                        Humanoid.Sit = false
-                        task.wait()
-                        if molestado2:FindFirstChild("Passenger1") then
-                            waited = 0
-                            repeat RootPart.CFrame = molestado2.Passenger1.CFrame + Vector3.new(0, math.random(-1,1), 0) task.wait() waited += 1 until Humanoid.Sit or waited > 60
-                        end
-                        task.wait(0.2)
-                        RootPart.CFrame = CFrame.new(math.random(-40,40), 4.549, math.random(-40,40))
-                        task.wait(0.2)
-                        Humanoid.Sit = false
-                        pcall(function() molestado2.Name = "PoliceStationHeliStarHub" end)
-                    end
-                end
-            end)
-        end
-    end
-})
-
 -- SPAM CANOA
 Tabs.Client:AddSection({Translator:traduzir("Spam Canoa")})
 Tabs.Client:AddToggle({
@@ -2477,95 +2434,8 @@ Tabs.Client:AddToggle({
     end
 })
 
--- SPAM IPHONE
-Tabs.Client:AddToggle({
-    Name = Translator:traduzir("Spam iPhone"),
-    Default = false,
-    Callback = function(state)
-        getgenv().iPhoneToggle = state
-        if state then
-            local Player, Character, _, RootPart, Mouse = getSpamVars()
-            local ok, Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("iPhone") end)
-            if not ok or not Clone or not RootPart then return end
-            local OldPos = RootPart.CFrame
-            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
-            task.wait() RootPart.CFrame = OldPos
-            task.spawn(function()
-                while getgenv().iPhoneToggle do
-                    task.wait()
-                    Character = LocalPlayer.Character
-                    if not Character then continue end
-                    for _, tool in ipairs(Character:GetChildren()) do
-                        if tool.Name == "iPhone" then
-                            task.wait(0.0003)
-                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
-                        end
-                    end
-                end
-            end)
-        end
-    end
-})
 
--- SPAM LAPTOP
-Tabs.Client:AddToggle({
-    Name = Translator:traduzir("Spam Laptop"),
-    Default = false,
-    Callback = function(state)
-        getgenv().LaptopToggle = state
-        if state then
-            local Player, Character, _, RootPart, Mouse = getSpamVars()
-            local ok, Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Laptop") end)
-            if not ok or not Clone or not RootPart then return end
-            local OldPos = RootPart.CFrame
-            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
-            task.wait() RootPart.CFrame = OldPos
-            task.spawn(function()
-                while getgenv().LaptopToggle do
-                    task.wait()
-                    Character = LocalPlayer.Character
-                    if not Character then continue end
-                    for _, tool in ipairs(Character:GetChildren()) do
-                        if tool.Name == "Laptop" then
-                            task.wait(0.0003)
-                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
-                        end
-                    end
-                end
-            end)
-        end
-    end
-})
 
--- SPAM BOOK
-Tabs.Client:AddToggle({
-    Name = Translator:traduzir("Spam Book"),
-    Default = false,
-    Callback = function(state)
-        getgenv().BookToggle = state
-        if state then
-            local Player, Character, _, RootPart, Mouse = getSpamVars()
-            local ok, Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Book") end)
-            if not ok or not Clone or not RootPart then return end
-            local OldPos = RootPart.CFrame
-            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
-            task.wait() RootPart.CFrame = OldPos
-            task.spawn(function()
-                while getgenv().BookToggle do
-                    task.wait()
-                    Character = LocalPlayer.Character
-                    if not Character then continue end
-                    for _, tool in ipairs(Character:GetChildren()) do
-                        if tool.Name == "Book" then
-                            task.wait(0.0003)
-                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
-                        end
-                    end
-                end
-            end)
-        end
-    end
-})
 
 Tabs.Client:AddButton({
     Translator:traduzir("Como funciona?"),
@@ -3168,11 +3038,17 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
 
         local clickDetector = workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_DayCare").Tools:WaitForChild("FireX"):WaitForChild("ClickDetector")
 
+        local maxAttempts = maxTools * 50  -- max de clicks
+        local attempts = 0
         repeat
             fireclickdetector(clickDetector)
-            toolsCountLabel.Text = "Tools: " .. (countTools() + 1) .. "/" .. maxTools
-            task.wait()
-        until countTools() >= maxTools
+            toolsCountLabel.Text = "Tools: " .. countTools() .. "/" .. maxTools
+            task.wait(0.05)
+            attempts += 1
+            if attempts % 20 == 0 then
+                task.wait(0.1)  -- pequena pausa para o servidor processar
+            end
+        until countTools() >= maxTools or attempts >= maxAttempts
 
         task.wait(1)
 
@@ -4739,7 +4615,7 @@ local function toggleBlackHole(v)
         local attachment = Instance.new("Attachment", singularity)
 
         local function applyForce(v)
-            if v:IsA("Part") and not v.Anchored and not v.Parent:FindFirstChild("Humanoid") and v.Parent ~= blackHoleModel then
+            if v:IsA("Part") and not v.Anchored and v.Parent and not v.Parent:FindFirstChild("Humanoid") and v.Parent ~= blackHoleModel then
                 for _,force in pairs(v:GetChildren()) do
                     if force:IsA("BodyAngularVelocity") or force:IsA("BodyForce") or force:IsA("BodyVelocity") or force:IsA("AlignPosition") or force:IsA("Torque") then
                         force:Destroy()
@@ -6920,6 +6796,7 @@ Tabs.TT:AddButton({
                     game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer("PickingBoat", "MilitaryBoatFree")  
                     task.wait(0.5)  
                     PCar = Vehicles:FindFirstChild(Player.Name.."Car")  
+                    if not PCar then return end
                     task.wait(0.5)  
                     local Seat = PCar:FindFirstChild("Body") and PCar.Body:FindFirstChild("VehicleSeat")  
                     if Seat then  
@@ -8776,6 +8653,326 @@ Tabs.Props:AddToggle({
     end
 })
 end -- end Props do block
+
+
+-----------------///////TABS - RGB///////-----------------
+do
+local rgbSpeed = 3
+
+Tabs.RGB:AddSection({Translator:traduzir("Configuração RGB")})
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade RGB"),
+    Description = Translator:traduzir("Velocidade geral dos efeitos RGB"),
+    Min = 1,
+    Max = 10,
+    Increase = 1,
+    Default = 3,
+    Callback = function(Value)
+        rgbSpeed = Value
+    end
+})
+
+local function getRainbowColor_RGB(speedMult)
+    local h = (tick() * speedMult % 10) / 10
+    return Color3.fromHSV(h, 1, 1)
+end
+
+local function fireServerRGB(eventName, args)
+    local RE = ReplicatedStorage:FindFirstChild("RE")
+    if RE and RE:FindFirstChild(eventName) then
+        pcall(function() RE[eventName]:FireServer(unpack(args)) end)
+    end
+end
+
+-- Nome + Bio RGB
+Tabs.RGB:AddSection({Translator:traduzir("Nome & Bio RGB")})
+local nameBioRGBActive = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Nome + Bio RGB"),
+    Default = false,
+    Callback = function(state)
+        nameBioRGBActive = state
+        if state then
+            task.spawn(function()
+                while nameBioRGBActive do
+                    local color = getRainbowColor_RGB(rgbSpeed)
+                    fireServerRGB("1RPNam1eColo1r", {"PickingRPNameColor", color})
+                    fireServerRGB("1RPNam1eColo1r", {"PickingRPBioColor", color})
+                    task.wait(0.03)
+                end
+            end)
+        end
+    end
+})
+
+-- RGB Cabelo (modo rainbow suave)
+local rgbCabeloActive = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Cabelo"),
+    Default = false,
+    Callback = function(Value)
+        rgbCabeloActive = Value
+        if Value then
+            task.spawn(function()
+                while rgbCabeloActive do
+                    fireServerRGB("1Max1y", {"ChangeHairColor2", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+-- RGB Corpo (lista de cores nomeadas)
+local rgbAtivo_new = false
+local rgbThread_new = nil
+local cores_new = {
+    "Light reddish violet","Salmon","Sunrise","Carnation pink","Pink","Hot pink",
+    "Really red","Tawny","Burgundy","Maroon","Cocoa","Rust","CGA brown","Beige",
+    "Brick yellow","Burlap","Fawn brown","Br. yellowish orange","Olive","New Yeller",
+    "Br. yellowish green","Mint","Artichoke","Lime green","Grime","Forest green",
+    "Parsley green","Earth green","Slime green","Toothpaste","Pastel light blue",
+    "Cyan","Bright blue","Really blue","Dark blue","Navy blue","Royal purple",
+    "Magenta","Bright violet","Eggplant","Mulberry","Institutional white",
+    "Mid gray","Cloudy grey","Flint","Fossil","Medium stone grey",
+    "Dark stone grey","Smoky grey","Black","Really black","Dirt brown",
+    "Pine Cone","Brown","Dark nougat","Light orange","Pastel brown"
+}
+
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Corpo"),
+    Default = false,
+    Callback = function(v)
+        rgbAtivo_new = v
+        if v and not rgbThread_new then
+            rgbThread_new = task.spawn(function()
+                while rgbAtivo_new do
+                    for _, cor in ipairs(cores_new) do
+                        if not rgbAtivo_new then break end
+                        pcall(function() ReplicatedStorage.Remotes.ChangeBodyColor:FireServer(cor) end)
+                        task.wait(0.02)
+                    end
+                end
+                rgbThread_new = nil
+            end)
+        end
+    end
+})
+
+-- Veículos e Casa
+Tabs.RGB:AddSection({Translator:traduzir("Veículos & Casa")})
+
+local rgbCasaActive = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Casa"),
+    Default = false,
+    Callback = function(Value)
+        rgbCasaActive = Value
+        if Value then
+            task.spawn(function()
+                while rgbCasaActive do
+                    fireServerRGB("1Player1sHous1e", {"ColorPickHouse", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+local carRGBActive_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Carro RGB (Premium)"),
+    Default = false,
+    Callback = function(state)
+        carRGBActive_new = state
+        if state then
+            task.spawn(function()
+                while carRGBActive_new do
+                    fireServerRGB("1Player1sCa1r", {"PickingCarColor", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.03)
+                end
+            end)
+        end
+    end
+})
+
+local rgbNoMotor_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Veículos Sem Motor"),
+    Description = Translator:traduzir("Skate, Bicicleta, Scooter, etc"),
+    Default = false,
+    Callback = function(Value)
+        rgbNoMotor_new = Value
+        if Value then
+            task.spawn(function()
+                while rgbNoMotor_new do
+                    fireServerRGB("1Player1sCa1r", {"NoMotorColor", getRainbowColor_RGB(rgbSpeed)})
+                    task.wait(0.08)
+                end
+            end)
+        end
+    end
+})
+
+local rgbHorse_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Cavalo"),
+    Default = false,
+    Callback = function(Value)
+        rgbHorse_new = Value
+        if Value then
+            task.spawn(function()
+                while rgbHorse_new do
+                    pcall(function() ReplicatedStorage.RE["1Hors1eRemot1e"]:FireServer("DefaultHorse") end)
+                    task.wait(0.9)
+                    if not rgbHorse_new then break end
+                    pcall(function() ReplicatedStorage.RE["1Hors1eRemot1e"]:FireServer("SecondaryHorse") end)
+                    task.wait(0.9)
+                end
+            end)
+        end
+    end
+})
+
+-- Itens / Tools
+Tabs.RGB:AddSection({Translator:traduzir("Itens & Tools")})
+
+local radioRGBActive_new = false
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Rádio RGB"),
+    Default = false,
+    Callback = function(state)
+        radioRGBActive_new = state
+        if state then
+            task.spawn(function()
+                while radioRGBActive_new do
+                    local color = getRainbowColor_RGB(rgbSpeed)
+                    pcall(function()
+                        LocalPlayer.PlayerGui.ToolGui.ToolSettings.Settings.PropsColor.SetColor:FireServer(color)
+                    end)
+                    task.wait(0.03)
+                end
+            end)
+        end
+    end
+})
+
+local function toolRGB_new(toggleVar)
+    task.spawn(function()
+        while getgenv()[toggleVar] do
+            local color = getRainbowColor_RGB(rgbSpeed)
+            local gui = LocalPlayer:FindFirstChild("PlayerGui")
+            if gui and gui:FindFirstChild("ToolGui") then
+                local props = gui.ToolGui.ToolSettings.Settings.PropsColor
+                if props and props:FindFirstChild("SetColor") then
+                    pcall(function() props.SetColor:FireServer(color) end)
+                end
+            end
+            task.wait(0.1)
+        end
+    end)
+end
+
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Megafone"),
+    Default = false,
+    Callback = function(Value)
+        getgenv().rgbMegafone2 = Value
+        toolRGB_new("rgbMegafone2")
+    end
+})
+
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RGB Rosquinha"),
+    Default = false,
+    Callback = function(Value)
+        getgenv().rgbRosquinha2 = Value
+        toolRGB_new("rgbRosquinha2")
+    end
+})
+
+-- RP Name & Bio animado
+Tabs.RGB:AddSection({Translator:traduzir("RP Name & Bio Animado")})
+
+local RPTextRemote_new = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1RPNam1eTex1t")
+local RPNameText_new, RPBioText_new = "", ""
+local RPNameEnabled_new, RPBioEnabled_new = false, false
+local NameSpeed_new, BioSpeed_new = 30, 30
+
+local function getDelay_new(speed)
+    return 0.02 + (60 - math.clamp(speed, 1, 60)) * 0.003
+end
+
+Tabs.RGB:AddTextBox({
+    Name = Translator:traduzir("RP Name Texto"),
+    Placeholder = "Digite o RP Name",
+    Callback = function(v) RPNameText_new = v end
+})
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade RP Name"),
+    Min = 1, Max = 60, Default = 30,
+    Callback = function(v) NameSpeed_new = v end
+})
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RP Name ON / OFF"),
+    Default = false,
+    Callback = function(state)
+        RPNameEnabled_new = state
+        if not state or RPNameText_new == "" then return end
+        task.spawn(function()
+            while RPNameEnabled_new do
+                for i = 1, #RPNameText_new do
+                    if not RPNameEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayName", string.sub(RPNameText_new, 1, i))
+                    task.wait(getDelay_new(NameSpeed_new))
+                end
+                task.wait(0.4)
+                for i = #RPNameText_new - 1, 0, -1 do
+                    if not RPNameEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayName", string.sub(RPNameText_new, 1, i))
+                    task.wait(getDelay_new(NameSpeed_new))
+                end
+                task.wait(0.4)
+            end
+        end)
+    end
+})
+
+Tabs.RGB:AddTextBox({
+    Name = Translator:traduzir("RP Bio Texto"),
+    Placeholder = "Digite o RP Bio",
+    Callback = function(v) RPBioText_new = v end
+})
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade RP Bio"),
+    Min = 1, Max = 60, Default = 30,
+    Callback = function(v) BioSpeed_new = v end
+})
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("RP Bio ON / OFF"),
+    Default = false,
+    Callback = function(state)
+        RPBioEnabled_new = state
+        if not state or RPBioText_new == "" then return end
+        task.spawn(function()
+            while RPBioEnabled_new do
+                for i = 1, #RPBioText_new do
+                    if not RPBioEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayBio", string.sub(RPBioText_new, 1, i))
+                    task.wait(getDelay_new(BioSpeed_new))
+                end
+                task.wait(0.4)
+                for i = #RPBioText_new - 1, 0, -1 do
+                    if not RPBioEnabled_new then return end
+                    RPTextRemote_new:FireServer("RolePlayBio", string.sub(RPBioText_new, 1, i))
+                    task.wait(getDelay_new(BioSpeed_new))
+                end
+                task.wait(0.4)
+            end
+        end)
+    end
+})
+end -- end RGB do block
 
 -----------------///////TABS - LG///////-----------------
 do
@@ -12689,8 +12886,8 @@ local function createInterface()
     mainFrame.Name = "MainFrame"
     mainFrame.Size = UDim2.new(0, 520, 0, 420)
     mainFrame.Position = UDim2.new(0.5, -260, 0.5, -210)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- COR ALTERADA PARA VERMELHO PURO
-    mainFrame.BackgroundTransparency = 0.5
+    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 16, 2)  -- Fundo escuro dourado
+    mainFrame.BackgroundTransparency = 0.08
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
     mainFrame.Draggable = true
@@ -12702,18 +12899,18 @@ local function createInterface()
     mainCorner.Parent = mainFrame
     
     local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = Color3.fromRGB(0, 0, 0)
-    mainStroke.Thickness = 2
+    mainStroke.Color = Color3.fromRGB(255, 200, 0)
+    mainStroke.Thickness = 2.5
     mainStroke.Parent = mainFrame
     
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Name = "Title"
     titleLabel.Size = UDim2.new(1, 0, 0, 45)
     titleLabel.Position = UDim2.new(0, 0, 0, 0)
-    titleLabel.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- COR ALTERADA PARA VERMELHO PURO
+    titleLabel.BackgroundColor3 = Color3.fromRGB(255, 200, 0)  -- Amarelo dourado
     titleLabel.BorderSizePixel = 0
-    titleLabel.Text = "Star Hub Admin"
-    titleLabel.TextColor3 = Color3.new(1, 1, 1)
+    titleLabel.Text = "⭐ Star Hub Admin ⭐"
+    titleLabel.TextColor3 = Color3.fromRGB(20, 16, 2)
     titleLabel.TextSize = 16
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.Parent = mainFrame
@@ -12723,7 +12920,7 @@ local function createInterface()
     titleCorner.Parent = titleLabel
 
     local titleStroke = Instance.new("UIStroke")
-    titleStroke.Color = Color3.fromRGB(0, 0, 0)
+    titleStroke.Color = Color3.fromRGB(200, 150, 0)
     titleStroke.Thickness = 1
     titleStroke.Parent = titleLabel
     
@@ -12742,7 +12939,7 @@ local function createInterface()
     scrollFrame.BackgroundTransparency = 1
     scrollFrame.BorderSizePixel = 0
     scrollFrame.ScrollBarThickness = 4
-    scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+    scrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 200, 0)
     scrollFrame.Parent = contentFrame
     
     local layout = Instance.new("UIListLayout")
@@ -12757,7 +12954,7 @@ local function createButton(parent, text, callback)
     local button = Instance.new("TextButton")
     button.Name = text:gsub(" ", "")
     button.Size = UDim2.new(1, 0, 0, 32)
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- COR ALTERADA PARA VERMELHO PURO
+    button.BackgroundColor3 = Color3.fromRGB(200, 155, 0)  -- Botão dourado
     button.BackgroundTransparency = 0.2
     button.BorderSizePixel = 0
     button.Text = text
@@ -12801,7 +12998,7 @@ local function createDropdown(parent, text, options, callback)
     local frame = Instance.new("Frame")
     frame.Name = text:gsub(" ", ""):gsub("[^%w]", "")
     frame.Size = UDim2.new(1, 0, 0, 32)
-    frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- COR ALTERADA PARA VERMELHO PURO
+    frame.BackgroundColor3 = Color3.fromRGB(200, 155, 0)  -- Amarelo dourado
     frame.BackgroundTransparency = 0.2
     frame.BorderSizePixel = 0
     frame.Parent = parent
