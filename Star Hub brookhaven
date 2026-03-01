@@ -1061,29 +1061,63 @@ Tabs.RGB:AddToggle({
         end)
     end
 })
-end -- end RGB do block
+-- ============================
+-- SEÇÃO PERSONAGEM LGBT
+-- ============================
+Tabs.RGB:AddSection({Translator:traduzir("Personagem RGB")})
 
+-- Variáveis de estado
+local isNameActive  = false
+local isBioActive   = false
+local isHairActive  = false
+local rgbEnabled    = false
+local colorSpeed    = 10
+
+-- Paletas de cores
+local hairColors = {
+    Color3.new(1, 1, 0), Color3.new(0, 0, 1), Color3.new(1, 0, 1), Color3.new(1, 1, 1),
+    Color3.new(0, 1, 0), Color3.new(0.5, 0, 1), Color3.new(1, 0.647, 0), Color3.new(0, 1, 1)
+}
+local vibrantColors = {
+    Color3.fromRGB(255, 0, 0),   Color3.fromRGB(0, 255, 0),   Color3.fromRGB(0, 0, 255),
+    Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255),  Color3.fromRGB(0, 255, 255),
+    Color3.fromRGB(255, 165, 0), Color3.fromRGB(128, 0, 128),  Color3.fromRGB(255, 20, 147)
+}
+local lgbColors = { "Bright red", "Lime green", "Bright blue", "Bright yellow", "Bright cyan", "Hot pink", "Royal purple" }
+
+-- Nome RGB (1o - acima do cabelo)
 Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Nome lgbt"),
-    Description = Translator:traduzir("Mudar a cor do nome automático"),
+    Name = Translator:traduzir("Nome LGBT"),
+    Description = Translator:traduzir("Muda a cor do nome automaticamente"),
     Default = false,
     Callback = function(value)
         isNameActive = value
     end
 })
 
+-- Bio RGB (2o - acima do cabelo)
 Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Bio lgbt"),
-    Description = Translator:traduzir("Mudar a cor da bio automático"),
+    Name = Translator:traduzir("Bio LGBT"),
+    Description = Translator:traduzir("Muda a cor da bio automaticamente"),
     Default = false,
     Callback = function(value)
         isBioActive = value
     end
 })
 
-
+-- Cabelo RGB (3o)
 Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Personagem Lgbt"),
+    Name = Translator:traduzir("Cabelo LGBT"),
+    Description = Translator:traduzir("Muda a cor do cabelo automaticamente"),
+    Default = false,
+    Callback = function(value)
+        isHairActive = value
+    end
+})
+
+-- Personagem RGB (4o)
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Personagem LGBT"),
     Description = Translator:traduzir("Deixa seu personagem RGB automaticamente"),
     Default = false,
     Callback = function(value)
@@ -1091,36 +1125,55 @@ Tabs.RGB:AddToggle({
     end
 })
 
+-- Velocidade dos efeitos LGBT
+Tabs.RGB:AddSlider({
+    Name = Translator:traduzir("Velocidade Personagem RGB"),
+    Min = 1,
+    Max = 25,
+    Increase = 1,
+    Default = 10,
+    Callback = function(Value)
+        colorSpeed = Value
+    end
+})
+
+-- Loop principal: roda todos os efeitos LGBT juntos
 task.spawn(function()
     local iHair, iName, iBio, iChar = 1, 1, 1, 1
     while true do
         if isHairActive then
-            local hairArg = { "ChangeHairColor2", hairColors[iHair] }
-            pcall(function() ReplicatedStorage.RE:FindFirstChild("1Max1y"):FireServer(unpack(hairArg)) end)
+            pcall(function()
+                ReplicatedStorage.RE:FindFirstChild("1Max1y"):FireServer("ChangeHairColor2", hairColors[iHair])
+            end)
             iHair = iHair % #hairColors + 1
         end
 
         if isNameActive then
-            local nameArg = { "PickingRPNameColor", vibrantColors[iName] }
-            pcall(function() ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer(unpack(nameArg)) end)
+            pcall(function()
+                ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer("PickingRPNameColor", vibrantColors[iName])
+            end)
             iName = iName % #vibrantColors + 1
         end
 
         if isBioActive then
-            local bioArg = { "PickingRPBioColor", vibrantColors[iBio] }
-            pcall(function() ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer(unpack(bioArg)) end)
+            pcall(function()
+                ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer("PickingRPBioColor", vibrantColors[iBio])
+            end)
             iBio = iBio % #vibrantColors + 1
         end
 
         if rgbEnabled then
-            local bodyArg = { colors[iChar] }
-            ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeBodyColor"):FireServer(unpack(bodyArg))
-            iChar = iChar % #colors + 1
+            pcall(function()
+                ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeBodyColor"):FireServer(lgbColors[iChar])
+            end)
+            iChar = iChar % #lgbColors + 1
         end
 
         task.wait(1 / colorSpeed)
     end
 end)
+
+end -- end RGB do block
 
 Tabs.RGB:AddSection({Translator:traduzir("Repetição De Nomes")})
 
