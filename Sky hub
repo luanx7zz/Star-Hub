@@ -5,7 +5,7 @@ end
 if setfpscap then
     setfpscap(1000000)
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Vylera Hub",
+        Title = "Sky Hub",
         Text = "FPS Unlocked!",
         Duration = 5,
         Button1 = "Okay"
@@ -13,7 +13,7 @@ if setfpscap then
     warn("FPS Unlocked!")
 else
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Vylera Hub",
+        Title = "Sky Hub",
         Text = "Your exploit does not support setfpscap.",
         Duration = 5,
         Button1 = "Okay"
@@ -23,10 +23,10 @@ end
 
 local WindUI = (loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua")))();
 local Window = WindUI:CreateWindow({
-    Title = "Vylera Hub",
+    Title = "Sky Hub",
     Icon = "rbxassetid://84228153855933",
-    Author = "Vylera Hub | Blox Fruit",
-    Folder = "Vylera Hub_BF",
+    Author = "Sky Hub | Blox Fruit",
+    Folder = "Sky Hub_BF",
     Size = UDim2.fromOffset(550, 300),
     Transparent = true,
     Theme = "Dark",
@@ -40,7 +40,7 @@ local Window = WindUI:CreateWindow({
     },
 });
 Window:EditOpenButton({
-    Title = "Vylera Hub - Open",
+    Title = "Sky Hub - Open",
     Icon = "monitor",
     CornerRadius = UDim.new(0, 6),
     StrokeThickness = 2,
@@ -348,7 +348,7 @@ _G.Settings = {
     Combat = {
         ["Auto Kill Player Quest"] = false,
         ["Aimbot Gun"] = false,
-        ["Aimbot Skill Neares"] = false,
+        ["Aimbot Skill Nearest"] = false,
         ["Aimbot Skill"] = false,
         ["Enable PvP"] = false
     },
@@ -391,18 +391,18 @@ _G.Settings = {
 };
 (getgenv()).Load = function()
     if readfile and writefile and isfile and isfolder then
-        if not isfolder("Relz Hub New") then
-            makefolder("Relz Hub New");
+        if not isfolder("Sky Hub") then
+            makefolder("Sky Hub");
         end
-        if not isfolder("Relz Hub New/Blox Fruits/") then
-            makefolder("Relz Hub New/Blox Fruits/");
+        if not isfolder("Sky Hub/Blox Fruits/") then
+            makefolder("Sky Hub/Blox Fruits/");
         end
-        if not isfile(("Relz Hub New/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
-            writefile("Relz Hub New/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json",
+        if not isfile(("Sky Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
+            writefile("Sky Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json",
                 (game:GetService("HttpService")):JSONEncode(_G.Settings));
         else
             local Decode = (game:GetService("HttpService")):JSONDecode(readfile(
-                "Relz Hub New/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
+                "Sky Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
             for i, v in pairs(Decode) do
                 _G.Settings[i] = v;
             end
@@ -414,16 +414,16 @@ _G.Settings = {
 end;
 (getgenv()).SaveSetting = function()
     if readfile and writefile and isfile and isfolder then
-        if not isfile(("Relz Hub New/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
+        if not isfile(("Sky Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json")) then
             (getgenv()).Load();
         else
             local Decode = (game:GetService("HttpService")):JSONDecode(readfile(
-                "Relz Hub New/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
+                "Sky Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"));
             local Array = {};
             for i, v in pairs(_G.Settings) do
                 Array[i] = v;
             end
-            writefile("Relz Hub New/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json",
+            writefile("Sky Hub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json",
                 (game:GetService("HttpService")):JSONEncode(Array));
         end
     else
@@ -1132,28 +1132,7 @@ function CheckQuest()
             NameMon = "Serpent Hunter";
             CFrameQuest = CFrame.new(-16661.890625, 105.2862319946289, 1576.69775390625);
             CFrameMon = CFrame.new(-16587.896484375, 154.21299743652344, 1533.40966796875);
-        elseif MyLevel == 2575 or MyLevel >= 2600 then
-            Mon = "Skull Slayer";
-            LevelQuest = 2;
-            NameQuest = "TikiQuest3";
-            NameMon = "Skull Slayer";
-            CFrameQuest = CFrame.new(-16661.890625, 105.2862319946289, 1576.69775390625);
-            CFrameMon = CFrame.new(-16885.203125, 114.12911224365234, 1627.949951171875);
-        elseif MyLevel == 2600 or MyLevel >= 2624 then
-            Mon = "Skull Slayer";
-            LevelQuest = 2;
-            NameQuest = "TikiQuest3";
-            NameMon = "Skull Slayer";
-            CFrameQuest = CFrame.new(-16661.890625, 105.2862319946289, 1576.69775390625);
-            CFrameMon = CFrame.new(-16885.203125, 114.12911224365234, 1627.949951171875);
-        elseif MyLevel == 2625 or MyLevel >= 2649 then
-            Mon = "Skull Slayer";
-            LevelQuest = 2;
-            NameQuest = "TikiQuest3";
-            NameMon = "Skull Slayer";
-            CFrameQuest = CFrame.new(-16661.890625, 105.2862319946289, 1576.69775390625);
-            CFrameMon = CFrame.new(-16885.203125, 114.12911224365234, 1627.949951171875);
-        elseif MyLevel == 2650 or MyLevel >= 2750 then
+        elseif MyLevel >= 2575 then
             Mon = "Skull Slayer";
             LevelQuest = 2;
             NameQuest = "TikiQuest3";
@@ -1225,14 +1204,14 @@ spawn(function()
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
                             name.Font = Enum.Font.GothamSemibold;
-                            name.FontSize = "Size14";
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Text = v.Name .. " \n" ..
                                             round(
                                     (((game:GetService("Players")).LocalPlayer.Character.Head.Position -
                                         v.Character.Head.Position)).Magnitude / 3) .. " Distance";
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             if v.Team == game.Players.LocalPlayer.Team then
@@ -1272,10 +1251,10 @@ spawn(function()
                                 bill.AlwaysOnTop = true;
                                 local name = Instance.new("TextLabel", bill);
                                 name.Font = Enum.Font.Nunito;
-                                name.FontSize = "Size14";
+                                name.TextSize = 14;
                                 name.TextWrapped = true;
                                 name.Size = UDim2.new(1, 0, 1, 0);
-                                name.TextYAlignment = "Top";
+                                name.TextYAlignment = Enum.TextYAlignment.Top;
                                 name.BackgroundTransparency = 1;
                                 name.TextStrokeTransparency = 0.5;
                                 if v.Name == "SilverChest" then
@@ -1329,10 +1308,10 @@ spawn(function()
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
                             name.Font = Enum.Font.GothamSemibold;
-                            name.FontSize = "Size14";
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(255, 255, 255);
@@ -1386,10 +1365,10 @@ spawn(function()
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
                             name.Font = Enum.Font.GothamSemibold;
-                            name.FontSize = "Size14";
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(255, 255, 255);
@@ -1443,10 +1422,10 @@ spawn(function()
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
                             name.Font = Enum.Font.GothamSemibold;
-                            name.FontSize = "Size14";
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(255, 100, 100);
@@ -1492,10 +1471,10 @@ spawn(function()
                         bill.AlwaysOnTop = true;
                         local name = Instance.new("TextLabel", bill);
                         name.Font = Enum.Font.GothamSemibold;
-                        name.FontSize = "Size14";
+                        name.TextSize = 14;
                         name.TextWrapped = true;
                         name.Size = UDim2.new(1, 0, 1, 0);
-                        name.TextYAlignment = "Top";
+                        name.TextYAlignment = Enum.TextYAlignment.Top;
                         name.BackgroundTransparency = 1;
                         name.TextStrokeTransparency = 0.5;
                         name.TextColor3 = Color3.fromRGB(200, 70, 70);
@@ -1526,10 +1505,10 @@ spawn(function()
                         bill.AlwaysOnTop = true;
                         local name = Instance.new("TextLabel", bill);
                         name.Font = Enum.Font.GothamSemibold;
-                        name.FontSize = "Size14";
+                        name.TextSize = 14;
                         name.TextWrapped = true;
                         name.Size = UDim2.new(1, 0, 1, 0);
-                        name.TextYAlignment = "Top";
+                        name.TextYAlignment = Enum.TextYAlignment.Top;
                         name.BackgroundTransparency = 1;
                         name.TextStrokeTransparency = 0.5;
                         name.TextColor3 = Color3.fromRGB(255, 170, 0);
@@ -1560,10 +1539,10 @@ spawn(function()
                         bill.AlwaysOnTop = true;
                         local name = Instance.new("TextLabel", bill);
                         name.Font = Enum.Font.GothamSemibold;
-                        name.FontSize = "Size14";
+                        name.TextSize = 14;
                         name.TextWrapped = true;
                         name.Size = UDim2.new(1, 0, 1, 0);
-                        name.TextYAlignment = "Top";
+                        name.TextYAlignment = Enum.TextYAlignment.Top;
                         name.BackgroundTransparency = 1;
                         name.TextStrokeTransparency = 0.5;
                         name.TextColor3 = Color3.fromRGB(240, 255, 10);
@@ -1687,7 +1666,7 @@ spawn(function()
                             TextLabel.Size = UDim2.new(0, 200, 0, 50);
                             TextLabel.Font = Enum.Font.Cartoon;
                             TextLabel.TextColor3 = Color3.fromRGB(200, 60, 120);
-                            TextLabel.Text.Size = 45;
+                            TextLabel.TextSize = 45;
                         end
                         local Dis = math.floor((game.Players.LocalPlayer.Character.HumanoidRootPart.Position -
                                                    v.HumanoidRootPart.Position).Magnitude);
@@ -1718,11 +1697,11 @@ spawn(function()
                             bill.Adornee = v;
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
-                            name.Font = "Code";
-                            name.FontSize = "Size14";
+                            name.Font = Enum.Font.Code;
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(50, 180, 50);
@@ -1754,11 +1733,11 @@ spawn(function()
                             bill.Adornee = v;
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
-                            name.Font = "Code";
-                            name.FontSize = "Size14";
+                            name.Font = Enum.Font.Code;
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(40, 40, 180);
@@ -1790,11 +1769,11 @@ spawn(function()
                             bill.Adornee = v;
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
-                            name.Font = "Code";
-                            name.FontSize = "Size14";
+                            name.Font = Enum.Font.Code;
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(50, 180, 255);
@@ -1826,11 +1805,11 @@ spawn(function()
                             bill.Adornee = v;
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
-                            name.Font = "Code";
-                            name.FontSize = "Size14";
+                            name.Font = Enum.Font.Code;
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(200, 50, 40);
@@ -1862,11 +1841,11 @@ spawn(function()
                             bill.Adornee = v;
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
-                            name.Font = "Code";
-                            name.FontSize = "Size14";
+                            name.Font = Enum.Font.Code;
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(250, 50, 50);
@@ -1898,11 +1877,11 @@ spawn(function()
                             bill.Adornee = v;
                             bill.AlwaysOnTop = true;
                             local name = Instance.new("TextLabel", bill);
-                            name.Font = "Code";
-                            name.FontSize = "Size14";
+                            name.Font = Enum.Font.Code;
+                            name.TextSize = 14;
                             name.TextWrapped = true;
                             name.Size = UDim2.new(1, 0, 1, 0);
-                            name.TextYAlignment = "Top";
+                            name.TextYAlignment = Enum.TextYAlignment.Top;
                             name.BackgroundTransparency = 1;
                             name.TextStrokeTransparency = 0.5;
                             name.TextColor3 = Color3.fromRGB(200, 55, 255);
@@ -1935,11 +1914,11 @@ spawn(function()
                                 bill.Adornee = v;
                                 bill.AlwaysOnTop = true;
                                 local name = Instance.new("TextLabel", bill);
-                                name.Font = "Code";
-                                name.FontSize = "Size14";
+                                name.Font = Enum.Font.Code;
+                                name.TextSize = 14;
                                 name.TextWrapped = true;
                                 name.Size = UDim2.new(1, 0, 1, 0);
-                                name.TextYAlignment = "Top";
+                                name.TextYAlignment = Enum.TextYAlignment.Top;
                                 name.BackgroundTransparency = 1;
                                 name.TextStrokeTransparency = 0.5;
                                 name.TextColor3 = Color3.fromRGB(80, 245, 245);
@@ -2451,14 +2430,14 @@ spawn(function()
 end);
 DiscordServerParagraph = Tabs.InfoTab:Paragraph({
     Title = "Discord Server",
-    Desc = "Link Discord Vylera Hub!",
+    Desc = "Link Discord Sky Hub!",
     TextXAlignment = "Left",
     Buttons = {{
         Title = "Copy Link Discord",
         Callback = function()
             setclipboard("not right now");
             WindUI:Notify({
-                Title = "Notication",
+                Title = "Notification",
                 Content = "Discord Link Copied",
                 Icon = "bell",
                 Duration = 3
@@ -2467,15 +2446,15 @@ DiscordServerParagraph = Tabs.InfoTab:Paragraph({
     }}
 });
 DiscordServerParagraph1 = Tabs.InfoTab:Paragraph({
-    Title = "Social Vylera Hub",
-    Desc = "Link Social Vylera Hub!",
+    Title = "Social Sky Hub",
+    Desc = "Link Social Sky Hub!",
     TextXAlignment = "Left",
     Buttons = {{
         Title = "Copy Social",
         Callback = function()
             setclipboard("not right now");
             WindUI:Notify({
-                Title = "Notication",
+                Title = "Notification",
                 Content = "Social Link Copied",
                 Icon = "bell",
                 Duration = 3
@@ -2809,7 +2788,7 @@ spawn(function()
                                         v.Humanoid.Health == 0 or
                                         (game:GetService("Players")).LocalPlayer.PlayerGui.Main.Quest.Visible == false or
                                         (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                        not _G.Settings.Main["Mastery Method"] == "Quest";
+                                        (_G.Settings.Main["Mastery Method"] ~= "Quest");
                                 end
                             end
                         end
@@ -2840,7 +2819,7 @@ spawn(function()
                                 MonFarm = v.Name;
                             until not _G.Settings.Main["Auto Farm Sword Mastery"] or (not v.Parent) or v.Humanoid.Health ==
                                 0 or (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                not _G.Settings.Main["Mastery Method"] == "No Quest";
+                                (_G.Settings.Main["Mastery Method"] ~= "No Quest");
                         end
                     end
                 else
@@ -2875,7 +2854,7 @@ spawn(function()
                                 until not _G.Settings.Main["Auto Farm Sword Mastery"] or v.Humanoid.Health <= 0 or
                                     (not v.Parent) or
                                     (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                    not _G.Settings.Main["Mastery Method"] == "Bones";
+                                    (_G.Settings.Main["Mastery Method"] ~= "Bones");
                             end
                         elseif (game:GetService("ReplicatedStorage")):FindFirstChild("Demonic Soul") then
                             TweenPlayer(v.HumanoidRootPart.CFrame * Pos);
@@ -2911,7 +2890,7 @@ spawn(function()
                                 until not _G.Settings.Main["Auto Farm Sword Mastery"] or v.Humanoid.Health <= 0 or
                                     (not v.Parent) or
                                     (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                    not _G.Settings.Main["Mastery Method"] == "Cakeprince";
+                                    (_G.Settings.Main["Mastery Method"] ~= "Cakeprince");
                             end
                         elseif (game:GetService("ReplicatedStorage")):FindFirstChild("Baking Staff") then
                             TweenPlayer(v.HumanoidRootPart.CFrame * Pos);
@@ -2938,7 +2917,7 @@ spawn(function()
                                 PosMon = v.HumanoidRootPart.CFrame;
                                 MonFarm = v.Name;
                             until not _G.Settings.Main["Auto Farm Sword Mastery"] or (not v.Parent) or v.Humanoid.Health ==
-                                0 or not _G.Settings.Main["Mastery Method"] == "Nearest";
+                                0 or (_G.Settings.Main["Mastery Method"] ~= "Nearest");
                         end
                     end
                 end
@@ -2957,7 +2936,7 @@ spawn(function()
                     CheckBossQuest();
                     if (game:GetService("Workspace")).Enemies:FindFirstChild(SelectBoss) then
                         for i, v in pairs((game:GetService("Workspace")).Enemies:GetChildren()) do
-                            if v.Name == selectBoss and v:FindFirstChild("Humanoid") and
+                            if v.Name == SelectBoss and v:FindFirstChild("Humanoid") and
                                 v:FindFirstChild("HumanoidRootPart") then
                                 repeat
                                     (game:GetService("RunService")).Heartbeat:wait();
@@ -2972,7 +2951,7 @@ spawn(function()
                                     PosMon = v.HumanoidRootPart.CFrame;
                                     MonFarm = v.Name;
                                 until not _G.Settings.Main["Auto Farm Sword Mastery"] or
-                                    not _G.Settings.Main["Mastery Method"] == "Boss" or (not v.Parent) or
+                                    (_G.Settings.Main["Mastery Method"] ~= "Boss") or (not v.Parent) or
                                     v.Humanoid.Health == 0 or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible ==
                                     false or (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name));
                             end
@@ -3034,7 +3013,7 @@ spawn(function()
                                         v.Humanoid.Health == 0 or
                                         (game:GetService("Players")).LocalPlayer.PlayerGui.Main.Quest.Visible == false or
                                         (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                        not _G.Settings.Main["Mastery Method"] == "Quest";
+                                        (_G.Settings.Main["Mastery Method"] ~= "Quest");
                                     UseSkill = false;
                                     Skillaimbot = false;
                                 end
@@ -3080,7 +3059,7 @@ spawn(function()
                                 AimBotSkillPosition = v.HumanoidRootPart.Position;
                             until not _G.Settings.Main["Auto Farm Fruit Mastery"] or (not v.Parent) or v.Humanoid.Health ==
                                 0 or (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                not _G.Settings.Main["Mastery Method"] == "No Quest";
+                                (_G.Settings.Main["Mastery Method"] ~= "No Quest");
                             UseSkill = false;
                             Skillaimbot = false;
                         end
@@ -3130,7 +3109,7 @@ spawn(function()
                                 until not _G.Settings.Main["Auto Farm Fruit Mastery"] or v.Humanoid.Health <= 0 or
                                     (not v.Parent) or
                                     (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                    not _G.Settings.Main["Mastery Method"] == "Bones";
+                                    (_G.Settings.Main["Mastery Method"] ~= "Bones");
                                 UseSkill = false;
                                 Skillaimbot = false;
                             end
@@ -3180,7 +3159,7 @@ spawn(function()
                                 until not _G.Settings.Main["Auto Farm Fruit Mastery"] or v.Humanoid.Health <= 0 or
                                     (not v.Parent) or
                                     (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                    not _G.Settings.Main["Mastery Method"] == "Cakeprince";
+                                    (_G.Settings.Main["Mastery Method"] ~= "Cakeprince");
                                 UseSkill = false;
                                 Skillaimbot = false;
                             end
@@ -3221,7 +3200,7 @@ spawn(function()
                                 MonFarm = v.Name;
                                 AimBotSkillPosition = v.HumanoidRootPart.Position;
                             until not _G.Settings.Main["Auto Farm Fruit Mastery"] or (not v.Parent) or v.Humanoid.Health ==
-                                0 or not _G.Settings.Main["Mastery Method"] == "Nearest";
+                                0 or (_G.Settings.Main["Mastery Method"] ~= "Nearest");
                             UseSkill = false;
                             Skillaimbot = false;
                         end
@@ -3242,7 +3221,7 @@ spawn(function()
                     CheckBossQuest();
                     if (game:GetService("Workspace")).Enemies:FindFirstChild(SelectBoss) then
                         for i, v in pairs((game:GetService("Workspace")).Enemies:GetChildren()) do
-                            if v.Name == selectBoss and v:FindFirstChild("Humanoid") and
+                            if v.Name == SelectBoss and v:FindFirstChild("Humanoid") and
                                 v:FindFirstChild("HumanoidRootPart") then
                                 repeat
                                     (game:GetService("RunService")).Heartbeat:wait();
@@ -3269,7 +3248,7 @@ spawn(function()
                                     MonFarm = v.Name;
                                     AimBotSkillPosition = v.HumanoidRootPart.Position;
                                 until not _G.Settings.Main["Auto Farm Fruit Mastery"] or
-                                    not _G.Settings.Main["Mastery Method"] == "Boss" or (not v.Parent) or
+                                    (_G.Settings.Main["Mastery Method"] ~= "Boss") or (not v.Parent) or
                                     v.Humanoid.Health == 0 or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible ==
                                     false or (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name));
                                 UseSkill = false;
@@ -3340,7 +3319,7 @@ spawn(function()
                                         v.Humanoid.Health <= 0 or
                                         (game:GetService("Players")).LocalPlayer.PlayerGui.Main.Quest.Visible == false or
                                         (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                        not _G.Settings.Main["Mastery Method"] == "Quest";
+                                        (_G.Settings.Main["Mastery Method"] ~= "Quest");
                                     UseGunSkill = false;
                                     Skillaimbot = false;
                                 end
@@ -3390,7 +3369,7 @@ spawn(function()
                                 AimBotSkillPosition = v.HumanoidRootPart.Position;
                             until not _G.Settings.Main["Auto Farm Gun Mastery"] or (not v.Parent) or v.Humanoid.Health <=
                                 0 or (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name)) or
-                                not _G.Settings.Main["Mastery Method"] == "No Quest";
+                                (_G.Settings.Main["Mastery Method"] ~= "No Quest");
                         end
                     end
                 else
@@ -3442,7 +3421,7 @@ spawn(function()
                                     MonFarm = v.Name;
                                     AimBotSkillPosition = v.HumanoidRootPart.Position;
                                 until not _G.Settings.Main["Auto Farm Gun Mastery"] or
-                                    not _G.Settings.Main["Mastery Method"] == "Bones" or v.Humanoid.Health <= 0 or
+                                    (_G.Settings.Main["Mastery Method"] ~= "Bones") or v.Humanoid.Health <= 0 or
                                     (not v.Parent);
                                 UseGunSkill = false;
                                 Skillaimbot = false;
@@ -3496,7 +3475,7 @@ spawn(function()
                                     MonFarm = v.Name;
                                     AimBotSkillPosition = v.HumanoidRootPart.Position;
                                 until not _G.Settings.Main["Auto Farm Gun Mastery"] or
-                                    not _G.Settings.Main["Mastery Method"] == "Cakeprince" or v.Humanoid.Health <= 0 or
+                                    (_G.Settings.Main["Mastery Method"] ~= "Cakeprince") or v.Humanoid.Health <= 0 or
                                     (not v.Parent);
                                 UseGunSkill = false;
                                 Skillaimbot = false;
@@ -3543,7 +3522,7 @@ spawn(function()
                                 NormalAttack();
                                 AimBotSkillPosition = v.HumanoidRootPart.Position;
                             until not _G.Settings.Main["Auto Farm Gun Mastery"] or (not v.Parent) or v.Humanoid.Health <=
-                                0 or not _G.Settings.Main["Mastery Method"] == "Nearest";
+                                0 or (_G.Settings.Main["Mastery Method"] ~= "Nearest");
                             UseGunSkill = false;
                             Skillaimbot = false;
                         end
@@ -3564,7 +3543,7 @@ spawn(function()
                     CheckBossQuest();
                     if (game:GetService("Workspace")).Enemies:FindFirstChild(SelectBoss) then
                         for i, v in pairs((game:GetService("Workspace")).Enemies:GetChildren()) do
-                            if v.Name == selectBoss and v:FindFirstChild("Humanoid") and
+                            if v.Name == SelectBoss and v:FindFirstChild("Humanoid") and
                                 v:FindFirstChild("HumanoidRootPart") then
                                 repeat
                                     (game:GetService("RunService")).Heartbeat:wait();
@@ -3597,7 +3576,7 @@ spawn(function()
                                     NormalAttack();
                                     AimBotSkillPosition = v.HumanoidRootPart.Position;
                                 until not _G.Settings.Main["Auto Farm Gun Mastery"] or
-                                    not _G.Settings.Main["Mastery Method"] == "Boss" or (not v.Parent) or
+                                    (_G.Settings.Main["Mastery Method"] ~= "Boss") or (not v.Parent) or
                                     v.Humanoid.Health <= 0 or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible ==
                                     false or (not (game:GetService("Workspace")).Enemies:FindFirstChild(v.Name));
                                 Skillaimbot = false;
@@ -3722,7 +3701,7 @@ spawn(function()
                                 AutoHaki();
                                 v.Humanoid.JumpPower = 0;
                                 v.Humanoid.WalkSpeed = 0;
-                            until not v.parent or
+                            until not v.Parent or
                                 (not (game:GetService("Workspace")).Enemies:FindFirstChild("Tyrant of the Skies")) or
                                 (not _G.Settings.Main["Auto Kill Tyrant Of The Skies"]);
                         end
@@ -4237,7 +4216,7 @@ spawn(function()
                                         v.Humanoid.WalkSpeed = 0;
                                         PosMon = v.HumanoidRootPart.CFrame;
                                         MonFarm = v.Name;
-                                    until not _G.Settings.Main["Auto Pirate Raid"] or (not v.Parent) or
+                                    until not _G.Settings.Farm["Auto Pirate Raid"] or (not v.Parent) or
                                         v.Humanoid.Health <= 0 or (not game.Workspace.Enemies:FindFirstChild(v.Name));
                                 end
                             else
@@ -4616,7 +4595,7 @@ function getConfigMaterial(Material)
         MaterialMon = {"Fishman Captain"};
         MaterialPos = CFrame.new(-10961.0126953125, 331.7977600097656, -8914.29296875);
     elseif Material == "Mini Tusk" and World3 then
-        MaterialMon = {"Mithological Pirate"};
+        MaterialMon = {"Mythological Pirate"};
         MaterialPos = CFrame.new(-13516.0458984375, 469.8182373046875, -6899.16064453125);
     end
 end
@@ -4663,7 +4642,7 @@ spawn(function()
                         end
                     else
                         UnEquipWeapon(_G.Settings.Main["Selected Weapon"]);
-                        local Distance = (Vector3.new(MaterialPos) -
+                        local Distance = (MaterialPos.Position -
                                              (game:GetService("Players")).LocalPlayer.Character.HumanoidRootPart
                                                  .Position).Magnitude;
                         if Distance > 18000 and _G.Settings.Farm["Selected Material"] == "Ectoplasm" then
@@ -4785,11 +4764,11 @@ spawn(function()
     end
 end);
 AttackAuraToggle = Tabs.SettingsTab:Toggle({
-    Title = "Atatck Aura",
+    Title = "Attack Aura",
     Desc = "Attack Nearest Enemies",
-    Value = _G.Settings.Items["Attack Aura"],
+    Value = _G.Settings.Setting["Attack Aura"],
     Callback = function(state)
-        _G.Settings.Items["Attack Aura"] = state;
+        _G.Settings.Setting["Attack Aura"] = state;
         (getgenv()).SaveSetting();
     end
 });
@@ -6157,9 +6136,9 @@ function AutoSoulGuitar()
                         firetouchinterest(v, game.Players.LocalPlayer.Character.HumanoidRootPart, 1);
                     end
                     if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.Position).Magnitude <= 5 then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "W", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "W", false, game);
                         task.wait();
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "W", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "W", false, game);
                     end
                     InstantTp(v.CFrame * CFrame.new(0, 1, 0));
                 until not v or (not v.Parent) or (not _G.Settings.Items["Auto Soul Guitar"]);
@@ -6612,7 +6591,7 @@ spawn(function()
                                     v.HumanoidRootPart.Size = Vector3.new(1, 1, 1);
                                     TweenPlayer(v.HumanoidRootPart.CFrame * Pos);
                                     Attack();
-                                until _G.Settings.Farm["Auto Yama"] == false or v.Humanoid.Health <= 0 or (not v.Parent);
+                                until _G.Settings.Items["Auto Yama"] == false or v.Humanoid.Health <= 0 or (not v.Parent);
                             end
                         end
                     end
@@ -6752,7 +6731,7 @@ StatsPointToAddSlider = Tabs.StatsTab:Slider({
 });
 spawn(function()
     while wait(0.2) do
-        if game.Players.localPlayer.Data.Points.Value >= PointStats then
+        if game.Players.LocalPlayer.Data.Points.Value >= PointStats then
             if _G.Settings.Stats["Auto Add Melee Stats"] then
                 local args = {
                     [1] = "AddPoint",
@@ -7052,7 +7031,7 @@ AutoLawRaidToggle = Tabs.RaidTab:Toggle({
     Title = "Auto Law Raid",
     Value = _G.Settings.Raid["Law Raid"],
     Callback = function(state)
-        _G.Settings.Raid["Law Raid"] = value;
+        _G.Settings.Raid["Law Raid"] = state;
         StopTween(_G.Settings.Raid["Law Raid"]);
         (getgenv()).SaveSetting();
     end
@@ -7115,7 +7094,7 @@ RaceTabSection = Tabs.RaceTab:Section({
     Title = "Race",
     TextXAlignment = "Left"
 });
-local PlaceV4List = {"Top Of GreatTree", "Timple Of Time", "Lever Pull", "Acient One"};
+local PlaceV4List = {"Top Of GreatTree", "Temple Of Time", "Lever Pull", "Ancient One"};
 SelectedPlaceDropdown = Tabs.RaceTab:Dropdown({
     Title = "Selected Place",
     Values = PlaceV4List,
@@ -7139,7 +7118,7 @@ spawn(function()
             pcall(function()
                 if _G.Settings.Race["Selected Place"] == "Top Of GreatTree" then
                     TweenPlayer(CFrame.new(2947.556884765625, 2281.630615234375, -7213.54931640625));
-                elseif _G.Settings.Race["Selected Place"] == "Timple Of Time" then
+                elseif _G.Settings.Race["Selected Place"] == "Temple Of Time" then
                     (game:GetService("Players")).LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(
                         28286.35546875, 14895.3017578125, 102.62469482421875);
                 elseif _G.Settings.Race["Selected Place"] == "Lever Pull" then
@@ -7151,7 +7130,7 @@ spawn(function()
                     else
                         TweenPlayer(LeverPullPos);
                     end
-                elseif _G.Settings.Race["Selected Place"] == "Acient One" then
+                elseif _G.Settings.Race["Selected Place"] == "Ancient One" then
                     TweenPlayer(CFrame.new(28981.552734375, 14888.4267578125, -120.245849609375));
                 end
             end);
@@ -7170,9 +7149,6 @@ spawn(function()
     pcall(function()
         while wait(0.2) do
             if _G.Settings.Race["Auto Buy Gear"] then
-                local args = {
-                    [1] = true
-                };
                 local args = {
                     [1] = "UpgradeRace",
                     [2] = "Buy"
@@ -7348,7 +7324,7 @@ TeleportToRaceDoorButton = Tabs.RaceTab:Button({
     end
 });
 BuyAcientQuestButton = Tabs.RaceTab:Button({
-    Title = "Buy Acient Quest",
+    Title = "Buy Ancient Quest",
     Callback = function()
         (game:GetService("ReplicatedStorage")).Remotes.CommF_:InvokeServer("UpgradeRace", "Buy");
     end
@@ -7726,10 +7702,10 @@ BuyFintlockButton = Tabs.ShopTab:Button({
     end
 });
 BuyRefinedFintlockButton = Tabs.ShopTab:Button({
-    Title = "Buy Refined Fintlock",
+    Title = "Buy Refined Flintlock",
     Desc = "$60,000",
     Callback = function()
-        (game:GetService("ReplicatedStorage")).Remotes.CommF_:InvokeServer("BuyItem", "Refined Fintlock");
+        (game:GetService("ReplicatedStorage")).Remotes.CommF_:InvokeServer("BuyItem", "Refined Flintlock");
     end
 });
 BuyCanonButton = Tabs.ShopTab:Button({
@@ -7803,14 +7779,11 @@ PlayerInServerTotalParagraph = Tabs.CombatTab:Paragraph({
 spawn(function()
     while wait(0.2) do
         pcall(function()
-            for i, v in pairs((game:GetService("Players")):GetPlayers()) do
-                if i == 12 then
-                    PlayerInServerTotalParagraph:SetDesc(i .. " / " .. "12" .. "(Max)");
-                elseif i == 1 then
-                    PlayerInServerTotalParagraph:SetDesc(i .. " / " .. "12");
-                else
-                    PlayerInServerTotalParagraph:SetDesc(i .. " / " .. "12");
-                end
+            local totalPlayers = #(game:GetService("Players")):GetPlayers();
+            if totalPlayers >= 12 then
+                PlayerInServerTotalParagraph:SetDesc(totalPlayers .. " / 12 (Max)");
+            else
+                PlayerInServerTotalParagraph:SetDesc(totalPlayers .. " / 12");
             end
         end);
     end
@@ -7855,7 +7828,7 @@ TeleportToPlayerToggle = Tabs.CombatTab:Toggle({
     Title = "Teleport To Player",
     Value = false,
     Callback = function(state)
-        _G.TeleportToPlayer = value;
+        _G.TeleportToPlayer = state;
         pcall(function()
             if _G.TeleportToPlayer then
                 repeat
@@ -7874,7 +7847,7 @@ if World1 then
                   "MarineFord", "Colosseum", "Sky Island 1", "Sky Island 2", "Sky Island 3", "Prison", "Magma Village",
                   "Under Water Island", "Fountain City", "Shank Room", "Mob Island"};
 elseif World2 then
-    IslandList = {"The Cafe", "Frist Spot", "Dark Area", "Flamingo Mansion", "Flamingo Room", "Green Zone", "Factory",
+    IslandList = {"The Cafe", "First Spot", "Dark Area", "Flamingo Mansion", "Flamingo Room", "Green Zone", "Factory",
                   "Colossuim", "Zombie Island", "Two Snow Mountain", "Punk Hazard", "Cursed Ship", "Ice Castle",
                   "Forgotten Island", "Ussop Island", "Mini Sky Island"};
 elseif World3 then
@@ -7939,7 +7912,7 @@ AutoTeleportToIslandToggle = Tabs.TeleportTab:Toggle({
                     TweenPlayer(CFrame.new(-2850.20068, 7.39224768, 5354.99268));
                 elseif _G.SelectIsland == "The Cafe" then
                     TweenPlayer(CFrame.new(-380.47927856445, 77.220390319824, 255.82550048828));
-                elseif _G.SelectIsland == "Frist Spot" then
+                elseif _G.SelectIsland == "First Spot" then
                     TweenPlayer(CFrame.new(-11.311455726624, 29.276733398438, 2771.5224609375));
                 elseif _G.SelectIsland == "Dark Area" then
                     TweenPlayer(CFrame.new(3780.0302734375, 22.652164459229, -3498.5859375));
@@ -8475,21 +8448,21 @@ function useAllSkill()
                 end
             end
         end
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "F", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "F", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "F", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "F", false, game);
         DoneSkillFruit = true;
     end
     if DoneSkillMelee == false then
@@ -8500,18 +8473,18 @@ function useAllSkill()
                 end
             end
         end
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
         DoneSkillMelee = true;
     end
     if DoneSkillSword == false then
@@ -8522,12 +8495,12 @@ function useAllSkill()
                 end
             end
         end
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
         wait(0);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
         DoneSkillSword = true;
     end
     if DoneSkillGun == false then
@@ -8538,12 +8511,12 @@ function useAllSkill()
                 end
             end
         end
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
         wait(0.1);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
-        (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
         wait(0.1);
-        (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
         DoneSkillGun = true;
     end
     DoneSkillGun = false;
@@ -9840,29 +9813,29 @@ spawn(function()
                         end
                     end
                     if _G.Settings.SettingSea["Devil Fruit Z Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
                         wait();
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
                     end
                     if _G.Settings.SettingSea["Devil Fruit X Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
                         wait();
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
                     end
                     if _G.Settings.SettingSea["Devil Fruit C Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
                         wait();
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
                     end
                     if _G.Settings.SettingSea["Devil Fruit V Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
                         wait();
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
                     end
                     if _G.Settings.SettingSea["Devil Fruit F Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "F", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "F", false, game);
                         wait();
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "F", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "F", false, game);
                     end
                     DoneSkillFruit = true;
                 end
@@ -9875,24 +9848,24 @@ spawn(function()
                         end
                     end
                     if _G.Settings.SettingSea["Melee Z Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
                         wait(0);
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
                     end
                     if _G.Settings.SettingSea["Melee X Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
                         wait(0);
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
                     end
                     if _G.Settings.SettingSea["Melee C Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
                         wait(0);
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
                     end
                     if _G.Settings.SettingSea["Melee V Skill"] then
-                        (game:service("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
                         wait(0);
-                        (game:service("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
+                        (game:GetService("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
                     end
                     DoneSkillMelee = true;
                 end
@@ -9904,12 +9877,12 @@ spawn(function()
                             end
                         end
                     end
-                    (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
                     wait(0);
-                    (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
-                    (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
                     wait(0);
-                    (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
                     DoneSkillSword = true;
                 end
                 if _G.Settings.SettingSea["Use Gun Skill"] and DoneSkillGun == false then
@@ -9920,12 +9893,12 @@ spawn(function()
                             end
                         end
                     end
-                    (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
                     wait(0.1);
-                    (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
-                    (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
                     wait(0.1);
-                    (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+                    (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
                     DoneSkillGun = true;
                 end
                 DoneSkillGun = false;
@@ -9972,24 +9945,24 @@ spawn(function()
                     if v.Name == MonFarm and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and
                         v.Humanoid.Health <= v.Humanoid.MaxHealth * _G.Settings.Setting["Mastery Health"] / 100 then
                         if _G.Settings.Setting["Fruit Mastery Skill Z"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
                         end
                         if _G.Settings.Setting["Fruit Mastery Skill X"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
                         end
                         if _G.Settings.Setting["Fruit Mastery Skill C"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "C", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "C", false, game);
                         end
                         if _G.Settings.Setting["Fruit Mastery Skill V"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "V", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "V", false, game);
                         end
                         if _G.Settings.Setting["Fruit Mastery Skill F"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "F", false, game);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "F", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "F", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "F", false, game);
                         end
                     end
                 end
@@ -10005,14 +9978,14 @@ spawn(function()
                     if v.Name == MonFarm and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and
                         v.Humanoid.Health <= v.Humanoid.MaxHealth * _G.Settings.Setting["Mastery Health"] / 100 then
                         if _G.Settings.Setting["Gun Mastery Skill Z"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "Z", false, game);
                             wait(0.5);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "Z", false, game);
                         end
                         if _G.Settings.Setting["Gun Mastery Skill X"] then
-                            (game:service("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(true, "X", false, game);
                             wait(0.5);
-                            (game:service("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
+                            (game:GetService("VirtualInputManager")):SendKeyEvent(false, "X", false, game);
                         end
                     end
                 end
@@ -10370,7 +10343,7 @@ FpsBoostButton = Tabs.MiscTab:Button({
     end
 });
 FpsBoostButton = Tabs.MiscTab:Button({
-    Title = "Fps Boost (Vylera Hub)",
+    Title = "Fps Boost (Sky Hub)",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/dyumra/DYHUB-Universal-Game/refs/heads/main/Nigga.lua"))()
     end
@@ -10596,76 +10569,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 
-local player = Players.LocalPlayer
-local hwid = game:GetService("RbxAnalyticsService"):GetClientId()
-local executor = identifyexecutor()
-local placeId = game.PlaceId
-local jobId = game.JobId
-
--- Tạo dữ liệu gửi lên Discord
-local Data = {
-    ["embeds"] = {{
-        ["title"] = "Roblox Account Information",
-        ["url"] = "https://www.roblox.com/users/" .. player.UserId,
-        ["description"] = "Display name: **" .. player.DisplayName .. "**",
-        ["color"] = tonumber("0x000000"), -- Đổi màu viền thành đen
-        ["thumbnail"] = {
-            ["url"] = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId ..
-                "&width=420&height=420&format=png"
-        },
-        ["fields"] = {{
-            ["name"] = "Username:",
-            ["value"] = "`" .. player.Name .. "`",
-            ["inline"] = true
-        }, {
-            ["name"] = "User ID:",
-            ["value"] = "`" .. player.UserId .. "`",
-            ["inline"] = true
-        }, {
-            ["name"] = "Executor:",
-            ["value"] = "`" .. executor .. "`",
-            ["inline"] = true
-        }, {
-            ["name"] = "HWID:",
-            ["value"] = "`" .. hwid .. "`",
-            ["inline"] = true
-        }, {
-            ["name"] = "Place ID:",
-            ["value"] = "`" .. placeId .. "`",
-            ["inline"] = true
-        }, {
-            ["name"] = "Job ID:",
-            ["value"] = "`" .. jobId .. "`",
-            ["inline"] = true
-        }, {
-            ["name"] = "Script Hop:",
-            ["value"] = "```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" ..
-                jobId .. "\", game.Players.LocalPlayer)```",
-            ["inline"] = false
-        }, {
-            ["name"] = "Thank You Everyone",
-            ["value"] = "Used Script By Vylera Hub",
-            ["inline"] = false
-        }}
-    }}
-}
-
-local Headers = {
-    ["Content-Type"] = "application/json"
-}
-local Encoded = HttpService:JSONEncode(Data)
-
-local WebhookURL =
-    "https://discord.com/api/webhooks/1475495854470336713/yudxW2jzpNu-bQwRn7SyTVz2xSa_IyZDIXHZvw6-Fl-utXJ9mVT6bthrmI_8a17tiDIC"
-local Request = http_request or request or HttpPost or syn.request
-if Request then
-    Request({
-        Url = WebhookURL,
-        Body = Encoded,
-        Method = "POST",
-        Headers = Headers
-    })
-end
+-- Sky Hub | Blox Fruits
 _G.FastAttack = true
 
 if _G.FastAttack then
@@ -10676,7 +10580,7 @@ if _G.FastAttack then
             return parent:WaitForChild(childName)
         end)
         if not success or not result then
-            warn("noooooo: " .. childName)
+            warn("Child not found: " .. childName)
         end
         return result
     end
