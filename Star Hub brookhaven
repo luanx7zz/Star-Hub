@@ -767,21 +767,122 @@ end)
 
 -----------------///////TABS - RGB///////-----------------
 do
-local rgbSpeed = 3
 
-Tabs.RGB:AddSection({Translator:traduzir("Configuração RGB")})
+-- ============================
+-- SEÇÃO PERSONAGEM LGBT
+-- ============================
+Tabs.RGB:AddSection({Translator:traduzir("Personagem RGB")})
+
+-- Variáveis de estado
+local isNameActive  = false
+local isBioActive   = false
+local isHairActive  = false
+local rgbEnabled    = false
+local colorSpeed    = 10
+
+-- Paletas de cores
+local hairColors = {
+    Color3.new(1, 1, 0), Color3.new(0, 0, 1), Color3.new(1, 0, 1), Color3.new(1, 1, 1),
+    Color3.new(0, 1, 0), Color3.new(0.5, 0, 1), Color3.new(1, 0.647, 0), Color3.new(0, 1, 1)
+}
+local vibrantColors = {
+    Color3.fromRGB(255, 0, 0),   Color3.fromRGB(0, 255, 0),   Color3.fromRGB(0, 0, 255),
+    Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255),  Color3.fromRGB(0, 255, 255),
+    Color3.fromRGB(255, 165, 0), Color3.fromRGB(128, 0, 128),  Color3.fromRGB(255, 20, 147)
+}
+local lgbColors = { "Bright red", "Lime green", "Bright blue", "Bright yellow", "Bright cyan", "Hot pink", "Royal purple" }
+
+-- Velocidade (primeiro)
 Tabs.RGB:AddSlider({
-    Name = Translator:traduzir("Velocidade RGB"),
-    Description = Translator:traduzir("Velocidade geral dos efeitos RGB"),
+    Name = Translator:traduzir("Velocidade LGBT"),
     Min = 1,
-    Max = 10,
+    Max = 25,
     Increase = 1,
-    Default = 3,
+    Default = 10,
     Callback = function(Value)
-        rgbSpeed = Value
+        colorSpeed = Value
     end
 })
 
+-- Nome LGBT
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Nome LGBT"),
+    Description = Translator:traduzir("Muda a cor do nome automaticamente"),
+    Default = false,
+    Callback = function(value)
+        isNameActive = value
+    end
+})
+
+-- Bio LGBT
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Bio LGBT"),
+    Description = Translator:traduzir("Muda a cor da bio automaticamente"),
+    Default = false,
+    Callback = function(value)
+        isBioActive = value
+    end
+})
+
+-- Cabelo LGBT
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Cabelo LGBT"),
+    Description = Translator:traduzir("Muda a cor do cabelo automaticamente"),
+    Default = false,
+    Callback = function(value)
+        isHairActive = value
+    end
+})
+
+-- Personagem LGBT
+Tabs.RGB:AddToggle({
+    Name = Translator:traduzir("Personagem LGBT"),
+    Description = Translator:traduzir("Deixa seu personagem RGB automaticamente"),
+    Default = false,
+    Callback = function(value)
+        rgbEnabled = value
+    end
+})
+
+-- Loop principal: roda todos os efeitos LGBT juntos
+task.spawn(function()
+    local iHair, iName, iBio, iChar = 1, 1, 1, 1
+    while true do
+        if isHairActive then
+            pcall(function()
+                ReplicatedStorage.RE:FindFirstChild("1Max1y"):FireServer("ChangeHairColor2", hairColors[iHair])
+            end)
+            iHair = iHair % #hairColors + 1
+        end
+
+        if isNameActive then
+            pcall(function()
+                ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer("PickingRPNameColor", vibrantColors[iName])
+            end)
+            iName = iName % #vibrantColors + 1
+        end
+
+        if isBioActive then
+            pcall(function()
+                ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer("PickingRPBioColor", vibrantColors[iBio])
+            end)
+            iBio = iBio % #vibrantColors + 1
+        end
+
+        if rgbEnabled then
+            pcall(function()
+                ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeBodyColor"):FireServer(lgbColors[iChar])
+            end)
+            iChar = iChar % #lgbColors + 1
+        end
+
+        task.wait(1 / colorSpeed)
+    end
+end)
+
+end -- end RGB do block
+
+local rgbSpeed = 3  -- velocidade dos RGBs de veículos/casa/itens
 local function getRainbowColor_RGB(speedMult)
     local h = (tick() * speedMult % 10) / 10
     return Color3.fromHSV(h, 1, 1)
@@ -794,61 +895,6 @@ local function fireServerRGB(eventName, args)
     end
 end
 
--- RGB Cabelo (modo rainbow suave)
-local rgbCabeloActive = false
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Cabelo"),
-    Default = false,
-    Callback = function(Value)
-        rgbCabeloActive = Value
-        if Value then
-            task.spawn(function()
-                while rgbCabeloActive do
-                    fireServerRGB("1Max1y", {"ChangeHairColor2", getRainbowColor_RGB(rgbSpeed)})
-                    task.wait(0.5)
-                end
-            end)
-        end
-    end
-})
-
--- RGB Corpo (lista de cores nomeadas)
-local rgbAtivo_new = false
-local rgbThread_new = nil
-local cores_new = {
-    "Light reddish violet","Salmon","Sunrise","Carnation pink","Pink","Hot pink",
-    "Really red","Tawny","Burgundy","Maroon","Cocoa","Rust","CGA brown","Beige",
-    "Brick yellow","Burlap","Fawn brown","Br. yellowish orange","Olive","New Yeller",
-    "Br. yellowish green","Mint","Artichoke","Lime green","Grime","Forest green",
-    "Parsley green","Earth green","Slime green","Toothpaste","Pastel light blue",
-    "Cyan","Bright blue","Really blue","Dark blue","Navy blue","Royal purple",
-    "Magenta","Bright violet","Eggplant","Mulberry","Institutional white",
-    "Mid gray","Cloudy grey","Flint","Fossil","Medium stone grey",
-    "Dark stone grey","Smoky grey","Black","Really black","Dirt brown",
-    "Pine Cone","Brown","Dark nougat","Light orange","Pastel brown"
-}
-
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("RGB Corpo"),
-    Default = false,
-    Callback = function(v)
-        rgbAtivo_new = v
-        if v and not rgbThread_new then
-            rgbThread_new = task.spawn(function()
-                while rgbAtivo_new do
-                    for _, cor in ipairs(cores_new) do
-                        if not rgbAtivo_new then break end
-                        pcall(function() ReplicatedStorage.Remotes.ChangeBodyColor:FireServer(cor) end)
-                        task.wait(0.02)
-                    end
-                end
-                rgbThread_new = nil
-            end)
-        end
-    end
-})
-
--- Veículos e Casa
 Tabs.RGB:AddSection({Translator:traduzir("Veículos & Casa")})
 
 local rgbCasaActive = false
@@ -1061,119 +1107,6 @@ Tabs.RGB:AddToggle({
         end)
     end
 })
--- ============================
--- SEÇÃO PERSONAGEM LGBT
--- ============================
-Tabs.RGB:AddSection({Translator:traduzir("Personagem RGB")})
-
--- Variáveis de estado
-local isNameActive  = false
-local isBioActive   = false
-local isHairActive  = false
-local rgbEnabled    = false
-local colorSpeed    = 10
-
--- Paletas de cores
-local hairColors = {
-    Color3.new(1, 1, 0), Color3.new(0, 0, 1), Color3.new(1, 0, 1), Color3.new(1, 1, 1),
-    Color3.new(0, 1, 0), Color3.new(0.5, 0, 1), Color3.new(1, 0.647, 0), Color3.new(0, 1, 1)
-}
-local vibrantColors = {
-    Color3.fromRGB(255, 0, 0),   Color3.fromRGB(0, 255, 0),   Color3.fromRGB(0, 0, 255),
-    Color3.fromRGB(255, 255, 0), Color3.fromRGB(255, 0, 255),  Color3.fromRGB(0, 255, 255),
-    Color3.fromRGB(255, 165, 0), Color3.fromRGB(128, 0, 128),  Color3.fromRGB(255, 20, 147)
-}
-local lgbColors = { "Bright red", "Lime green", "Bright blue", "Bright yellow", "Bright cyan", "Hot pink", "Royal purple" }
-
--- Nome RGB (1o - acima do cabelo)
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Nome LGBT"),
-    Description = Translator:traduzir("Muda a cor do nome automaticamente"),
-    Default = false,
-    Callback = function(value)
-        isNameActive = value
-    end
-})
-
--- Bio RGB (2o - acima do cabelo)
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Bio LGBT"),
-    Description = Translator:traduzir("Muda a cor da bio automaticamente"),
-    Default = false,
-    Callback = function(value)
-        isBioActive = value
-    end
-})
-
--- Cabelo RGB (3o)
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Cabelo LGBT"),
-    Description = Translator:traduzir("Muda a cor do cabelo automaticamente"),
-    Default = false,
-    Callback = function(value)
-        isHairActive = value
-    end
-})
-
--- Personagem RGB (4o)
-Tabs.RGB:AddToggle({
-    Name = Translator:traduzir("Personagem LGBT"),
-    Description = Translator:traduzir("Deixa seu personagem RGB automaticamente"),
-    Default = false,
-    Callback = function(value)
-        rgbEnabled = value
-    end
-})
-
--- Velocidade dos efeitos LGBT
-Tabs.RGB:AddSlider({
-    Name = Translator:traduzir("Velocidade Personagem RGB"),
-    Min = 1,
-    Max = 25,
-    Increase = 1,
-    Default = 10,
-    Callback = function(Value)
-        colorSpeed = Value
-    end
-})
-
--- Loop principal: roda todos os efeitos LGBT juntos
-task.spawn(function()
-    local iHair, iName, iBio, iChar = 1, 1, 1, 1
-    while true do
-        if isHairActive then
-            pcall(function()
-                ReplicatedStorage.RE:FindFirstChild("1Max1y"):FireServer("ChangeHairColor2", hairColors[iHair])
-            end)
-            iHair = iHair % #hairColors + 1
-        end
-
-        if isNameActive then
-            pcall(function()
-                ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer("PickingRPNameColor", vibrantColors[iName])
-            end)
-            iName = iName % #vibrantColors + 1
-        end
-
-        if isBioActive then
-            pcall(function()
-                ReplicatedStorage.RE:FindFirstChild("1RPNam1eColo1r"):FireServer("PickingRPBioColor", vibrantColors[iBio])
-            end)
-            iBio = iBio % #vibrantColors + 1
-        end
-
-        if rgbEnabled then
-            pcall(function()
-                ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("ChangeBodyColor"):FireServer(lgbColors[iChar])
-            end)
-            iChar = iChar % #lgbColors + 1
-        end
-
-        task.wait(1 / colorSpeed)
-    end
-end)
-
-end -- end RGB do block
 
 Tabs.RGB:AddSection({Translator:traduzir("Repetição De Nomes")})
 
@@ -3323,40 +3256,67 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
     animateBar(function()
         local character = player.Character or player.CharacterAdded:Wait()
         local hrp = character:WaitForChild("HumanoidRootPart")
-        local originalPosition = hrp.Position
 
-        local function teleportTo(pos)
-            hrp.CFrame = CFrame.new(pos)
+        -- Salva posição original ANTES de qualquer teleporte
+        local originalCFrame = hrp.CFrame
+
+        -- ==============================
+        -- TELEPORTE SEGURO pro extintor
+        -- O local fica em cima do avião (Y alto) pra evitar noclip no chão
+        -- ==============================
+        local destinoExtintor = Vector3.new(430, -95, 100)  -- um pouco acima do spot
+
+        -- Ancora temporariamente pra não cair durante o teleporte
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then humanoid.WalkSpeed = 0 end
+
+        -- Seta CFrame várias vezes seguidas pra forçar o servidor a reconhecer
+        for _ = 1, 5 do
+            hrp.CFrame = CFrame.new(destinoExtintor)
+            task.wait(0.05)
         end
-
-        teleportTo(Vector3.new(430, -108, 100))
-        task.wait(0.5)
+        task.wait(0.6)  -- espera colisão estabilizar
 
         local clickDetector = workspace:WaitForChild("WorkspaceCom"):WaitForChild("001_DayCare").Tools:WaitForChild("FireX"):WaitForChild("ClickDetector")
 
-        local maxAttempts = maxTools * 50  -- max de clicks
+        -- Se ainda não chegou perto do clickDetector, tenta mais uma vez
+        local distOk = (hrp.Position - destinoExtintor).Magnitude < 15
+        if not distOk then
+            for _ = 1, 8 do
+                hrp.CFrame = CFrame.new(destinoExtintor)
+                task.wait(0.05)
+            end
+            task.wait(0.5)
+        end
+
+        local maxAttempts = maxTools * 60
         local attempts = 0
         repeat
+            -- Mantém o personagem no local durante a coleta (evita cair/deslizar)
+            hrp.CFrame = CFrame.new(destinoExtintor)
             fireclickdetector(clickDetector)
             toolsCountLabel.Text = "Tools: " .. countTools() .. "/" .. maxTools
             task.wait(0.05)
             attempts += 1
-            if attempts % 20 == 0 then
-                task.wait(0.1)  -- pequena pausa para o servidor processar
+            if attempts % 15 == 0 then
+                task.wait(0.08)
             end
         until countTools() >= maxTools or attempts >= maxAttempts
 
-        task.wait(1)
+        task.wait(0.5)
 
         local tools = {}
         for _, c in ipairs({player.Backpack, player.Character}) do
-            for _, tool in ipairs(c:GetChildren()) do
-                if tool:IsA("Tool") then table.insert(tools, tool) end
+            if c and typeof(c) == "Instance" then
+                for _, tool in ipairs(c:GetChildren()) do
+                    if tool:IsA("Tool") then table.insert(tools, tool) end
+                end
             end
         end
 
         if #tools < maxTools then
             warn("Not enough tools, required: " .. maxTools .. ", Found: " .. #tools)
+            if humanoid then humanoid.WalkSpeed = 16 end
             getgenv()._Running = false
             return
         end
@@ -3396,8 +3356,17 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
             end
         end
 
-        teleportTo(originalPosition)
-        task.wait(3)
+        -- ==============================
+        -- VOLTA pro local original com segurança
+        -- ==============================
+        for _ = 1, 5 do
+            hrp.CFrame = originalCFrame
+            task.wait(0.05)
+        end
+        task.wait(2.5)  -- espera posicionar antes de equipar
+
+        -- Restaura velocidade
+        if humanoid then humanoid.WalkSpeed = 16 end
 
         for tool, grip in pairs(gripMap) do
             tool.Grip = grip
