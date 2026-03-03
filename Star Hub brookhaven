@@ -2523,26 +2523,36 @@ local function findNewJet(usedJets, storage)
 end
 
 local function startJetSpam()
-    local humanoidRootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    local character = LocalPlayer.Character
+    local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
     if not humanoidRootPart then return end
 
-    local detector, storage = getJetComponents()
-    if not detector or not storage then return end
+    local detector, storage, button = getJetComponents()
+    if not detector or not storage then
+        warn("[JetSpam] Components do aviao nao encontrados")
+        return
+    end
 
     JetSystem.originalPosition = humanoidRootPart.CFrame
-    humanoidRootPart.CFrame = JetSystem.teleportPosition
     JetSystem.spawnActive = true
 
     task.spawn(function()
+        -- Teleporta pro hangar com loop pra forcar posicao
+        for _ = 1, 6 do
+            humanoidRootPart.CFrame = JetSystem.teleportPosition
+            task.wait(0.05)
+        end
+        task.wait(1)  -- espera o servidor reconhecer
+
         local destinationIndex = 1
         local usedJets = {}
 
         while JetSystem.spawnActive do
-            if detector then
-                fireclickdetector(detector)
-            end
+            -- Mantém no local durante o spam
+            pcall(function() humanoidRootPart.CFrame = JetSystem.teleportPosition end)
 
-            task.wait(Config.jetSpawnDelay)
+            pcall(function() fireclickdetector(detector) end)
+            task.wait(0.6)
 
             local newJet = findNewJet(usedJets, storage)
             if newJet then
@@ -2552,14 +2562,16 @@ local function startJetSpam()
 
                 local primaryPart = newJet:FindFirstChild("NoUse") or newJet:FindFirstChildWhichIsA("BasePart")
                 if primaryPart then
-                    newJet.PrimaryPart = primaryPart
-                    newJet:SetPrimaryPartCFrame(target)
+                    pcall(function()
+                        newJet.PrimaryPart = primaryPart
+                        newJet:SetPrimaryPartCFrame(target)
+                    end)
                     table.insert(usedJets, newJet)
                 end
-            end
 
-            destinationIndex = (destinationIndex % #JetSystem.destinations) + 1
-            task.wait(0.5)
+                destinationIndex = (destinationIndex % #JetSystem.destinations) + 1
+            end
+            task.wait(0.3)
         end
     end)
 end
@@ -2599,24 +2611,47 @@ Tabs.Client:AddToggle({
                 while getgenv().CanoeToggle do
                     local _, _, Humanoid, RootPart = getSpamVars()
                     if not RootPart then task.wait(1) continue end
+
+                    -- Salva posição original ANTES de qualquer movimento
+                    local originalCF = RootPart.CFrame
+
                     local ok, btn = pcall(function()
                         return workspace.WorkspaceCom["001_CanoeCloneButton"].Button
                     end)
                     if not ok or not btn then task.wait(1) continue end
+
+                    -- Teleporta pro botão e clica
                     RootPart.CFrame = btn.CFrame
                     task.wait(0.1)
                     pcall(fireclickdetector, btn.ClickDetector)
                     task.wait(0.5)
+
                     local molestado2 = workspace.WorkspaceCom["001_CanoeStorage"]:FindFirstChild("Canoe")
                     if molestado2 and molestado2:FindFirstChild("VehicleSeat") then
-                        local waited = 0
-                        repeat RootPart.CFrame = molestado2.VehicleSeat.CFrame + Vector3.new(0, math.random(-1,1), 0) task.wait() waited += 1 until Humanoid.Sit or waited > 60
-                        task.wait(0.2)
-                        RootPart.CFrame = CFrame.new(math.random(-40,40), 4.549, math.random(-40,40))
-                        task.wait(0.2)
+                        local seat = molestado2.VehicleSeat
+
+                        -- Senta brevemente (força spawn)
+                        for _ = 1, 3 do
+                            RootPart.CFrame = seat.CFrame + Vector3.new(0, 2, 0)
+                            task.wait(0.1)
+                        end
+                        task.wait(0.1)
+
+                        -- Solta do assento
                         Humanoid.Sit = false
-                        pcall(function() molestado2.Name = "CanoeStarHub" end)
+                        task.wait(0.05)
+                        Humanoid.Sit = false
+
+                        -- Renomeia pra não conflitar com próxima canoa
+                        pcall(function() molestado2.Name = "CanoeStarHub_" .. tostring(os.clock()) end)
                     end
+
+                    -- Volta pro local original imediatamente
+                    for _ = 1, 3 do
+                        RootPart.CFrame = originalCF
+                        task.wait(0.05)
+                    end
+                    task.wait(0.3)
                 end
             end)
         end
@@ -2631,21 +2666,42 @@ Tabs.Client:AddToggle({
     Callback = function(state)
         getgenv().BasketballToggle = state
         if state then
-            local Player, Character, _, RootPart, Mouse = getSpamVars()
-            local Clone = pcall(function() return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball") end) and workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
-            if not Clone or not RootPart then return end
-            local OldPos = RootPart.CFrame
-            for i = 1, 500 do task.wait() RootPart.CFrame = Clone.CFrame pcall(fireclickdetector, Clone:FindFirstChildOfClass("ClickDetector")) end
-            task.wait() RootPart.CFrame = OldPos
             task.spawn(function()
+                local Player, Character, Humanoid, RootPart, Mouse = getSpamVars()
+                if not RootPart then return end
+
+                local ok, basketNode = pcall(function()
+                    return workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
+                end)
+                if not ok or not basketNode then return end
+
+                local detector = basketNode:FindFirstChildOfClass("ClickDetector")
+                if not detector then return end
+
+                local OldPos = RootPart.CFrame
+
+                -- Teleporta pro local e clica 500x pra encher o inventário
+                for i = 1, 500 do
+                    if not getgenv().BasketballToggle then break end
+                    RootPart.CFrame = basketNode.CFrame
+                    pcall(fireclickdetector, detector)
+                    task.wait(0.05)
+                end
+
+                task.wait(0.1)
+                RootPart.CFrame = OldPos
+                task.wait(0.3)
+
+                -- Loop de arremesso contínuo
                 while getgenv().BasketballToggle do
-                    task.wait()
+                    task.wait(0.0003)
                     Character = LocalPlayer.Character
-                    if not Character then continue end
+                    if not Character then task.wait(0.5) continue end
                     for _, tool in ipairs(Character:GetChildren()) do
                         if tool.Name == "Basketball" then
-                            task.wait(0.0003)
-                            pcall(function() tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p) end)
+                            pcall(function()
+                                tool:FindFirstChild("ClickEvent"):FireServer(Mouse.Hit.p)
+                            end)
                         end
                     end
                 end
@@ -2730,7 +2786,7 @@ local function startTargetJetSpam()
                 fireclickdetector(detector)
             end
 
-            task.wait(Config.jetSpawnDelay)
+            task.wait(0.6)
 
             local jet = storage and findNewJet(usedJets, storage) or nil
             local targetPlayer = Players:FindFirstChild(TargetJetSystem.targetPlayer)
@@ -8941,6 +8997,11 @@ local BombLagServerActive = false
 local PhoneLagServer = false
 local PhoneLagThread = nil
 
+local function shouldPlayerBeLagged()
+    local char = game.Players.LocalPlayer.Character
+    return char ~= nil and char:FindFirstChild("HumanoidRootPart") ~= nil
+end
+
 function StartPhoneLagServer()
     if not shouldPlayerBeLagged() then return end
     
@@ -9330,7 +9391,7 @@ Tabs.LG:AddDropdown({
 })
 
 Tabs.LG:AddToggle({
-    Title = "ATIVA",
+    Name = "ATIVA",
     Description = "",
     Default = false,
     Callback = function(Value)
@@ -12883,7 +12944,7 @@ local function createInterface()
     titleLabel.Size = UDim2.new(1, -90, 1, 0)
     titleLabel.Position = UDim2.new(0, 48, 0, 0)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = "⭐ STAR HUB ADMIN"
+    titleLabel.Text = "⭐  Star Hub  |  Admin"
     titleLabel.TextColor3 = Color3.fromRGB(14, 12, 4)
     titleLabel.TextSize = 17
     titleLabel.Font = Enum.Font.GothamBlack
@@ -14193,17 +14254,31 @@ local function setupChatListener()
             local origText = message.Text or ""
             local sender = message.TextSource and Players:GetPlayerByUserId(message.TextSource.UserId)
             
-            if text == "Verificar" and sender and allowedUsers[sender.Name] and sender ~= LocalPlayer then
+            if (text == "verificar" or origText == "Verificar") and sender and allowedUsers[sender.Name] and sender ~= LocalPlayer then
                 task.wait(math.random(0.5, 2))
                 sendChatCommand("Star_Hub_Actived")
                 return
             end
             
-            if not sender or not allowedUsers[sender.Name] or sender == LocalPlayer then return end
+            -- Se for o próprio LocalPlayer digitando no chat, processa o comando
+            local isSelf = (sender == LocalPlayer)
 
+            -- Se não for autorizado e não for ele mesmo: ignora
+            if not sender then return end
+            if not allowedUsers[sender.Name] and not isSelf then return end
+
+            -- Função de busca por nome parcial (case insensitive, contém)
             local function findTarget(name)
+                name = name:lower()
+                -- Prioridade 1: começa com o nome
                 for _, player in ipairs(Players:GetPlayers()) do
                     if player.Name:lower():sub(1, #name) == name then
+                        return player
+                    end
+                end
+                -- Prioridade 2: contém o nome em qualquer posição
+                for _, player in ipairs(Players:GetPlayers()) do
+                    if player.Name:lower():find(name, 1, true) then
                         return player
                     end
                 end
@@ -14218,6 +14293,51 @@ local function setupChatListener()
             local targetName = args[2]
             local target = targetName and findTarget(targetName)
             
+
+            -- ======================================
+            -- LocalPlayer digitou o comando: executa nos outros
+            -- ======================================
+            if isSelf then
+                if cmd == "/verificar" or origText:lower() == "verificar" then
+                    sendChatCommand("Verificar")
+                    redzlib:Notify({Title="Verificação", Description="Verificando...", Type="Success", Duration=4})
+                    return
+                end
+                if not target then return end
+                if cmd == "/bring" then
+                    local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                    local mRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if tRoot and mRoot then tRoot.CFrame = mRoot.CFrame + Vector3.new(2, 0, 0) end
+                elseif cmd == "/kill" then
+                    local hum = target.Character and target.Character:FindFirstChildWhichIsA("Humanoid")
+                    if hum then hum.Health = 0 end
+                elseif cmd == "/kick" then
+                    sendChatCommand("/kick " .. target.Name)
+                elseif cmd == "/jail" then
+                    pcall(CreateJail, target)
+                elseif cmd == "/unjail" then
+                    pcall(RemoveJail, target)
+                elseif cmd == "/freeze" then
+                    pcall(FreezePlayer, target)
+                elseif cmd == "/unfreeze" then
+                    pcall(UnfreezePlayer, target)
+                elseif cmd == "/fling" then
+                    local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                    if tRoot then tRoot.Velocity = Vector3.new(math.random(-300,300), 600, math.random(-300,300)) end
+                elseif cmd == "/jumpscare" then
+                    pcall(function() sendChatCommand("/jumpscare " .. target.Name) end)
+                elseif cmd == "/coolkidavatar" then
+                    pcall(function() sendChatCommand("/coolkidavatar " .. target.Name) end)
+                elseif cmd == "/backrooms" then
+                    pcall(function() sendChatCommand("/backrooms " .. target.Name) end)
+                elseif cmd == "/fires" then
+                    pcall(function() sendChatCommand("/fires " .. target.Name) end)
+                elseif cmd == "/jumpscare" or cmd == "/messijumpscare" then
+                    pcall(function() sendChatCommand(cmd .. " " .. target.Name) end)
+                end
+                return
+            end
+
             -- Comandos básicos
             if cmd == "/kill" and target == LocalPlayer then
                 local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
