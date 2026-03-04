@@ -12945,7 +12945,6 @@ do
 
     -- Se não for autorizado, não cria o painel (mas ainda pode receber comandos)
     if not isAuthorized then
-        -- Apenas notifica e continua (pode ser usado apenas para comandos no chat)
         redzlib:Notify({
             Title = "Admin",
             Description = "Você não tem permissão para usar o painel.",
@@ -12959,7 +12958,7 @@ do
     local selectedPlayer = nil
     local JailedPlayers = {}      -- armazena as jaulas criadas
     local FrozenPlayers = {}       -- armazena estado de freeze
-    local ESPObjects = {}          -- para futura implementação de ESP
+    local HubTags = {}             -- tags visuais "Usuário do Star Hub"
 
     -- ==================== FUNÇÕES AUXILIARES DE NOTIFICAÇÃO ====================
     local function notify(title, text, duration, isError)
@@ -12967,7 +12966,6 @@ do
             Title = title,
             Text = text,
             Duration = duration or 4,
-            -- Icon = isError and "rbxassetid://3944680095" or "rbxassetid://3944683809"
         })
     end
 
@@ -12977,7 +12975,6 @@ do
         task.wait(0.1)
         local success = false
 
-        -- Tenta enviar via TextChatService (novo sistema)
         if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
             local channel = TextChatService:FindFirstChild("TextChannels")
             if channel then
@@ -12991,7 +12988,6 @@ do
             end
         end
 
-        -- Fallback para sistema antigo
         if not success then
             local chatEvents = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
             if chatEvents then
@@ -13005,7 +13001,6 @@ do
             end
         end
 
-        -- Fallback extremo
         if not success and game:GetService("Chat") then
             pcall(function()
                 local head = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head")
@@ -13024,7 +13019,6 @@ do
     end
 
     -- ==================== FUNÇÕES DE ADMIN (LOCAIS) ====================
-    -- Jail (jaula)
     function CreateJail(player)
         if JailedPlayers[player] then return end
         local char = player.Character
@@ -13050,7 +13044,6 @@ do
             wall.Material = Enum.Material.Neon
             wall.CFrame = hrp.CFrame * offset
             wall.Parent = cage
-            -- Adiciona brilho
             local light = Instance.new("PointLight", wall)
             light.Color = color
             light.Brightness = 0.5
@@ -13076,7 +13069,6 @@ do
         end
     end
 
-    -- Freeze
     function FreezePlayer(player)
         if FrozenPlayers[player] then return end
         local char = player.Character
@@ -13103,35 +13095,24 @@ do
         notify("Admin", player.Name .. " foi congelado.", 3)
     end
 
+    -- Unfreeze agora reseta (mata) o jogador
     function UnfreezePlayer(player)
         if not FrozenPlayers[player] then return end
-        local data = FrozenPlayers[player]
-        local char = player.Character
-        if char then
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = data.walkspeed
-                humanoid.JumpPower = data.jumppower
-                humanoid.JumpHeight = data.jumpheight
-            end
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.Anchored = false
-                end
-            end
-        end
+
+        -- Mata o jogador para resetar
+        local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum.Health = 0 end
+
         FrozenPlayers[player] = nil
-        notify("Admin", player.Name .. " foi descongelado.", 3)
+        notify("Admin", player.Name .. " foi resetado (unfreeze + kill).", 3)
     end
 
-    -- Explodir (efeito visual)
     function ExplodePlayer(player)
         local char = player.Character
         if not char then return end
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
 
-        -- Cria explosão
         local explosion = Instance.new("Explosion")
         explosion.BlastRadius = 5
         explosion.BlastPressure = 100000
@@ -13139,7 +13120,6 @@ do
         explosion.DestroyJointRadiusPercent = 1
         explosion.Parent = Workspace
 
-        -- Partículas
         local particle = Instance.new("ParticleEmitter")
         particle.Texture = "rbxassetid://243660364"
         particle.Lifetime = NumberRange.new(1, 2)
@@ -13154,14 +13134,12 @@ do
             if particle then particle:Destroy() end
         end)
 
-        -- Dá dano (mata)
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum then hum.Health = 0 end
 
         notify("Admin", player.Name .. " explodiu!", 4)
     end
 
-    -- Bring (puxar jogador para si)
     function BringPlayer(player)
         local targetChar = player.Character
         local myChar = LocalPlayer.Character
@@ -13173,24 +13151,20 @@ do
         end
     end
 
-    -- Kill
     function KillPlayer(player)
         local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         if hum then hum.Health = 0 end
     end
 
-    -- Kick via chat (envia comando)
     function KickPlayer(player)
         sendChatCommand("/kick " .. player.Name)
     end
 
     -- ==================== FUNÇÕES DE EFEITOS VISUAIS (VIEWS) ====================
     function CoolkidMode(targetPlayer)
-        -- Aplica efeito visual "coolkid" no alvo
         local char = targetPlayer.Character
         if not char then return end
 
-        -- Cria partículas
         for _, part in ipairs(char:GetDescendants()) do
             if part:IsA("BasePart") then
                 local emitter = Instance.new("ParticleEmitter")
@@ -13206,8 +13180,6 @@ do
             end
         end
 
-        -- Sky escura (só para o alvo? não dá, é global)
-        -- Vamos alterar lighting temporariamente
         local oldSky = Lighting:FindFirstChildOfClass("Sky")
         if oldSky then oldSky = oldSky:Clone() end
         local sky = Instance.new("Sky")
@@ -13227,10 +13199,8 @@ do
         notify("Coolkid", "Modo Coolkid ativado em " .. targetPlayer.Name, 5)
     end
 
+    -- Jumpscare dura 5 segundos e cobre a tela toda
     function Jumpscare(targetPlayer)
-        -- Cria um jumpscare na tela do alvo (via CoreGui)
-        -- Nota: só funciona se for no próprio jogador, mas vamos fazer no alvo enviando um comando de tela cheia
-        -- Na verdade, não é possível mostrar imagem no CoreGui de outro jogador. Fazemos apenas no executor.
         if targetPlayer ~= LocalPlayer then
             sendChatCommand("/jumpscare " .. targetPlayer.Name)
             return
@@ -13241,6 +13211,7 @@ do
         gui.IgnoreGuiInset = true
         gui.Parent = CoreGui
         gui.DisplayOrder = 999999
+        gui.ResetOnSpawn = false
 
         local img = Instance.new("ImageLabel")
         img.Size = UDim2.new(1, 0, 1, 0)
@@ -13255,24 +13226,22 @@ do
         sound.Parent = gui
         sound:Play()
 
-        task.delay(0.3, function()
+        task.spawn(function()
             for i = 1, 5 do
                 img.Position = UDim2.new(0, math.random(-20,20), 0, math.random(-20,20))
                 task.wait(0.02)
             end
         end)
 
-        task.delay(2, function() gui:Destroy() end)
+        task.delay(5, function() gui:Destroy() end)  -- 5 segundos
     end
 
     function Backrooms(targetPlayer)
-        -- Teleporta o alvo para os backrooms (modelo externo)
         local char = targetPlayer.Character
         if not char then return end
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
 
-        -- Carrega o modelo (se já não estiver)
         local backroomsModel = Workspace:FindFirstChild("BackroomsModel")
         if not backroomsModel then
             local success, model = pcall(function()
@@ -13281,7 +13250,6 @@ do
             if success and model then
                 model.Name = "BackroomsModel"
                 model.Parent = Workspace
-                -- Posiciona longe
                 model:SetPrimaryPartCFrame(CFrame.new(100000, 1000, 100000))
                 backroomsModel = model
             else
@@ -13294,18 +13262,70 @@ do
         notify("Backrooms", targetPlayer.Name .. " foi para os backrooms!", 4)
     end
 
+    -- Tag visual "Usuário do Star Hub" (gradiente animado)
+    local function createHubTag(plr)
+        if HubTags[plr] then
+            HubTags[plr]:Destroy()
+            HubTags[plr] = nil
+        end
+
+        local char = plr.Character
+        if not char then return end
+        local head = char:FindFirstChild("Head")
+        if not head then return end
+
+        local bill = Instance.new("BillboardGui")
+        bill.Name = "StarHubTag"
+        bill.Adornee = head
+        bill.Size = UDim2.new(0, 200, 0, 45)
+        bill.StudsOffset = Vector3.new(0, 3.2, 0)
+        bill.AlwaysOnTop = true
+        bill.Parent = head
+
+        local frame = Instance.new("Frame", bill)
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundTransparency = 1
+
+        local gradient = Instance.new("UIGradient", frame)
+        gradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 215, 0))
+        })
+        gradient.Rotation = 0
+
+        local text = Instance.new("TextLabel", frame)
+        text.Size = UDim2.new(1, 0, 1, 0)
+        text.BackgroundTransparency = 1
+        text.Text = "⭐ Usuário do Star Hub 💫"
+        text.TextColor3 = Color3.new(1, 1, 1)
+        text.TextScaled = true
+        text.Font = Enum.Font.GothamBold
+        text.TextStrokeTransparency = 0.4
+        text.TextStrokeColor3 = Color3.new(0, 0, 0)
+
+        task.spawn(function()
+            local angle = 0
+            while bill and bill.Parent do
+                angle = (angle + 1) % 360
+                gradient.Rotation = angle
+                task.wait(0.03)
+            end
+        end)
+
+        HubTags[plr] = bill
+    end
+
     -- ==================== CRIAÇÃO DA INTERFACE GRÁFICA ====================
+    if not isAuthorized then return end
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "StarHubAdmin"
-    screenGui.Parent = isAuthorized and PlayerGui or nil  -- só cria se autorizado
+    screenGui.Parent = PlayerGui
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.DisplayOrder = 999
 
-    -- Se não autorizado, não prossegue com a criação da interface
-    if not isAuthorized then return end
-
-    -- Frame principal
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
     mainFrame.Size = UDim2.new(0, 580, 0, 500)
@@ -13317,19 +13337,16 @@ do
     mainFrame.Parent = screenGui
     mainFrame.ClipsDescendants = true
 
-    -- Cantos arredondados
     local mainCorner = Instance.new("UICorner")
     mainCorner.CornerRadius = UDim.new(0, 16)
     mainCorner.Parent = mainFrame
 
-    -- Borda dourada
     local mainStroke = Instance.new("UIStroke")
     mainStroke.Color = Colors.Gold
     mainStroke.Thickness = 2
     mainStroke.Transparency = 0.3
     mainStroke.Parent = mainFrame
 
-    -- Gradiente de fundo sutil
     local bgGradient = Instance.new("UIGradient")
     bgGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Colors.Background),
@@ -13339,7 +13356,6 @@ do
     bgGradient.Rotation = 45
     bgGradient.Parent = mainFrame
 
-    -- Barra de título
     local titleBar = Instance.new("Frame")
     titleBar.Name = "TitleBar"
     titleBar.Size = UDim2.new(1, 0, 0, 50)
@@ -13348,16 +13364,14 @@ do
     titleBar.Parent = mainFrame
     Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 16)
 
-    -- Ícone
     local icon = Instance.new("ImageLabel")
     icon.Size = UDim2.new(0, 30, 0, 30)
     icon.Position = UDim2.new(0, 15, 0.5, -15)
     icon.BackgroundTransparency = 1
-    icon.Image = "rbxassetid://15298567397"  -- ícone do Star Hub
+    icon.Image = "rbxassetid://15298567397"
     icon.ImageColor3 = Colors.Gold
     icon.Parent = titleBar
 
-    -- Título
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, -80, 1, 0)
     title.Position = UDim2.new(0, 55, 0, 0)
@@ -13369,7 +13383,6 @@ do
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = titleBar
 
-    -- Botão fechar
     local closeBtn = Instance.new("TextButton")
     closeBtn.Size = UDim2.new(0, 30, 0, 30)
     closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
@@ -13385,7 +13398,6 @@ do
         screenGui:Destroy()
     end)
 
-    -- Botão minimizar
     local minimizeBtn = Instance.new("TextButton")
     minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
     minimizeBtn.Position = UDim2.new(1, -75, 0.5, -15)
@@ -13411,7 +13423,6 @@ do
         end
     end)
 
-    -- Separador
     local separator = Instance.new("Frame")
     separator.Size = UDim2.new(1, -20, 0, 1)
     separator.Position = UDim2.new(0, 10, 0, 51)
@@ -13420,7 +13431,6 @@ do
     separator.BorderSizePixel = 0
     separator.Parent = mainFrame
 
-    -- Área de conteúdo (ScrollingFrame)
     local contentFrame = Instance.new("ScrollingFrame")
     contentFrame.Name = "Content"
     contentFrame.Size = UDim2.new(1, -20, 1, -70)
@@ -13475,7 +13485,6 @@ do
         stroke.Thickness = 1
         stroke.Transparency = 0.7
 
-        -- Efeitos hover
         btn.MouseEnter:Connect(function()
             TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.GoldDark}):Play()
         end)
@@ -13598,16 +13607,14 @@ do
     -- ==================== CONSTRUÇÃO DA INTERFACE ====================
     createSection("🎯 SELEÇÃO DE JOGADOR")
 
-    local playerOptions = {}
+    -- Lista inclui o próprio jogador
     local function refreshPlayerList()
-        playerOptions = {}
+        local list = {}
         for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer then
-                table.insert(playerOptions, p.Name)
-            end
+            table.insert(list, p.Name)  -- todos, inclusive você
         end
-        table.sort(playerOptions)
-        return playerOptions
+        table.sort(list)
+        return list
     end
 
     local playerDropdown = createDropdown("Jogador alvo", refreshPlayerList(), function(selected)
@@ -13639,7 +13646,7 @@ do
     createButton("❄️ Freeze (congelar)", function()
         if selectedPlayer then FreezePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
     end)
-    createButton("🔥 Unfreeze (descongelar)", function()
+    createButton("🔥 Unfreeze (resetar)", function()  -- texto alterado para "resetar"
         if selectedPlayer then UnfreezePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
     end)
 
@@ -13660,6 +13667,8 @@ do
     createSection("✅ VERIFICAÇÃO")
     createButton("🔍 Verificar usuários", function()
         sendChatCommand("Verificar")
+        -- Adiciona a tag em si mesmo
+        createHubTag(LocalPlayer)
         redzlib:Notify({Title = "Verificação", Description = "Verificando...", Type = "Success", Duration = 4})
 
         local responses = {}
@@ -13671,6 +13680,7 @@ do
                         local responder = msg.TextSource and Players:GetPlayerByUserId(msg.TextSource.UserId)
                         if responder and responder ~= LocalPlayer then
                             responses[responder.Name] = true
+                            createHubTag(responder)
                         end
                     end
                 end)
@@ -13716,45 +13726,92 @@ do
             local success, conn = pcall(function()
                 return TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(message)
                     local text = message.Text:lower()
-                    local orig = message.Text
+                    local origText = message.Text
                     local sender = message.TextSource and Players:GetPlayerByUserId(message.TextSource.UserId)
                     if not sender then return end
 
-                    -- Verifica se é comando de verificação
-                    if (text == "verificar" or orig == "Verificar") and sender ~= LocalPlayer and allowedUsers[sender.Name] then
+                    -- Verifica se é comando de verificação de outro usuário
+                    if (text == "verificar" or origText == "Verificar") and sender ~= LocalPlayer and allowedUsers[sender.Name] then
                         task.wait(math.random(0.5, 1.5))
                         sendChatCommand("STAR_Hub_Actived")
                         return
                     end
 
-                    -- Se não for autorizado, ignora
-                    if not allowedUsers[sender.Name] then return end
+                    -- Se for o próprio LocalPlayer digitando no chat, processa o comando
+                    local isSelf = (sender == LocalPlayer)
 
-                    -- Parse de comando (ex: "/kill luan")
+                    -- Se não for autorizado e não for ele mesmo: ignora
+                    if not allowedUsers[sender.Name] and not isSelf then return end
+
+                    -- Função de busca por nome parcial (case insensitive, contém)
+                    local function findTarget(name)
+                        name = name:lower()
+                        for _, p in ipairs(Players:GetPlayers()) do
+                            if p.Name:lower():find(name, 1, true) then
+                                return p
+                            end
+                        end
+                    end
+
                     local args = {}
                     for word in text:gmatch("%S+") do
                         table.insert(args, word)
                     end
-                    if #args < 2 then return end
+
                     local cmd = args[1]
                     local targetName = args[2]
-                    if not targetName then return end
+                    local target = targetName and findTarget(targetName)
 
-                    -- Busca o jogador alvo (case insensitive, contém)
-                    local target = nil
-                    for _, p in ipairs(Players:GetPlayers()) do
-                        if p.Name:lower():find(targetName, 1, true) then
-                            target = p
-                            break
+                    -- ======================================
+                    -- LocalPlayer digitou o comando: executa nos outros
+                    -- ======================================
+                    if isSelf then
+                        if cmd == "/verificar" or origText:lower() == "verificar" then
+                            sendChatCommand("Verificar")
+                            createHubTag(LocalPlayer)   -- adiciona tag em si mesmo
+                            redzlib:Notify({Title="Verificação", Description="Verificando...", Type="Success", Duration=4})
+                            return
                         end
+                        if not target then return end
+                        if cmd == "/bring" then
+                            local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                            local mRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            if tRoot and mRoot then tRoot.CFrame = mRoot.CFrame + Vector3.new(2, 0, 0) end
+                        elseif cmd == "/kill" then
+                            local hum = target.Character and target.Character:FindFirstChildWhichIsA("Humanoid")
+                            if hum then hum.Health = 0 end
+                        elseif cmd == "/kick" then
+                            sendChatCommand("/kick " .. target.Name)
+                        elseif cmd == "/jail" then
+                            pcal(CreateJail, target)
+                        elseif cmd == "/unjail" then
+                            pcal(RemoveJail, target)
+                        elseif cmd == "/freeze" then
+                            pcal(FreezePlayer, target)
+                        elseif cmd == "/unfreeze" then
+                            pcal(UnfreezePlayer, target)
+                        elseif cmd == "/fling" then
+                            local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+                            if tRoot then tRoot.Velocity = Vector3.new(math.random(-300,300), 600, math.random(-300,300)) end
+                        elseif cmd == "/jumpscare" then
+                            pcal(sendChatCommand, "/jumpscare " .. target.Name)
+                        elseif cmd == "/coolkidavatar" then
+                            pcal(sendChatCommand, "/coolkidavatar " .. target.Name)
+                        elseif cmd == "/backrooms" then
+                            pcal(sendChatCommand, "/backrooms " .. target.Name)
+                        elseif cmd == "/fires" then
+                            pcal(sendChatCommand, "/fires " .. target.Name)
+                        end
+                        return
                     end
-                    if not target then return end
 
-                    -- Executa o comando (apenas se o alvo for o LocalPlayer)
-                    if target ~= LocalPlayer then return end
+                    -- ======================================
+                    -- Comandos de outros admins (visando o LocalPlayer)
+                    -- ======================================
+                    if not target or target ~= LocalPlayer then return end
 
                     if cmd == "/kill" then
-                        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
                         if hum then hum.Health = 0 end
                     elseif cmd == "/kick" then
                         LocalPlayer:Kick("Você foi expulso por um administrador.")
@@ -13776,8 +13833,6 @@ do
                         ExplodePlayer(LocalPlayer)
                     elseif cmd == "/jumpscare" then
                         Jumpscare(LocalPlayer)
-                    elseif cmd == "/coolkidavatar" then
-                        CoolkidAvatar(LocalPlayer)
                     elseif cmd == "/backrooms" then
                         Backrooms(LocalPlayer)
                     end
@@ -13800,6 +13855,7 @@ do
     Players.PlayerRemoving:Connect(function(p)
         if JailedPlayers[p] then JailedPlayers[p]:Destroy() JailedPlayers[p] = nil end
         if FrozenPlayers[p] then FrozenPlayers[p] = nil end
+        if HubTags[p] then HubTags[p]:Destroy() HubTags[p] = nil end
     end)
 
     redzlib:Notify({Title = "Admin", Description = "Painel carregado com sucesso!", Type = "Success", Duration = 4})
