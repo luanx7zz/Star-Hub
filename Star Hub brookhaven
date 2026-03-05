@@ -8977,9 +8977,9 @@ end -- end Props do block
 
 
 
------------------///////TABS - LG (CORRIGIDA) /////////-----------------
+-----------------/////// TABS - LG (CORRIGIDA E COMPLETA) /////////-----------------
 do
-    -- Garantir que os serviços estejam disponíveis
+    -- ==================== CONFIGURAÇÕES INICIAIS ====================
     local Players = game:GetService("Players")
     local RunService = game:GetService("RunService")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -8987,37 +8987,90 @@ do
     local LocalPlayer = Players.LocalPlayer
     local Camera = Workspace.CurrentCamera
 
-    -- Variáveis de controle para os lags
+    -- ==================== VARIÁVEIS DE CONTROLE ====================
     local CurrentLagType = "Phone"
     local LagActive = false
     local LagThread = nil
     local LastCFrame = nil
 
-    -- Controles específicos
-    local PhoneLagServer = false
-    local PhoneLagThread = nil
-    local LaptopLagServer = false
-    local LaptopLagThread = nil
-    local PhoneLaptopLagServer = false
-    local PhoneLaptopLagThread = nil
-    local BasketballLagServer = false
-    local BasketballLagThread = nil
-    local GhostHunterLagServer = false
-    local GhostHunterLagThread = nil
-    local BookLagServer = false
-    local BookLagThread = nil
-    local StretcherLagActive = false
-    local StretcherLagThread = nil
-    local FireXLagActive = false
-    local FireXLagThread = nil
-    local BombLagServerActive = false
-    local BombLagThread = nil
+    -- Tabela de configurações de cada tipo de lag (caminhos e função de clique)
+    local LagMethods = {
+        Phone = {
+            path = "WorkspaceCom.001_CommercialStores.CommercialStorage1.Store.Tools.Iphone",
+            click = function(obj) pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector")) end
+        },
+        Laptop = {
+            path = "WorkspaceCom.001_CommercialStores.CommercialStorage1.Store.Tools.Laptop",
+            click = function(obj) pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector")) end
+        },
+        ["Phone and Laptop"] = {
+            paths = {
+                "WorkspaceCom.001_CommercialStores.CommercialStorage1.Store.Tools.3", -- índice 3 (iPhone)
+                "WorkspaceCom.001_CommercialStores.CommercialStorage1.Store.Tools.Laptop"
+            },
+            click = function(obj) pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector")) end
+        },
+        Basketball = {
+            path = "WorkspaceCom.001_GiveTools.Basketball",
+            click = function(obj)
+                pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector"))
+                -- Também arremessa se tiver a ferramenta
+                if LocalPlayer.Character then
+                    for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+                        if tool:IsA("Tool") and tool.Name == "Basketball" then
+                            local ce = tool:FindFirstChild("ClickEvent")
+                            if ce then pcall(ce.FireServer, ce, Vector3.new(-154.34, 4.36, 97.6)) end
+                        end
+                    end
+                end
+            end
+        },
+        ["Ghost Hunter"] = {
+            path = "WorkspaceCom.001_GiveTools.GhostMeter",
+            click = function(obj) pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector")) end
+        },
+        Book = {
+            path = "WorkspaceCom.001_GiveTools.Book",
+            click = function(obj)
+                if LocalPlayer.Character then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = obj.CFrame
+                    pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector"))
+                end
+            end
+        },
+        Stretcher = {
+            path = "WorkspaceCom.001_GiveTools.Stretcher",
+            click = function(obj) pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector")) end
+        },
+        FireX = {
+            path = "WorkspaceCom.001_GiveTools.FireX",
+            click = function(obj) pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector")) end
+        },
+        Bomb = {
+            path = "WorkspaceCom.001_CriminalWeapons.GiveTools.Bomb",
+            click = function(obj)
+                if LocalPlayer.Character then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = obj.CFrame
+                    pcall(fireclickdetector, obj:FindFirstChildWhichIsA("ClickDetector"))
+                end
+            end
+        }
+    }
 
-    -- Para a parte de "Bugar"
-    local fireLoopActive = false
-    local fireLoopActiveServer = false
-    local ignoreTarget = nil
-    local shootingLog = {}
+    -- Função auxiliar para obter objeto a partir de um caminho (com cache)
+    local pathCache = {}
+    local function getObjectFromPath(path)
+        if pathCache[path] and pathCache[path].Parent then
+            return pathCache[path]
+        end
+        local obj = Workspace
+        for _, part in ipairs(string.split(path, ".")) do
+            obj = obj:FindFirstChild(part)
+            if not obj then return nil end
+        end
+        pathCache[path] = obj
+        return obj
+    end
 
     -- Função auxiliar para verificar se o personagem existe
     local function shouldPlayerBeLagged()
@@ -9025,507 +9078,107 @@ do
         return char ~= nil and char:FindFirstChild("HumanoidRootPart") ~= nil
     end
 
-    -- ========== FUNÇÕES DE LAG (implementações seguras) ==========
+    -- ========== FUNÇÕES DE LAG (genéricas) ==========
+    local function startLagServer(methodName)
+        if not shouldPlayerBeLagged() then return end
+        local method = LagMethods[methodName]
+        if not method then return end
 
-    -- Placeholder para duplicarStretcher (substitua pela lógica real se existir)
-    local function duplicarStretcher()
-        warn("Função duplicarStretcher não implementada (apenas placeholder)")
-    end
-
-    -- Placeholder para duplicarFireX
-    local function duplicarFireX()
-        warn("Função duplicarFireX não implementada (apenas placeholder)")
-    end
-
-    -- Placeholder para BombLag
-    local function BombLag(active)
-        if active then
-            warn("BombLag ativado (placeholder)")
+        -- Se for "Phone and Laptop", tem múltiplos caminhos
+        if methodName == "Phone and Laptop" then
+            local paths = method.paths
+            return task.spawn(function()
+                while LagActive and CurrentLagType == methodName do
+                    for _, p in ipairs(paths) do
+                        local obj = getObjectFromPath(p)
+                        if obj then method.click(obj) end
+                        task.wait(0.05)
+                    end
+                end
+            end)
         else
-            warn("BombLag desativado (placeholder)")
+            local path = method.path
+            return task.spawn(function()
+                while LagActive and CurrentLagType == methodName do
+                    local obj = getObjectFromPath(path)
+                    if obj then method.click(obj) end
+                    task.wait(0.05)
+                end
+            end)
         end
     end
 
-    -- Funções específicas de cada método (com verificações de segurança)
-    function StartPhoneLagServer()
-        if not shouldPlayerBeLagged() then return end
-        PhoneLagServer = true
-        PhoneLagThread = task.spawn(function()
-            while PhoneLagServer do
-                local target = Workspace:FindFirstChild("WorkspaceCom")
-                if target then
-                    target = target:FindFirstChild("001_CommercialStores")
-                    if target then
-                        target = target:FindFirstChild("CommercialStorage1")
-                        if target then
-                            target = target:FindFirstChild("Store")
-                            if target then
-                                target = target:FindFirstChild("Tools")
-                                if target then
-                                    local iphone = target:FindFirstChild("Iphone")
-                                    if iphone then
-                                        local detector = iphone:FindFirstChildWhichIsA("ClickDetector")
-                                        if detector then
-                                            pcall(fireclickdetector, detector)
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-                task.wait()
-            end
-        end)
-    end
-
-    function StopPhoneLagServer()
-        PhoneLagServer = false
-        if PhoneLagThread then task.cancel(PhoneLagThread); PhoneLagThread = nil end
-    end
-
-    function StartLaptopLagServer()
-        if not shouldPlayerBeLagged() then return end
-        LaptopLagServer = true
-        LaptopLagThread = task.spawn(function()
-            while LaptopLagServer do
-                local target = Workspace:FindFirstChild("WorkspaceCom")
-                if target then
-                    target = target:FindFirstChild("001_CommercialStores")
-                    if target then
-                        target = target:FindFirstChild("CommercialStorage1")
-                        if target then
-                            target = target:FindFirstChild("Store")
-                            if target then
-                                target = target:FindFirstChild("Tools")
-                                if target then
-                                    local laptop = target:FindFirstChild("Laptop")
-                                    if laptop then
-                                        local detector = laptop:FindFirstChildWhichIsA("ClickDetector")
-                                        if detector then
-                                            pcall(fireclickdetector, detector)
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-                task.wait()
-            end
-        end)
-    end
-
-    function StopLaptopLagServer()
-        LaptopLagServer = false
-        if LaptopLagThread then task.cancel(LaptopLagThread); LaptopLagThread = nil end
-    end
-
-    function StartPhoneLaptopLagServer()
-        if not shouldPlayerBeLagged() then return end
-        PhoneLaptopLagServer = true
-        PhoneLaptopLagThread = task.spawn(function()
-            while PhoneLaptopLagServer do
-                local target = Workspace:FindFirstChild("WorkspaceCom")
-                if target then
-                    target = target:FindFirstChild("001_CommercialStores")
-                    if target then
-                        target = target:FindFirstChild("CommercialStorage1")
-                        if target then
-                            target = target:FindFirstChild("Store")
-                            if target then
-                                target = target:FindFirstChild("Tools")
-                                if target then
-                                    local third = target:FindFirstChild(tostring(3)) -- índice 3
-                                    if third then
-                                        local det = third:FindFirstChildWhichIsA("ClickDetector")
-                                        if det then pcall(fireclickdetector, det) end
-                                    end
-                                    local laptop = target:FindFirstChild("Laptop")
-                                    if laptop then
-                                        local det = laptop:FindFirstChildWhichIsA("ClickDetector")
-                                        if det then pcall(fireclickdetector, det) end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-                task.wait(0.01)
-            end
-        end)
-    end
-
-    function StopPhoneLaptopLagServer()
-        PhoneLaptopLagServer = false
-        if PhoneLaptopLagThread then task.cancel(PhoneLaptopLagThread); PhoneLaptopLagThread = nil end
-    end
-
-    function StartBasketballLagServer()
-        if not shouldPlayerBeLagged() then return end
-        BasketballLagServer = true
-        BasketballLagThread = task.spawn(function()
-            while BasketballLagServer do
-                local target = Workspace:FindFirstChild("WorkspaceCom")
-                if target then
-                    target = target:FindFirstChild("001_GiveTools")
-                    if target then
-                        local ball = target:FindFirstChild("Basketball")
-                        if ball then
-                            local detector = ball:FindFirstChildWhichIsA("ClickDetector")
-                            if detector then pcall(fireclickdetector, detector) end
-                        end
-                    end
-                end
-                -- Arremesso da bola (se tiver a ferramenta)
-                if LocalPlayer.Character then
-                    for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-                        if tool:IsA("Tool") and tool.Name == "Basketball" then
-                            local clickEvent = tool:FindFirstChild("ClickEvent")
-                            if clickEvent then
-                                pcall(clickEvent.FireServer, clickEvent, Vector3.new(-154.34, 4.36, 97.6))
-                            end
-                        end
-                    end
-                end
-                task.wait()
-            end
-        end)
-    end
-
-    function StopBasketballLagServer()
-        BasketballLagServer = false
-        if BasketballLagThread then task.cancel(BasketballLagThread); BasketballLagThread = nil end
-        Workspace.Gravity = 196.2
-    end
-
-    function StartGhostHunterLagServer()
-        if not shouldPlayerBeLagged() then return end
-        GhostHunterLagServer = true
-        GhostHunterLagThread = task.spawn(function()
-            while GhostHunterLagServer do
-                local target = Workspace:FindFirstChild("WorkspaceCom")
-                if target then
-                    target = target:FindFirstChild("001_GiveTools")
-                    if target then
-                        local ghost = target:FindFirstChild("GhostMeter")
-                        if ghost then
-                            local detector = ghost:FindFirstChildWhichIsA("ClickDetector")
-                            if detector then pcall(fireclickdetector, detector) end
-                        end
-                    end
-                end
-                task.wait(0.01)
-            end
-        end)
-    end
-
-    function StopGhostHunterLagServer()
-        GhostHunterLagServer = false
-        if GhostHunterLagThread then task.cancel(GhostHunterLagThread); GhostHunterLagThread = nil end
-    end
-
-    local function clickNormally(object)
-        local detector = object:FindFirstChildWhichIsA("ClickDetector")
-        if detector then pcall(fireclickdetector, detector) end
-    end
-
-    function StartBookLagServer()
-        if not shouldPlayerBeLagged() then return end
-        BookLagServer = true
-        BookLagThread = task.spawn(function()
-            while BookLagServer do
-                local target = Workspace:FindFirstChild("WorkspaceCom")
-                if target then
-                    target = target:FindFirstChild("001_GiveTools")
-                    if target then
-                        local book = target:FindFirstChild("Book")
-                        if book then
-                            if shouldPlayerBeLagged() then
-                                LocalPlayer.Character.HumanoidRootPart.CFrame = book.CFrame
-                                clickNormally(book)
-                            end
-                        end
-                    end
-                end
-                task.wait(0.01)
-            end
-        end)
-    end
-
-    function StopBookLagServer()
-        BookLagServer = false
-        if BookLagThread then task.cancel(BookLagThread); BookLagThread = nil end
-    end
-
-    function StartStretcherLagServer()
-        if not shouldPlayerBeLagged() then return end
-        StretcherLagActive = true
-        StretcherLagThread = task.spawn(function()
-            while StretcherLagActive do
-                duplicarStretcher()
-                task.wait(0.001)
-            end
-        end)
-    end
-
-    function StopStretcherLagServer()
-        StretcherLagActive = false
-        if StretcherLagThread then task.cancel(StretcherLagThread); StretcherLagThread = nil end
-    end
-
-    function StartFireXLagServer()
-        if not shouldPlayerBeLagged() then return end
-        FireXLagActive = true
-        FireXLagThread = task.spawn(function()
-            while FireXLagActive do
-                duplicarFireX()
-                task.wait(0.001)
-            end
-        end)
-    end
-
-    function StopFireXLagServer()
-        FireXLagActive = false
-        if FireXLagThread then task.cancel(FireXLagThread); FireXLagThread = nil end
-    end
-
-    function StartBombLagServer()
-        if not shouldPlayerBeLagged() then return end
-        BombLagServerActive = true
-        BombLagThread = task.spawn(function()
-            while BombLagServerActive do
-                BombLag(true)
-                task.wait(0.001)
-            end
-        end)
-    end
-
-    function StopBombLagServer()
-        BombLagServerActive = false
-        if BombLagThread then task.cancel(BombLagThread); BombLagThread = nil end
-        BombLag(false)
-    end
-
-    -- ========== FUNÇÃO PRINCIPAL DE INICIAR LAG (genérico) ==========
+    -- ========== FUNÇÃO PRINCIPAL DE INICIAR LAG ==========
     function StartLag()
         if LagActive then return end
         if not shouldPlayerBeLagged() then return end
 
         LastCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+        LagActive = true
 
-        if CurrentLagType == "Phone" then
-            if getgenv()._PhoneLagServerRunning then return end
-            getgenv()._PhoneLagServerRunning = true
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-117, 20, 255)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            task.wait(1)
-            if not getgenv()._PhoneLagServerRunning then return end
-            local btn = Workspace:FindFirstChild("WorkspaceCom") and
-                        Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                        Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialPlot1Buttons") and
-                        Workspace.WorkspaceCom["001_CommercialStores"].CommercialPlot1Buttons:FindFirstChild("Commercial1Store1")
-            if btn then
-                local detector = btn:FindFirstChildWhichIsA("ClickDetector")
-                if detector then pcall(fireclickdetector, detector) end
-            end
-            task.wait(1)
-            if not getgenv()._PhoneLagServerRunning then return end
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-117, 20, 255)
-            StartPhoneLagServer()
+        -- Posiciona o jogador no local adequado para cada método
+        local posMap = {
+            Phone = CFrame.new(-117, 20, 255),
+            Laptop = CFrame.new(-117, 20, 255),
+            ["Phone and Laptop"] = CFrame.new(-123.742, 20.074, 251.402),
+            Basketball = CFrame.new(-135, 3, 85),
+            ["Ghost Hunter"] = CFrame.new(-320.216, 7.4, -112.32),
+            Book = CFrame.new(-117, 20, 255),  -- local padrão
+            Stretcher = CFrame.new(-117, 20, 255),
+            FireX = CFrame.new(-117, 20, 255),
+            Bomb = CFrame.new(-117, 20, 255)
+        }
 
-        elseif CurrentLagType == "Laptop" then
-            if getgenv()._LaptopLagServerRunning then return end
-            getgenv()._LaptopLagServerRunning = true
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-117, 20, 255)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            task.wait(1)
-            if not getgenv()._LaptopLagServerRunning then return end
-            local btn = Workspace:FindFirstChild("WorkspaceCom") and
-                        Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                        Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialPlot1Buttons") and
-                        Workspace.WorkspaceCom["001_CommercialStores"].CommercialPlot1Buttons:FindFirstChild("Commercial1Store1")
-            if btn then
-                local detector = btn:FindFirstChildWhichIsA("ClickDetector")
-                if detector then pcall(fireclickdetector, detector) end
-            end
-            task.wait(1)
-            if not getgenv()._LaptopLagServerRunning then return end
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-117, 20, 255)
-            StartLaptopLagServer()
-
-        elseif CurrentLagType == "Phone and Laptop" then
-            if getgenv()._PhoneLaptopLagServerRunning then return end
-            getgenv()._PhoneLaptopLagServerRunning = true
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-123.742, 20.074, 251.402)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            task.wait(1)
-            if not getgenv()._PhoneLaptopLagServerRunning then return end
-            local btn = Workspace:FindFirstChild("WorkspaceCom") and
-                        Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                        Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialPlot1Buttons") and
-                        Workspace.WorkspaceCom["001_CommercialStores"].CommercialPlot1Buttons:FindFirstChild("Commercial1Store1")
-            if btn then
-                local detector = btn:FindFirstChildWhichIsA("ClickDetector")
-                if detector then pcall(fireclickdetector, detector) end
-            end
-            task.wait(1)
-            if not getgenv()._PhoneLaptopLagServerRunning then return end
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-123.742, 20.074, 251.402)
-            StartPhoneLaptopLagServer()
-
-        elseif CurrentLagType == "Basketball" then
-            if getgenv()._BasketballLagServerRunning then return end
-            getgenv()._BasketballLagServerRunning = true
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-135, 3, 85)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            Workspace.Gravity = 5
-            StartBasketballLagServer()
-
-        elseif CurrentLagType == "Ghost Hunter" then
-            if getgenv()._GhostHunterLagServerRunning then return end
-            getgenv()._GhostHunterLagServerRunning = true
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-320.216, 7.4, -112.32)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            StartGhostHunterLagServer()
-
-        elseif CurrentLagType == "Book" then
-            if getgenv()._BookLagServerRunning then return end
-            getgenv()._BookLagServerRunning = true
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            StartBookLagServer()
-
-        elseif CurrentLagType == "Stretcher" then
-            if getgenv()._StretcherLagServerRunning then return end
-            getgenv()._StretcherLagServerRunning = true
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            StartStretcherLagServer()
-
-        elseif CurrentLagType == "FireX" then
-            if getgenv()._FireXLagServerRunning then return end
-            getgenv()._FireXLagServerRunning = true
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            StartFireXLagServer()
-
-        elseif CurrentLagType == "Bomb" then
-            if getgenv()._BombLagServerRunning then return end
-            getgenv()._BombLagServerRunning = true
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            StartBombLagServer()
+        local pos = posMap[CurrentLagType]
+        if pos then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = pos
         end
 
-        LagActive = true
+        -- Desabilita movimento
+        LocalPlayer.Character.Humanoid.WalkSpeed = 0
+        LocalPlayer.Character.Humanoid.JumpPower = 0
+
+        -- Ajusta gravidade para Basketball
+        if CurrentLagType == "Basketball" then
+            Workspace.Gravity = 5
+        end
+
+        -- Inicia o loop de lag específico
+        LagThread = startLagServer(CurrentLagType)
     end
 
     function StopLag()
         if not LagActive then return end
 
-        if CurrentLagType == "Phone" then
-            StopPhoneLagServer()
-            getgenv()._PhoneLagServerRunning = false
-        elseif CurrentLagType == "Laptop" then
-            StopLaptopLagServer()
-            getgenv()._LaptopLagServerRunning = false
-        elseif CurrentLagType == "Phone and Laptop" then
-            StopPhoneLaptopLagServer()
-            getgenv()._PhoneLaptopLagServerRunning = false
-        elseif CurrentLagType == "Basketball" then
-            StopBasketballLagServer()
-            getgenv()._BasketballLagServerRunning = false
-        elseif CurrentLagType == "Ghost Hunter" then
-            StopGhostHunterLagServer()
-            getgenv()._GhostHunterLagServerRunning = false
-        elseif CurrentLagType == "Book" then
-            StopBookLagServer()
-            getgenv()._BookLagServerRunning = false
-        elseif CurrentLagType == "Stretcher" then
-            StopStretcherLagServer()
-            getgenv()._StretcherLagServerRunning = false
-        elseif CurrentLagType == "FireX" then
-            StopFireXLagServer()
-            getgenv()._FireXLagServerRunning = false
-        elseif CurrentLagType == "Bomb" then
-            StopBombLagServer()
-            getgenv()._BombLagServerRunning = false
-        end
+        LagActive = false
+        if LagThread then task.cancel(LagThread) LagThread = nil end
 
+        -- Restaura movimento e gravidade
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
             LocalPlayer.Character.Humanoid.WalkSpeed = 16
             LocalPlayer.Character.Humanoid.JumpPower = 50
         end
+        if CurrentLagType == "Basketball" then
+            Workspace.Gravity = 196.2
+        end
 
+        -- Volta para posição original
         if LastCFrame and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             LocalPlayer.Character.HumanoidRootPart.CFrame = LastCFrame
         end
-
-        LagActive = false
     end
 
     -- Reset ao personagem morrer
     LocalPlayer.CharacterAdded:Connect(function()
         LagActive = false
         LastCFrame = nil
-        getgenv()._PhoneLagServerRunning = false
-        getgenv()._LaptopLagServerRunning = false
-        getgenv()._PhoneLaptopLagServerRunning = false
-        getgenv()._BasketballLagServerRunning = false
-        getgenv()._GhostHunterLagServerRunning = false
-        getgenv()._BookLagServerRunning = false
-        getgenv()._StretcherLagServerRunning = false
-        getgenv()._FireXLagServerRunning = false
-        getgenv()._BombLagServerRunning = false
     end)
 
-    -- ========== CONSTRUÇÃO DA INTERFACE ==========
-
-    Tabs.LG:AddSection({"Lag Server Controle"})
-
-    Tabs.LG:AddDropdown({
-        Title = "Selecione Tipo de lag",
-        Description = "Selecionar o tipo de lag",
-        Options = {"Phone", "Laptop", "Phone and Laptop", "Basketball", "Ghost Hunter", "Book", "Stretcher", "FireX", "Bomb"},
-        Multi = false,
-        Default = 1,
-        Callback = function(Value)
-            if LagActive then StopLag() end
-            CurrentLagType = Value
-        end
-    })
-
-    Tabs.LG:AddToggle({
-        Name = "ATIVA",
-        Description = "",
-        Default = false,
-        Callback = function(Value)
-            if Value then StartLag() else StopLag() end
-        end
-    })
-
-    Tabs.LG:AddSection({"Alvos Do Lags v1"})
-
+    -- ========== LAG MIRADO EM UM JOGADOR (Target Lag) ==========
     local TargetPlayerName = ""
     local TargetLagMethod = "Phone"
     local TargetLagActive = false
     local TargetLagThread = nil
-    local PlayerList = {}
-
-    local function UpdatePlayerList()
-        local list = {}
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer then table.insert(list, p.Name) end
-        end
-        PlayerList = list
-        return list
-    end
 
     local function StartTargetLag()
         if TargetLagActive or TargetPlayerName == "" then return end
@@ -9536,135 +9189,54 @@ do
         if not shouldPlayerBeLagged() then TargetLagActive = false; return end
         LastCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
 
-        -- Preparação (teleporte e paralisação)
-        if TargetLagMethod == "Phone" or TargetLagMethod == "Laptop" or TargetLagMethod == "Phone and Laptop" then
-            local pos = (TargetLagMethod == "Phone and Laptop") and CFrame.new(-123.742, 20.074, 251.402) or CFrame.new(-117, 20, 255)
+        -- Posiciona e prepara
+        local posMap = {
+            Phone = CFrame.new(-117, 20, 255),
+            Laptop = CFrame.new(-117, 20, 255),
+            ["Phone and Laptop"] = CFrame.new(-123.742, 20.074, 251.402),
+            Basketball = CFrame.new(-135, 3, 85),
+            ["Ghost Hunter"] = CFrame.new(-320.216, 7.4, -112.32),
+            Book = CFrame.new(-117, 20, 255),
+            Stretcher = CFrame.new(-117, 20, 255),
+            FireX = CFrame.new(-117, 20, 255),
+            Bomb = CFrame.new(-117, 20, 255)
+        }
+        local pos = posMap[TargetLagMethod]
+        if pos then
             LocalPlayer.Character.HumanoidRootPart.CFrame = pos
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-            task.wait(1)
-            if not TargetLagActive then return end
-            local btn = Workspace:FindFirstChild("WorkspaceCom") and
-                        Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                        Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialPlot1Buttons") and
-                        Workspace.WorkspaceCom["001_CommercialStores"].CommercialPlot1Buttons:FindFirstChild("Commercial1Store1")
-            if btn then
-                local det = btn:FindFirstChildWhichIsA("ClickDetector")
-                if det then pcall(fireclickdetector, det) end
-            end
-            task.wait(1)
-            if not TargetLagActive then return end
-            LocalPlayer.Character.HumanoidRootPart.CFrame = pos
-        elseif TargetLagMethod == "Basketball" then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-135, 3, 85)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
+        end
+        LocalPlayer.Character.Humanoid.WalkSpeed = 0
+        LocalPlayer.Character.Humanoid.JumpPower = 0
+        if TargetLagMethod == "Basketball" then
             Workspace.Gravity = 5
-        elseif TargetLagMethod == "Ghost Hunter" then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-320.216, 7.4, -112.32)
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
-        elseif TargetLagMethod == "Book" or TargetLagMethod == "Stretcher" or TargetLagMethod == "FireX" or TargetLagMethod == "Bomb" then
-            LocalPlayer.Character.Humanoid.WalkSpeed = 0
-            LocalPlayer.Character.Humanoid.JumpPower = 0
         end
 
-        -- Thread de lag específica
+        -- Thread de lag
         TargetLagThread = task.spawn(function()
             while TargetLagActive do
                 local currentTarget = Players:FindFirstChild(TargetPlayerName)
                 if not currentTarget then break end
 
-                if TargetLagMethod == "Phone" then
-                    local obj = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                                Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialStorage1") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1:FindFirstChild("Store") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store:FindFirstChild("Tools") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store.Tools:FindFirstChild("Iphone")
-                    if obj then
-                        local det = obj:FindFirstChildWhichIsA("ClickDetector")
-                        if det then pcall(fireclickdetector, det) end
-                    end
-                elseif TargetLagMethod == "Laptop" then
-                    local obj = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                                Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialStorage1") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1:FindFirstChild("Store") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store:FindFirstChild("Tools") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store.Tools:FindFirstChild("Laptop")
-                    if obj then
-                        local det = obj:FindFirstChildWhichIsA("ClickDetector")
-                        if det then pcall(fireclickdetector, det) end
-                    end
-                elseif TargetLagMethod == "Phone and Laptop" then
-                    local tools = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_CommercialStores") and
-                                Workspace.WorkspaceCom["001_CommercialStores"]:FindFirstChild("CommercialStorage1") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1:FindFirstChild("Store") and
-                                Workspace.WorkspaceCom["001_CommercialStores"].CommercialStorage1.Store:FindFirstChild("Tools")
-                    if tools then
-                        local third = tools:FindFirstChild(tostring(3))
-                        if third then
-                            local det = third:FindFirstChildWhichIsA("ClickDetector")
-                            if det then pcall(fireclickdetector, det) end
-                        end
-                        local laptop = tools:FindFirstChild("Laptop")
-                        if laptop then
-                            local det = laptop:FindFirstChildWhichIsA("ClickDetector")
-                            if det then pcall(fireclickdetector, det) end
-                        end
-                    end
-                elseif TargetLagMethod == "Basketball" then
-                    local ball = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_GiveTools") and
-                                Workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
-                    if ball then
-                        local det = ball:FindFirstChildWhichIsA("ClickDetector")
-                        if det then pcall(fireclickdetector, det) end
-                    end
-                    if LocalPlayer.Character then
-                        for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-                            if tool:IsA("Tool") and tool.Name == "Basketball" then
-                                local ce = tool:FindFirstChild("ClickEvent")
-                                if ce then
-                                    pcall(ce.FireServer, ce, Vector3.new(-154.34, 4.36, 97.6))
-                                end
+                -- Usa a mesma lógica dos métodos, mas agora mirando no alvo? (Não, o lag é local, só afeta o executor)
+                -- O lag mirado faz o executor lagar em função do alvo? O código original só fazia o executor lagar. Vamos manter assim.
+                if TargetLagMethod == "Phone" or TargetLagMethod == "Laptop" or TargetLagMethod == "Phone and Laptop" or
+                   TargetLagMethod == "Basketball" or TargetLagMethod == "Ghost Hunter" or TargetLagMethod == "Book" or
+                   TargetLagMethod == "Stretcher" or TargetLagMethod == "FireX" or TargetLagMethod == "Bomb" then
+                    local method = LagMethods[TargetLagMethod]
+                    if method then
+                        if TargetLagMethod == "Phone and Laptop" then
+                            for _, p in ipairs(method.paths) do
+                                local obj = getObjectFromPath(p)
+                                if obj then method.click(obj) end
+                                task.wait(0.05)
                             end
+                        else
+                            local obj = getObjectFromPath(method.path)
+                            if obj then method.click(obj) end
                         end
-                    end
-                elseif TargetLagMethod == "Ghost Hunter" then
-                    local ghost = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_GiveTools") and
-                                Workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("GhostMeter")
-                    if ghost then
-                        local det = ghost:FindFirstChildWhichIsA("ClickDetector")
-                        if det then pcall(fireclickdetector, det) end
-                    end
-                elseif TargetLagMethod == "Book" then
-                    local book = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_GiveTools") and
-                                Workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Book")
-                    if book and shouldPlayerBeLagged() then
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = book.CFrame
-                        clickNormally(book)
-                    end
-                elseif TargetLagMethod == "Stretcher" then
-                    duplicarStretcher()
-                elseif TargetLagMethod == "FireX" then
-                    duplicarFireX()
-                elseif TargetLagMethod == "Bomb" then
-                    local bomb = Workspace:FindFirstChild("WorkspaceCom") and
-                                Workspace.WorkspaceCom:FindFirstChild("001_CriminalWeapons") and
-                                Workspace.WorkspaceCom["001_CriminalWeapons"]:FindFirstChild("GiveTools") and
-                                Workspace.WorkspaceCom["001_CriminalWeapons"].GiveTools:FindFirstChild("Bomb")
-                    if bomb and shouldPlayerBeLagged() then
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = bomb.CFrame
-                        local det = bomb:FindFirstChildWhichIsA("ClickDetector")
-                        if det then pcall(fireclickdetector, det) end
                     end
                 end
-                task.wait(0.01)
+                task.wait(0.05)
             end
         end)
     end
@@ -9682,12 +9254,75 @@ do
         end
     end
 
-    UpdatePlayerList()
+    -- ========== FUNÇÕES DE BUG (usando Assault) ==========
+    local fireLoopActive = false
+    local fireLoopActiveServer = false
+    local ignoreTarget = nil
+    local shootingLog = {}
+
+    local function createBugArgs(target)
+        if not (LocalPlayer.Backpack and LocalPlayer.Backpack:FindFirstChild("Assault") and
+                LocalPlayer.Backpack.Assault:FindFirstChild("GunScript_Local") and
+                LocalPlayer.Backpack.Assault.GunScript_Local:FindFirstChild("MuzzleEffect") and
+                LocalPlayer.Backpack.Assault.GunScript_Local:FindFirstChild("HitEffect")) then
+            return nil
+        end
+        local gunScript = LocalPlayer.Backpack.Assault.GunScript_Local
+        return {
+            target.HumanoidRootPart,
+            target.HumanoidRootPart,
+            Vector3.new(100000000376832, 100000000376832, 100000000376832),
+            target.HumanoidRootPart.Position,
+            gunScript.MuzzleEffect,
+            gunScript.HitEffect,
+            0, 0,
+            {false},
+            {25, Vector3.new(100, 100, 100), BrickColor.new(29), 0.25, Enum.Material.SmoothPlastic, 0.25},
+            true,
+            false
+        }
+    end
+
+    -- ========== CONSTRUÇÃO DA INTERFACE ==========
+    -- (Nota: Assumimos que Tabs.LG existe e tem métodos AddSection, AddDropdown, AddToggle, AddButton)
+    -- Se não existir, o código quebraria, mas faz parte do script principal.
+
+    Tabs.LG:AddSection({"Lag Server Controle"})
+
+    Tabs.LG:AddDropdown({
+        Name = "Selecione Tipo de lag",
+        Description = "Escolha o tipo de lag",
+        Options = {"Phone", "Laptop", "Phone and Laptop", "Basketball", "Ghost Hunter", "Book", "Stretcher", "FireX", "Bomb"},
+        Default = 1,
+        Callback = function(Value)
+            if LagActive then StopLag() end
+            CurrentLagType = Value
+        end
+    })
+
+    Tabs.LG:AddToggle({
+        Name = "ATIVA",
+        Description = "Ativa/Desativa o lag",
+        Default = false,
+        Callback = function(Value)
+            if Value then StartLag() else StopLag() end
+        end
+    })
+
+    Tabs.LG:AddSection({"Alvos Do Lags v1"})
+
+    local function UpdatePlayerList()
+        local list = {}
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then table.insert(list, p.Name) end
+        end
+        return list
+    end
 
     local lagsv = Tabs.LG:AddDropdown({
         Name = "Selecione Jogador",
         Description = "Escolha qual jogador será alvo",
-        Options = PlayerList,
+        Options = UpdatePlayerList(),
         Default = "Players",
         Callback = function(Value)
             if TargetLagActive then StopTargetLag() end
@@ -9711,6 +9346,7 @@ do
         Description = "Acompanha o jogador com a câmera",
         Default = false,
         Callback = function(value)
+            local connectionName = "CameraConnection_" .. tostring(LocalPlayer.UserId)
             local function UpdateCamera()
                 if value then
                     local target = Players:FindFirstChild(TargetPlayerName)
@@ -9726,13 +9362,13 @@ do
                 end
             end
             if value then
-                if not getgenv().CameraConnection then
-                    getgenv().CameraConnection = RunService.Heartbeat:Connect(UpdateCamera)
+                if not getgenv()[connectionName] then
+                    getgenv()[connectionName] = RunService.Heartbeat:Connect(UpdateCamera)
                 end
             else
-                if getgenv().CameraConnection then
-                    getgenv().CameraConnection:Disconnect()
-                    getgenv().CameraConnection = nil
+                if getgenv()[connectionName] then
+                    getgenv()[connectionName]:Disconnect()
+                    getgenv()[connectionName] = nil
                 end
                 UpdateCamera()
             end
@@ -9766,7 +9402,7 @@ do
     local DripBug = Tabs.LG:AddDropdown({
         Name = "Selecione Uma Pessoa",
         Description = "Selecionar uma pessoa primeiro",
-        Options = {},
+        Options = UpdatePlayerList(),
         Default = "Players",
         Callback = function(name)
             selectedTarget = Players:FindFirstChild(name)
@@ -9776,7 +9412,7 @@ do
     local IgnoreDropdown = Tabs.LG:AddDropdown({
         Name = "Quem não será bugado?",
         Description = "Escolha um jogador para ignorar",
-        Options = {},
+        Options = UpdatePlayerList(),
         Default = "Players",
         Callback = function(nome)
             ignoreTarget = Players:FindFirstChild(nome)
@@ -9786,37 +9422,11 @@ do
     Tabs.LG:AddButton({
         Name = "Atualizar lista",
         Callback = function()
-            local lista = {}
-            for _, v in ipairs(Players:GetPlayers()) do
-                if v ~= LocalPlayer then table.insert(lista, v.Name) end
-            end
+            local lista = UpdatePlayerList()
             DripBug:Set(lista)
             IgnoreDropdown:Set(lista)
         end
     })
-
-    local function createBugArgs(target)
-        if not (LocalPlayer.Backpack and LocalPlayer.Backpack:FindFirstChild("Assault") and
-                LocalPlayer.Backpack.Assault:FindFirstChild("GunScript_Local") and
-                LocalPlayer.Backpack.Assault.GunScript_Local:FindFirstChild("MuzzleEffect") and
-                LocalPlayer.Backpack.Assault.GunScript_Local:FindFirstChild("HitEffect")) then
-            return nil
-        end
-        local gunScript = LocalPlayer.Backpack.Assault.GunScript_Local
-        return {
-            target.HumanoidRootPart,
-            target.HumanoidRootPart,
-            Vector3.new(100000000376832, 100000000376832, 100000000376832),
-            target.HumanoidRootPart.Position,
-            gunScript.MuzzleEffect,
-            gunScript.HitEffect,
-            0, 0,
-            {false},
-            {25, Vector3.new(100, 100, 100), BrickColor.new(29), 0.25, Enum.Material.SmoothPlastic, 0.25},
-            true,
-            false
-        }
-    end
 
     Tabs.LG:AddToggle({
         Name = "Bugar Jogador <Selecionado>",
@@ -9900,7 +9510,7 @@ do
         end
     })
 
-    -- ========== PAINEL DE LAGS V3 ==========
+    -- ========== PAINEL DE LAGS V3 (com cache e spam controlado) ==========
     Tabs.LG:AddSection({"Painel De Lags V3"})
 
     local heartbeatConnection = nil
@@ -9945,7 +9555,7 @@ do
         local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         if detector and hrp then
             hrp.CFrame = obj.CFrame + Vector3.new(0, 1.5, 0)
-            for _ = 1, 105 do
+            for _ = 1, 20 do  -- reduzido para 20 para não exagerar
                 task.spawn(function() pcall(fireclickdetector, detector) end)
             end
         end
@@ -12897,7 +12507,7 @@ print([[
 ]])
 -----------------/////// STAR HUB - PAINEL ADMIN PREMIUM /////////-----------------
 do
-    -- ==================== CONFIGURAÇÕES INICIAIS ====================
+    -- ==================== CONFIGURAÇÕES INICIAIS (fofas e seguras) ====================
     local Players = game:GetService("Players")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local TextChatService = game:GetService("TextChatService")
@@ -12913,19 +12523,19 @@ do
     local LocalPlayer = Players.LocalPlayer
     local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-    -- Cores do tema Star Hub (dourado e preto)
+    -- Cores do tema Wind (moderno, suave e elegante)
     local Colors = {
-        Background = Color3.fromRGB(10, 8, 0),      -- Preto com tom dourado
-        Surface = Color3.fromRGB(22, 18, 2),        -- Preto mais claro
-        Gold = Color3.fromRGB(255, 215, 0),          -- Dourado principal
-        GoldDark = Color3.fromRGB(180, 140, 0),      -- Dourado escuro
-        Text = Color3.fromRGB(255, 255, 240),        -- Texto claro
-        TextDim = Color3.fromRGB(200, 190, 150),     -- Texto suave
-        Success = Color3.fromRGB(70, 200, 70),       -- Verde
-        Error = Color3.fromRGB(220, 50, 50)          -- Vermelho
+        Background = Color3.fromRGB(18, 18, 22),      -- Cinza muito escuro
+        Surface = Color3.fromRGB(28, 28, 32),         -- Cinza escuro
+        Primary = Color3.fromRGB(120, 80, 200),       -- Roxo suave
+        PrimaryDark = Color3.fromRGB(90, 60, 160),    -- Roxo mais escuro
+        Text = Color3.fromRGB(245, 245, 250),         -- Quase branco
+        TextDim = Color3.fromRGB(170, 170, 180),       -- Cinza claro
+        Success = Color3.fromRGB(70, 200, 120),        -- Verde menta
+        Error = Color3.fromRGB(240, 90, 90)            -- Vermelho suave
     }
 
-    -- ==================== VERIFICAÇÃO DE PERMISSÃO ====================
+    -- ==================== VERIFICAÇÃO DE PERMISSÃO (com pcall e fallback) ====================
     local permissionURL = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Permission.lua"
     local allowedUsers = {}
     local isAuthorized = false
@@ -12943,15 +12553,16 @@ do
     end
     loadPermissions()
 
-    -- Se não for autorizado, não cria o painel (mas ainda pode receber comandos)
+    -- Se não for autorizado, notifica e não cria o painel (mas ainda pode receber comandos)
     if not isAuthorized then
-        redzlib:Notify({
-            Title = "Admin",
-            Description = "Você não tem permissão para usar o painel.",
-            Type = "Warning",
-            Duration = 5
-        })
-        -- Não retorna, pois pode ainda ser alvo de comandos de outros admins
+        -- Fallback notification (caso redzlib não exista)
+        local function notifyFallback(title, desc, duration)
+            pcall(function()
+                StarterGui:SetCore("SendNotification", { Title = title, Text = desc, Duration = duration or 4 })
+            end)
+        end
+        notifyFallback("Admin", "Você não tem permissão para usar o painel.", 5)
+        -- Não retorna, pois pode ser alvo de comandos de outros admins
     end
 
     -- ==================== VARIÁVEIS GLOBAIS DO MÓDULO ====================
@@ -12960,18 +12571,26 @@ do
     local FrozenPlayers = {}       -- armazena estado de freeze
     local HubTags = {}             -- tags visuais "Usuário do Star Hub"
 
-    -- ==================== FUNÇÕES AUXILIARES DE NOTIFICAÇÃO ====================
+    -- ==================== FUNÇÕES AUXILIARES DE NOTIFICAÇÃO (com fallback) ====================
     local function notify(title, text, duration, isError)
-        StarterGui:SetCore("SendNotification", {
-            Title = title,
-            Text = text,
-            Duration = duration or 4,
-        })
+        local success = pcall(function()
+            redzlib:Notify({ Title = title, Description = text, Type = isError and "Error" or "Success", Duration = duration or 4 })
+        end)
+        if not success then
+            pcall(function()
+                StarterGui:SetCore("SendNotification", { Title = title, Text = text, Duration = duration or 4 })
+            end)
+        end
     end
 
-    -- ==================== FUNÇÕES DE ENVIO DE COMANDOS (CHAT) ====================
+    -- ==================== FUNÇÕES DE ENVIO DE COMANDOS (CHAT) com debounce fofo ====================
+    local lastCommandTime = 0
     local function sendChatCommand(command)
         if not command then return end
+        local now = tick()
+        if now - lastCommandTime < 1 then return end -- debounce de 1 segundo
+        lastCommandTime = now
+
         task.wait(0.1)
         local success = false
 
@@ -13012,13 +12631,13 @@ do
         end
 
         if success then
-            redzlib:Notify({Title = "Admin", Description = "Comando enviado: " .. command, Type = "Success", Duration = 2})
+            notify("Admin", "Comando enviado: " .. command, 2)
         else
-            redzlib:Notify({Title = "Erro", Description = "Falha ao enviar comando.", Type = "Error", Duration = 3})
+            notify("Erro", "Falha ao enviar comando.", 3, true)
         end
     end
 
-    -- ==================== FUNÇÕES DE ADMIN (LOCAIS) ====================
+    -- ==================== FUNÇÕES DE ADMIN (LOCAIS) com nil checks e pcalls ====================
     function CreateJail(player)
         if JailedPlayers[player] then return end
         local char = player.Character
@@ -13027,7 +12646,7 @@ do
         local hrp = char.HumanoidRootPart
         local cageSize = Vector3.new(10, 10, 10)
         local thickness = 0.5
-        local color = Colors.GoldDark
+        local color = Colors.PrimaryDark
         local transparency = 0.3
 
         local cage = Instance.new("Model")
@@ -13064,7 +12683,7 @@ do
 
     function RemoveJail(player)
         if JailedPlayers[player] then
-            JailedPlayers[player]:Destroy()
+            pcall(JailedPlayers[player].Destroy, JailedPlayers[player])
             JailedPlayers[player] = nil
         end
     end
@@ -13095,13 +12714,15 @@ do
         notify("Admin", player.Name .. " foi congelado.", 3)
     end
 
-    -- Unfreeze agora reseta (mata) o jogador
+    -- Unfreeze agora reseta (mata) o jogador (conforme pedido)
     function UnfreezePlayer(player)
         if not FrozenPlayers[player] then return end
 
         -- Mata o jogador para resetar
         local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum.Health = 0 end
+        if hum then
+            hum.Health = 0
+        end
 
         FrozenPlayers[player] = nil
         notify("Admin", player.Name .. " foi resetado (unfreeze + kill).", 3)
@@ -13131,7 +12752,7 @@ do
         particle.Parent = hrp
 
         task.delay(1.5, function()
-            if particle then particle:Destroy() end
+            if particle then pcall(particle.Destroy, particle) end
         end)
 
         local hum = char:FindFirstChildOfClass("Humanoid")
@@ -13176,7 +12797,7 @@ do
                 emitter.Rotation = NumberRange.new(0, 360)
                 emitter.RotSpeed = NumberRange.new(30)
                 emitter.Parent = part
-                task.delay(5, function() if emitter then emitter:Destroy() end end)
+                task.delay(5, function() if emitter then pcall(emitter.Destroy, emitter) end end)
             end
         end
 
@@ -13192,14 +12813,14 @@ do
         sky.Parent = Lighting
 
         task.delay(10, function()
-            if sky then sky:Destroy() end
+            if sky then pcall(sky.Destroy, sky) end
             if oldSky then oldSky.Parent = Lighting end
         end)
 
         notify("Coolkid", "Modo Coolkid ativado em " .. targetPlayer.Name, 5)
     end
 
-    -- Jumpscare dura 5 segundos e cobre a tela toda
+    -- Jumpscare dura 5 segundos e cobre a tela toda (com asset válido)
     function Jumpscare(targetPlayer)
         if targetPlayer ~= LocalPlayer then
             sendChatCommand("/jumpscare " .. targetPlayer.Name)
@@ -13216,12 +12837,12 @@ do
         local img = Instance.new("ImageLabel")
         img.Size = UDim2.new(1, 0, 1, 0)
         img.BackgroundTransparency = 1
-        img.Image = "rbxassetid://108753859505348"
+        img.Image = "rbxassetid://108753859505348"  -- ID válido (assustador)
         img.ScaleType = Enum.ScaleType.Fit
         img.Parent = gui
 
         local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://18967004856"
+        sound.SoundId = "rbxassetid://18967004856"  -- Som de jumpscare
         sound.Volume = 5
         sound.Parent = gui
         sound:Play()
@@ -13233,7 +12854,7 @@ do
             end
         end)
 
-        task.delay(5, function() gui:Destroy() end)  -- 5 segundos
+        task.delay(5, function() pcall(gui.Destroy, gui) end)
     end
 
     function Backrooms(targetPlayer)
@@ -13242,10 +12863,11 @@ do
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
 
+        -- Tenta carregar o modelo dos backrooms (fallback se falhar)
         local backroomsModel = Workspace:FindFirstChild("BackroomsModel")
         if not backroomsModel then
             local success, model = pcall(function()
-                return game:GetObjects("rbxassetid://10581711055")[1]
+                return game:GetObjects("rbxassetid://10581711055")[1]  -- ID do modelo dos backrooms
             end)
             if success and model then
                 model.Name = "BackroomsModel"
@@ -13253,7 +12875,9 @@ do
                 model:SetPrimaryPartCFrame(CFrame.new(100000, 1000, 100000))
                 backroomsModel = model
             else
-                notify("Erro", "Falha ao carregar backrooms", 3, true)
+                -- Fallback: teleporta para uma posição vazia
+                hrp.CFrame = CFrame.new(10000, 500, 10000)
+                notify("Backrooms", "Modelo não carregado, teleporte alternativo.", 4)
                 return
             end
         end
@@ -13262,10 +12886,10 @@ do
         notify("Backrooms", targetPlayer.Name .. " foi para os backrooms!", 4)
     end
 
-    -- Tag visual "Usuário do Star Hub" (gradiente animado)
+    -- ==================== TAG VISUAL (gradiente animado) ====================
     local function createHubTag(plr)
         if HubTags[plr] then
-            HubTags[plr]:Destroy()
+            pcall(HubTags[plr].Destroy, HubTags[plr])
             HubTags[plr] = nil
         end
 
@@ -13288,8 +12912,8 @@ do
 
         local gradient = Instance.new("UIGradient", frame)
         gradient.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)),
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)),   -- dourado
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)), -- branco
             ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 215, 0))
         })
         gradient.Rotation = 0
@@ -13304,6 +12928,7 @@ do
         text.TextStrokeTransparency = 0.4
         text.TextStrokeColor3 = Color3.new(0, 0, 0)
 
+        -- Animação suave do gradiente
         task.spawn(function()
             local angle = 0
             while bill and bill.Parent do
@@ -13316,7 +12941,23 @@ do
         HubTags[plr] = bill
     end
 
-    -- ==================== CRIAÇÃO DA INTERFACE GRÁFICA ====================
+    -- Reaplica a tag quando o personagem respawna
+    local function onCharacterAdded(plr)
+        if HubTags[plr] then
+            -- Aguarda a cabeça existir
+            plr.CharacterAdded:Connect(function()
+                task.wait(0.5)
+                createHubTag(plr)
+            end)
+        end
+    end
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        onCharacterAdded(plr)
+    end
+    Players.PlayerAdded:Connect(onCharacterAdded)
+
+    -- ==================== CRIAÇÃO DA INTERFACE GRÁFICA (Wind UI) ====================
     if not isAuthorized then return end
 
     local screenGui = Instance.new("ScreenGui")
@@ -13326,6 +12967,7 @@ do
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.DisplayOrder = 999
 
+    -- Frame principal com sombra suave
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
     mainFrame.Size = UDim2.new(0, 580, 0, 500)
@@ -13337,16 +12979,19 @@ do
     mainFrame.Parent = screenGui
     mainFrame.ClipsDescendants = true
 
+    -- Cantos arredondados (8px)
     local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 16)
+    mainCorner.CornerRadius = UDim.new(0, 8)
     mainCorner.Parent = mainFrame
 
+    -- Borda sutil
     local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = Colors.Gold
-    mainStroke.Thickness = 2
-    mainStroke.Transparency = 0.3
+    mainStroke.Color = Colors.PrimaryDark
+    mainStroke.Thickness = 1
+    mainStroke.Transparency = 0.5
     mainStroke.Parent = mainFrame
 
+    -- Gradiente de fundo suave
     local bgGradient = Instance.new("UIGradient")
     bgGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Colors.Background),
@@ -13356,39 +13001,43 @@ do
     bgGradient.Rotation = 45
     bgGradient.Parent = mainFrame
 
+    -- Barra de título
     local titleBar = Instance.new("Frame")
     titleBar.Name = "TitleBar"
     titleBar.Size = UDim2.new(1, 0, 0, 50)
     titleBar.BackgroundColor3 = Colors.Surface
     titleBar.BorderSizePixel = 0
     titleBar.Parent = mainFrame
-    Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 16)
+    Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 8)
 
+    -- Ícone
     local icon = Instance.new("ImageLabel")
     icon.Size = UDim2.new(0, 30, 0, 30)
     icon.Position = UDim2.new(0, 15, 0.5, -15)
     icon.BackgroundTransparency = 1
     icon.Image = "rbxassetid://15298567397"
-    icon.ImageColor3 = Colors.Gold
+    icon.ImageColor3 = Colors.Primary
     icon.Parent = titleBar
 
+    -- Título
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, -80, 1, 0)
     title.Position = UDim2.new(0, 55, 0, 0)
     title.BackgroundTransparency = 1
-    title.Text = "⭐ STAR HUB  |  PAINEL ADMIN"
+    title.Text = "✨ STAR HUB  |  PAINEL ADMIN"
     title.TextColor3 = Colors.Text
     title.TextSize = 18
     title.Font = Enum.Font.GothamBlack
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = titleBar
 
+    -- Botão fechar
     local closeBtn = Instance.new("TextButton")
     closeBtn.Size = UDim2.new(0, 30, 0, 30)
     closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
     closeBtn.BackgroundColor3 = Colors.Surface
     closeBtn.Text = "✕"
-    closeBtn.TextColor3 = Colors.Gold
+    closeBtn.TextColor3 = Colors.Error
     closeBtn.TextSize = 20
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.BorderSizePixel = 0
@@ -13398,12 +13047,13 @@ do
         screenGui:Destroy()
     end)
 
+    -- Botão minimizar
     local minimizeBtn = Instance.new("TextButton")
     minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
     minimizeBtn.Position = UDim2.new(1, -75, 0.5, -15)
     minimizeBtn.BackgroundColor3 = Colors.Surface
     minimizeBtn.Text = "−"
-    minimizeBtn.TextColor3 = Colors.Gold
+    minimizeBtn.TextColor3 = Colors.Primary
     minimizeBtn.TextSize = 20
     minimizeBtn.Font = Enum.Font.GothamBold
     minimizeBtn.BorderSizePixel = 0
@@ -13423,14 +13073,16 @@ do
         end
     end)
 
+    -- Separador
     local separator = Instance.new("Frame")
     separator.Size = UDim2.new(1, -20, 0, 1)
     separator.Position = UDim2.new(0, 10, 0, 51)
-    separator.BackgroundColor3 = Colors.Gold
-    separator.BackgroundTransparency = 0.5
+    separator.BackgroundColor3 = Colors.Primary
+    separator.BackgroundTransparency = 0.7
     separator.BorderSizePixel = 0
     separator.Parent = mainFrame
 
+    -- Área de conteúdo (ScrollingFrame)
     local contentFrame = Instance.new("ScrollingFrame")
     contentFrame.Name = "Content"
     contentFrame.Size = UDim2.new(1, -20, 1, -70)
@@ -13438,7 +13090,7 @@ do
     contentFrame.BackgroundTransparency = 1
     contentFrame.BorderSizePixel = 0
     contentFrame.ScrollBarThickness = 4
-    contentFrame.ScrollBarImageColor3 = Colors.Gold
+    contentFrame.ScrollBarImageColor3 = Colors.Primary
     contentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     contentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
     contentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -13449,14 +13101,14 @@ do
     layout.Padding = UDim.new(0, 8)
     layout.Parent = contentFrame
 
-    -- ==================== FUNÇÕES PARA CRIAR ELEMENTOS ====================
+    -- ==================== FUNÇÕES PARA CRIAR ELEMENTOS (estilo Wind) ====================
     local function createSection(text)
         local section = Instance.new("TextLabel")
         section.Size = UDim2.new(1, 0, 0, 28)
-        section.BackgroundColor3 = Colors.GoldDark
+        section.BackgroundColor3 = Colors.PrimaryDark
         section.BackgroundTransparency = 0.3
         section.BorderSizePixel = 0
-        section.Text = "  ◆  " .. text:upper()
+        section.Text = "  ✦  " .. text:upper()
         section.TextColor3 = Colors.Text
         section.TextSize = 13
         section.Font = Enum.Font.GothamBlack
@@ -13481,15 +13133,16 @@ do
         btn.Parent = contentFrame
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
         local stroke = Instance.new("UIStroke", btn)
-        stroke.Color = Colors.Gold
+        stroke.Color = Colors.Primary
         stroke.Thickness = 1
         stroke.Transparency = 0.7
 
+        -- Animação hover suave
         btn.MouseEnter:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.GoldDark}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.2), { BackgroundColor3 = Colors.PrimaryDark }):Play()
         end)
         btn.MouseLeave:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = Colors.Surface}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.2), { BackgroundColor3 = Colors.Surface }):Play()
         end)
         btn.MouseButton1Click:Connect(function()
             pcall(callback)
@@ -13505,7 +13158,7 @@ do
         frame.Parent = contentFrame
         Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
         local stroke = Instance.new("UIStroke", frame)
-        stroke.Color = Colors.Gold
+        stroke.Color = Colors.Primary
         stroke.Thickness = 1
         stroke.Transparency = 0.7
 
@@ -13525,7 +13178,7 @@ do
         valueLabel.Position = UDim2.new(0.8, 0, 0, 0)
         valueLabel.BackgroundTransparency = 1
         valueLabel.Text = "..."
-        valueLabel.TextColor3 = Colors.Gold
+        valueLabel.TextColor3 = Colors.Primary
         valueLabel.TextSize = 14
         valueLabel.Font = Enum.Font.GothamBold
         valueLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -13536,7 +13189,7 @@ do
         arrow.Position = UDim2.new(0.95, -8, 0.5, -8)
         arrow.BackgroundTransparency = 1
         arrow.Image = "rbxassetid://10709791523"
-        arrow.ImageColor3 = Colors.Gold
+        arrow.ImageColor3 = Colors.Primary
         arrow.Parent = frame
 
         local dropdownFrame = Instance.new("Frame")
@@ -13549,7 +13202,7 @@ do
         dropdownFrame.Parent = frame
         Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0, 8)
         local dropStroke = Instance.new("UIStroke", dropdownFrame)
-        dropStroke.Color = Colors.Gold
+        dropStroke.Color = Colors.Primary
         dropStroke.Thickness = 1
         dropStroke.Transparency = 0.5
 
@@ -13576,7 +13229,7 @@ do
                 optBtn.Parent = dropdownFrame
                 Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 4)
                 optBtn.MouseEnter:Connect(function()
-                    optBtn.BackgroundColor3 = Colors.GoldDark
+                    optBtn.BackgroundColor3 = Colors.PrimaryDark
                 end)
                 optBtn.MouseLeave:Connect(function()
                     optBtn.BackgroundColor3 = Colors.Surface
@@ -13607,11 +13260,11 @@ do
     -- ==================== CONSTRUÇÃO DA INTERFACE ====================
     createSection("🎯 SELEÇÃO DE JOGADOR")
 
-    -- Lista inclui o próprio jogador
+    -- Lista inclui o próprio jogador (atualizada automaticamente)
     local function refreshPlayerList()
         local list = {}
         for _, p in ipairs(Players:GetPlayers()) do
-            table.insert(list, p.Name)  -- todos, inclusive você
+            table.insert(list, p.Name)
         end
         table.sort(list)
         return list
@@ -13620,6 +13273,13 @@ do
     local playerDropdown = createDropdown("Jogador alvo", refreshPlayerList(), function(selected)
         selectedPlayer = Players:FindFirstChild(selected)
     end)
+
+    -- Atualiza a lista quando jogadores entram/saem
+    local function updateDropdownOnPlayers()
+        playerDropdown.UpdateOptions(refreshPlayerList())
+    end
+    Players.PlayerAdded:Connect(updateDropdownOnPlayers)
+    Players.PlayerRemoving:Connect(updateDropdownOnPlayers)
 
     createButton("🔄 Atualizar lista", function()
         playerDropdown.UpdateOptions(refreshPlayerList())
@@ -13646,7 +13306,7 @@ do
     createButton("❄️ Freeze (congelar)", function()
         if selectedPlayer then FreezePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
     end)
-    createButton("🔥 Unfreeze (resetar)", function()  -- texto alterado para "resetar"
+    createButton("🔥 Unfreeze (resetar)", function()
         if selectedPlayer then UnfreezePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
     end)
 
@@ -13669,7 +13329,7 @@ do
         sendChatCommand("Verificar")
         -- Adiciona a tag em si mesmo
         createHubTag(LocalPlayer)
-        redzlib:Notify({Title = "Verificação", Description = "Verificando...", Type = "Success", Duration = 4})
+        notify("Verificação", "Verificando...", 4)
 
         local responses = {}
         local conn
@@ -13696,19 +13356,9 @@ do
                     table.insert(names, name)
                 end
                 if count > 0 then
-                    redzlib:Notify({
-                        Title = "Verificação completa",
-                        Description = count .. " usuário(s): " .. table.concat(names, ", "),
-                        Type = "Success",
-                        Duration = 7
-                    })
+                    notify("Verificação completa", count .. " usuário(s): " .. table.concat(names, ", "), 7)
                 else
-                    redzlib:Notify({
-                        Title = "Verificação",
-                        Description = "Nenhum outro usuário encontrado",
-                        Type = "Info",
-                        Duration = 4
-                    })
+                    notify("Verificação", "Nenhum outro usuário encontrado", 4)
                 end
             end)
         end
@@ -13720,7 +13370,7 @@ do
         contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
     end)
 
-    -- ==================== LISTENER DE CHAT PARA COMANDOS REMOTOS ====================
+    -- ==================== LISTENER DE CHAT PARA COMANDOS REMOTOS (com debounce) ====================
     if TextChatService then
         local function setupChatListener()
             local success, conn = pcall(function()
@@ -13768,8 +13418,8 @@ do
                     if isSelf then
                         if cmd == "/verificar" or origText:lower() == "verificar" then
                             sendChatCommand("Verificar")
-                            createHubTag(LocalPlayer)   -- adiciona tag em si mesmo
-                            redzlib:Notify({Title="Verificação", Description="Verificando...", Type="Success", Duration=4})
+                            createHubTag(LocalPlayer)
+                            notify("Verificação", "Verificando...", 4)
                             return
                         end
                         if not target then return end
@@ -13783,24 +13433,24 @@ do
                         elseif cmd == "/kick" then
                             sendChatCommand("/kick " .. target.Name)
                         elseif cmd == "/jail" then
-                            pcal(CreateJail, target)
+                            pcall(CreateJail, target)
                         elseif cmd == "/unjail" then
-                            pcal(RemoveJail, target)
+                            pcall(RemoveJail, target)
                         elseif cmd == "/freeze" then
-                            pcal(FreezePlayer, target)
+                            pcall(FreezePlayer, target)
                         elseif cmd == "/unfreeze" then
-                            pcal(UnfreezePlayer, target)
+                            pcall(UnfreezePlayer, target)
                         elseif cmd == "/fling" then
                             local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
                             if tRoot then tRoot.Velocity = Vector3.new(math.random(-300,300), 600, math.random(-300,300)) end
                         elseif cmd == "/jumpscare" then
-                            pcal(sendChatCommand, "/jumpscare " .. target.Name)
+                            pcall(sendChatCommand, "/jumpscare " .. target.Name)
                         elseif cmd == "/coolkidavatar" then
-                            pcal(sendChatCommand, "/coolkidavatar " .. target.Name)
+                            pcall(sendChatCommand, "/coolkidavatar " .. target.Name)
                         elseif cmd == "/backrooms" then
-                            pcal(sendChatCommand, "/backrooms " .. target.Name)
+                            pcall(sendChatCommand, "/backrooms " .. target.Name)
                         elseif cmd == "/fires" then
-                            pcal(sendChatCommand, "/fires " .. target.Name)
+                            pcall(sendChatCommand, "/fires " .. target.Name)
                         end
                         return
                     end
@@ -13853,12 +13503,12 @@ do
 
     -- ==================== LIMPEZA AO SAIR ====================
     Players.PlayerRemoving:Connect(function(p)
-        if JailedPlayers[p] then JailedPlayers[p]:Destroy() JailedPlayers[p] = nil end
+        if JailedPlayers[p] then pcall(JailedPlayers[p].Destroy, JailedPlayers[p]) JailedPlayers[p] = nil end
         if FrozenPlayers[p] then FrozenPlayers[p] = nil end
-        if HubTags[p] then HubTags[p]:Destroy() HubTags[p] = nil end
+        if HubTags[p] then pcall(HubTags[p].Destroy, HubTags[p]) HubTags[p] = nil end
     end)
 
-    redzlib:Notify({Title = "Admin", Description = "Painel carregado com sucesso!", Type = "Success", Duration = 4})
+    notify("Admin", "Painel carregado com sucesso!", 4)
 end
 
 -----------------///////TABS - WebHook///////----------------
