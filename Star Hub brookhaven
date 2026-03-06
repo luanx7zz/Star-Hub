@@ -12507,178 +12507,142 @@ print([[
 ]])
 -----------------/////// STAR HUB - PAINEL ADMIN PREMIUM /////////-----------------
 do
-    -- ==================== CONFIGURAÇÕES INICIAIS (fofas e seguras) ====================
-    local Players = game:GetService("Players")
+    -- ==================== SERVIÇOS ====================
+    local Players         = game:GetService("Players")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local TextChatService = game:GetService("TextChatService")
-    local TweenService = game:GetService("TweenService")
+    local TweenService    = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
-    local RunService = game:GetService("RunService")
-    local HttpService = game:GetService("HttpService")
-    local CoreGui = game:GetService("CoreGui")
-    local StarterGui = game:GetService("StarterGui")
-    local Lighting = game:GetService("Lighting")
-    local Workspace = game:GetService("Workspace")
+    local StarterGui      = game:GetService("StarterGui")
+    local Lighting        = game:GetService("Lighting")
+    local CoreGui         = game:GetService("CoreGui")
+    local LocalPlayer     = Players.LocalPlayer
+    local PlayerGui       = LocalPlayer:WaitForChild("PlayerGui")
+    local Workspace       = game.Workspace
 
-    local LocalPlayer = Players.LocalPlayer
-    local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
-    -- Cores do tema Wind (moderno, suave e elegante)
-    local Colors = {
-        Background = Color3.fromRGB(18, 18, 22),      -- Cinza muito escuro
-        Surface = Color3.fromRGB(28, 28, 32),         -- Cinza escuro
-        Primary = Color3.fromRGB(120, 80, 200),       -- Roxo suave
-        PrimaryDark = Color3.fromRGB(90, 60, 160),    -- Roxo mais escuro
-        Text = Color3.fromRGB(245, 245, 250),         -- Quase branco
-        TextDim = Color3.fromRGB(170, 170, 180),       -- Cinza claro
-        Success = Color3.fromRGB(70, 200, 120),        -- Verde menta
-        Error = Color3.fromRGB(240, 90, 90)            -- Vermelho suave
+    -- ==================== CORES (Wind UI - Tema Dourado) ====================
+    local C = {
+        BG      = Color3.fromRGB(12, 10, 3),
+        Surface = Color3.fromRGB(22, 18, 4),
+        Accent  = Color3.fromRGB(36, 28, 6),
+        Gold    = Color3.fromRGB(255, 200, 0),
+        GoldDk  = Color3.fromRGB(180, 135, 0),
+        GoldLt  = Color3.fromRGB(255, 235, 100),
+        Text    = Color3.fromRGB(250, 220, 100),
+        TextDim = Color3.fromRGB(155, 120, 45),
+        Green   = Color3.fromRGB(80, 215, 95),
+        Red     = Color3.fromRGB(235, 75, 75),
+        White   = Color3.fromRGB(255, 255, 255),
     }
 
-    -- ==================== VERIFICAÇÃO DE PERMISSÃO (com pcall e fallback) ====================
-    local permissionURL = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Permission.lua"
+    -- ==================== PERMISSÕES ====================
+    local permURL    = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/Permission.lua"
     local allowedUsers = {}
     local isAuthorized = false
 
-    local function loadPermissions()
-        local success, result = pcall(function()
-            return loadstring(game:HttpGet(permissionURL))()
-        end)
-        if success and type(result) == "table" then
-            allowedUsers = result
-            isAuthorized = allowedUsers[LocalPlayer.Name] ~= nil
-        else
-            warn("Star Hub Admin: não foi possível carregar lista de permissões.")
+    pcall(function()
+        local result = loadstring(game:HttpGet(permURL))()
+        if type(result) == "table" then
+            allowedUsers   = result
+            isAuthorized   = allowedUsers[LocalPlayer.Name] ~= nil
         end
-    end
-    loadPermissions()
+    end)
 
-    -- Se não for autorizado, notifica e não cria o painel (mas ainda pode receber comandos)
-    if not isAuthorized then
-        -- Fallback notification (caso redzlib não exista)
-        local function notifyFallback(title, desc, duration)
-            pcall(function()
-                StarterGui:SetCore("SendNotification", { Title = title, Text = desc, Duration = duration or 4 })
-            end)
-        end
-        notifyFallback("Admin", "Você não tem permissão para usar o painel.", 5)
-        -- Não retorna, pois pode ser alvo de comandos de outros admins
-    end
-
-    -- ==================== VARIÁVEIS GLOBAIS DO MÓDULO ====================
+    -- ==================== ESTADO ====================
     local selectedPlayer = nil
-    local JailedPlayers = {}      -- armazena as jaulas criadas
-    local FrozenPlayers = {}       -- armazena estado de freeze
-    local HubTags = {}             -- tags visuais "Usuário do Star Hub"
+    local JailedPlayers  = {}
+    local FrozenPlayers  = {}
+    local HubTags        = {}
 
-    -- ==================== FUNÇÕES AUXILIARES DE NOTIFICAÇÃO (com fallback) ====================
-    local function notify(title, text, duration, isError)
-        local success = pcall(function()
-            redzlib:Notify({ Title = title, Description = text, Type = isError and "Error" or "Success", Duration = duration or 4 })
+    -- ==================== NOTIFY ====================
+    local function notify(title, text, dur, isErr)
+        local ok = pcall(function()
+            redzlib:Notify({ Title = title, Description = text,
+                Type = isErr and "Error" or "Success", Duration = dur or 4 })
         end)
-        if not success then
+        if not ok then
             pcall(function()
-                StarterGui:SetCore("SendNotification", { Title = title, Text = text, Duration = duration or 4 })
+                StarterGui:SetCore("SendNotification",
+                    { Title = title, Text = text, Duration = dur or 4 })
             end)
         end
     end
 
-    -- ==================== FUNÇÕES DE ENVIO DE COMANDOS (CHAT) com debounce fofo ====================
-    local lastCommandTime = 0
-    local function sendChatCommand(command)
-        if not command then return end
+    -- ==================== SEND CHAT COMMAND (com dedup) ====================
+    local lastCmdTime = 0
+    local sentCmdLog  = {}   -- cmd_lowercase -> tick() quando foi enviado
+
+    local function sendChatCommand(cmd)
+        if not cmd or cmd == "" then return end
         local now = tick()
-        if now - lastCommandTime < 1 then return end -- debounce de 1 segundo
-        lastCommandTime = now
+        if now - lastCmdTime < 0.4 then return end
+        lastCmdTime = now
 
-        task.wait(0.1)
-        local success = false
+        -- Registra pra dedup (listener vai ignorar de volta)
+        sentCmdLog[cmd:lower()] = now
 
-        if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            local channel = TextChatService:FindFirstChild("TextChannels")
-            if channel then
-                local general = channel:FindFirstChild("RBXGeneral")
-                if general then
-                    pcall(function()
-                        general:SendAsync(command)
-                        success = true
-                    end)
-                end
-            end
-        end
+        local sent = false
 
-        if not success then
-            local chatEvents = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-            if chatEvents then
-                local sayRequest = chatEvents:FindFirstChild("SayMessageRequest")
-                if sayRequest then
-                    pcall(function()
-                        sayRequest:FireServer(command, "All")
-                        success = true
-                    end)
-                end
-            end
-        end
-
-        if not success and game:GetService("Chat") then
+        -- Método 1: TextChatService
+        if not sent and TextChatService and
+           TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
             pcall(function()
-                local head = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Head")
-                if head then
-                    game:GetService("Chat"):Chat(head, command)
-                    success = true
-                end
+                local gen = TextChatService:FindFirstChild("TextChannels")
+                    and TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+                if gen then gen:SendAsync(cmd); sent = true end
             end)
         end
 
-        if success then
-            notify("Admin", "Comando enviado: " .. command, 2)
-        else
-            notify("Erro", "Falha ao enviar comando.", 3, true)
+        -- Método 2: Legacy chat
+        if not sent then
+            pcall(function()
+                local req = ReplicatedStorage
+                    :FindFirstChild("DefaultChatSystemChatEvents")
+                    and ReplicatedStorage.DefaultChatSystemChatEvents
+                    :FindFirstChild("SayMessageRequest")
+                if req then req:FireServer(cmd, "All"); sent = true end
+            end)
+        end
+
+        -- Método 3: Chat:Chat (fallback)
+        if not sent then
+            pcall(function()
+                local head = LocalPlayer.Character
+                    and LocalPlayer.Character:FindFirstChild("Head")
+                if head then
+                    game:GetService("Chat"):Chat(head, cmd)
+                    sent = true
+                end
+            end)
         end
     end
 
-    -- ==================== FUNÇÕES DE ADMIN (LOCAIS) com nil checks e pcalls ====================
+    -- ==================== FUNÇÕES DE ADMIN ====================
+
     function CreateJail(player)
         if JailedPlayers[player] then return end
         local char = player.Character
-        if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-
-        local hrp = char.HumanoidRootPart
-        local cageSize = Vector3.new(10, 10, 10)
-        local thickness = 0.5
-        local color = Colors.PrimaryDark
-        local transparency = 0.3
-
+        if not char then return end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        local sz, th = Vector3.new(10, 10, 10), 0.5
         local cage = Instance.new("Model")
-        cage.Name = string.format("Jail_%s", player.Name)
-        cage.Parent = Workspace
-
-        local function createWall(size, offset)
-            local wall = Instance.new("Part")
-            wall.Size = size
-            wall.Anchored = true
-            wall.CanCollide = true
-            wall.Transparency = transparency
-            wall.Color = color
-            wall.Material = Enum.Material.Neon
-            wall.CFrame = hrp.CFrame * offset
-            wall.Parent = cage
-            local light = Instance.new("PointLight", wall)
-            light.Color = color
-            light.Brightness = 0.5
-            light.Range = 10
-            return wall
+        cage.Name = "Jail_"..player.Name; cage.Parent = Workspace
+        local function wall(size, offset)
+            local p = Instance.new("Part")
+            p.Size = size; p.Anchored = true; p.CanCollide = true
+            p.Transparency = 0.3; p.Color = C.Gold
+            p.Material = Enum.Material.Neon
+            p.CFrame = hrp.CFrame * offset; p.Parent = cage
         end
-
-        createWall(Vector3.new(cageSize.X, thickness, cageSize.Z), CFrame.new(0, -cageSize.Y/2, 0))
-        createWall(Vector3.new(cageSize.X, thickness, cageSize.Z), CFrame.new(0, cageSize.Y/2, 0))
-        createWall(Vector3.new(cageSize.X, cageSize.Y, thickness), CFrame.new(0, 0, -cageSize.Z/2))
-        createWall(Vector3.new(cageSize.X, cageSize.Y, thickness), CFrame.new(0, 0, cageSize.Z/2))
-        createWall(Vector3.new(thickness, cageSize.Y, cageSize.Z), CFrame.new(cageSize.X/2, 0, 0))
-        createWall(Vector3.new(thickness, cageSize.Y, cageSize.Z), CFrame.new(-cageSize.X/2, 0, 0))
-
+        wall(Vector3.new(sz.X, th, sz.Z),  CFrame.new(0, -sz.Y/2, 0))
+        wall(Vector3.new(sz.X, th, sz.Z),  CFrame.new(0,  sz.Y/2, 0))
+        wall(Vector3.new(sz.X, sz.Y, th),  CFrame.new(0, 0, -sz.Z/2))
+        wall(Vector3.new(sz.X, sz.Y, th),  CFrame.new(0, 0,  sz.Z/2))
+        wall(Vector3.new(th, sz.Y, sz.Z),  CFrame.new( sz.X/2, 0, 0))
+        wall(Vector3.new(th, sz.Y, sz.Z),  CFrame.new(-sz.X/2, 0, 0))
         JailedPlayers[player] = cage
-        notify("Admin", player.Name .. " foi preso na jaula.", 4)
+        notify("Jail", player.Name.." foi preso.", 3)
     end
 
     function RemoveJail(player)
@@ -12692,40 +12656,20 @@ do
         if FrozenPlayers[player] then return end
         local char = player.Character
         if not char then return end
-
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = 0
-            humanoid.JumpPower = 0
-            humanoid.JumpHeight = 0
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then hum.WalkSpeed = 0; hum.JumpPower = 0; hum.JumpHeight = 0 end
+        for _, p in ipairs(char:GetDescendants()) do
+            if p:IsA("BasePart") then p.Anchored = true end
         end
-
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Anchored = true
-            end
-        end
-
-        FrozenPlayers[player] = {
-            walkspeed = humanoid and humanoid.WalkSpeed or 16,
-            jumppower = humanoid and humanoid.JumpPower or 50,
-            jumpheight = humanoid and humanoid.JumpHeight or 7.2
-        }
-        notify("Admin", player.Name .. " foi congelado.", 3)
+        FrozenPlayers[player] = true
+        notify("Freeze", player.Name.." congelado.", 3)
     end
 
-    -- Unfreeze agora reseta (mata) o jogador (conforme pedido)
     function UnfreezePlayer(player)
         if not FrozenPlayers[player] then return end
-
-        -- Mata o jogador para resetar
         local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum.Health = 0
-        end
-
+        if hum then hum.Health = 0 end
         FrozenPlayers[player] = nil
-        notify("Admin", player.Name .. " foi resetado (unfreeze + kill).", 3)
     end
 
     function ExplodePlayer(player)
@@ -12733,43 +12677,23 @@ do
         if not char then return end
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
-
-        local explosion = Instance.new("Explosion")
-        explosion.BlastRadius = 5
-        explosion.BlastPressure = 100000
-        explosion.Position = hrp.Position
-        explosion.DestroyJointRadiusPercent = 1
-        explosion.Parent = Workspace
-
-        local particle = Instance.new("ParticleEmitter")
-        particle.Texture = "rbxassetid://243660364"
-        particle.Lifetime = NumberRange.new(1, 2)
-        particle.Rate = 200
-        particle.Speed = NumberRange.new(20, 40)
-        particle.Size = NumberSequence.new(2)
-        particle.Rotation = NumberRange.new(0, 360)
-        particle.RotSpeed = NumberRange.new(100)
-        particle.Parent = hrp
-
-        task.delay(1.5, function()
-            if particle then pcall(particle.Destroy, particle) end
-        end)
-
+        local ex = Instance.new("Explosion")
+        ex.BlastRadius = 5; ex.BlastPressure = 100000
+        ex.Position = hrp.Position; ex.DestroyJointRadiusPercent = 1
+        ex.Parent = Workspace
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum then hum.Health = 0 end
-
-        notify("Admin", player.Name .. " explodiu!", 4)
+        notify("Boom", player.Name.." explodiu!", 3)
     end
 
     function BringPlayer(player)
-        local targetChar = player.Character
-        local myChar = LocalPlayer.Character
-        if not targetChar or not myChar then return end
-        local targetHRP = targetChar:FindFirstChild("HumanoidRootPart")
-        local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-        if targetHRP and myHRP then
-            targetHRP.CFrame = myHRP.CFrame * CFrame.new(0, 0, -3)
-        end
+        local tc = player.Character
+        local mc = LocalPlayer.Character
+        if not tc or not mc then return end
+        local th = tc:FindFirstChild("HumanoidRootPart")
+        local mh = mc:FindFirstChild("HumanoidRootPart")
+        if th and mh then th.CFrame = mh.CFrame * CFrame.new(0, 0, -3) end
+        notify("Bring", player.Name.." foi puxado.", 2)
     end
 
     function KillPlayer(player)
@@ -12778,490 +12702,613 @@ do
     end
 
     function KickPlayer(player)
-        sendChatCommand("/kick " .. player.Name)
+        sendChatCommand("/kick "..player.Name)
     end
 
-    -- ==================== FUNÇÕES DE EFEITOS VISUAIS (VIEWS) ====================
-    function CoolkidMode(targetPlayer)
-        local char = targetPlayer.Character
-        if not char then return end
+    -- Views
+    function CoolkidMode(player)
+        sendChatCommand("/coolkidavatar "..player.Name)
+    end
 
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") then
-                local emitter = Instance.new("ParticleEmitter")
-                emitter.Texture = "rbxassetid://100048062301288"
-                emitter.Rate = 5
-                emitter.Lifetime = NumberRange.new(0.5, 1)
-                emitter.Speed = NumberRange.new(2, 4)
-                emitter.Size = NumberSequence.new(0.5)
-                emitter.Rotation = NumberRange.new(0, 360)
-                emitter.RotSpeed = NumberRange.new(30)
-                emitter.Parent = part
-                task.delay(5, function() if emitter then pcall(emitter.Destroy, emitter) end end)
+    function Jumpscare(player)
+        if player == LocalPlayer then
+            -- Executa localmente
+            local gui = Instance.new("ScreenGui")
+            gui.Name = "Jumpscare_SH"; gui.IgnoreGuiInset = true
+            gui.DisplayOrder = 999999; gui.ResetOnSpawn = false
+            if not pcall(function() gui.Parent = CoreGui end) then
+                gui.Parent = PlayerGui
             end
-        end
-
-        local oldSky = Lighting:FindFirstChildOfClass("Sky")
-        if oldSky then oldSky = oldSky:Clone() end
-        local sky = Instance.new("Sky")
-        sky.SkyboxBk = "rbxassetid://100048062301288"
-        sky.SkyboxDn = "rbxassetid://100048062301288"
-        sky.SkyboxFt = "rbxassetid://100048062301288"
-        sky.SkyboxLf = "rbxassetid://100048062301288"
-        sky.SkyboxRt = "rbxassetid://100048062301288"
-        sky.SkyboxUp = "rbxassetid://100048062301288"
-        sky.Parent = Lighting
-
-        task.delay(10, function()
-            if sky then pcall(sky.Destroy, sky) end
-            if oldSky then oldSky.Parent = Lighting end
-        end)
-
-        notify("Coolkid", "Modo Coolkid ativado em " .. targetPlayer.Name, 5)
-    end
-
-    -- Jumpscare dura 5 segundos e cobre a tela toda (com asset válido)
-    function Jumpscare(targetPlayer)
-        if targetPlayer ~= LocalPlayer then
-            sendChatCommand("/jumpscare " .. targetPlayer.Name)
-            return
-        end
-
-        local gui = Instance.new("ScreenGui")
-        gui.Name = "Jumpscare"
-        gui.IgnoreGuiInset = true
-        gui.Parent = CoreGui
-        gui.DisplayOrder = 999999
-        gui.ResetOnSpawn = false
-
-        local img = Instance.new("ImageLabel")
-        img.Size = UDim2.new(1, 0, 1, 0)
-        img.BackgroundTransparency = 1
-        img.Image = "rbxassetid://108753859505348"  -- ID válido (assustador)
-        img.ScaleType = Enum.ScaleType.Fit
-        img.Parent = gui
-
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://18967004856"  -- Som de jumpscare
-        sound.Volume = 5
-        sound.Parent = gui
-        sound:Play()
-
-        task.spawn(function()
-            for i = 1, 5 do
-                img.Position = UDim2.new(0, math.random(-20,20), 0, math.random(-20,20))
-                task.wait(0.02)
-            end
-        end)
-
-        task.delay(5, function() pcall(gui.Destroy, gui) end)
-    end
-
-    function Backrooms(targetPlayer)
-        local char = targetPlayer.Character
-        if not char then return end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-
-        -- Tenta carregar o modelo dos backrooms (fallback se falhar)
-        local backroomsModel = Workspace:FindFirstChild("BackroomsModel")
-        if not backroomsModel then
-            local success, model = pcall(function()
-                return game:GetObjects("rbxassetid://10581711055")[1]  -- ID do modelo dos backrooms
+            local img = Instance.new("ImageLabel", gui)
+            img.Size = UDim2.new(1,0,1,0); img.BackgroundTransparency = 1
+            img.Image = "rbxassetid://108753859505348"
+            img.ScaleType = Enum.ScaleType.Fit
+            local snd = Instance.new("Sound", gui)
+            snd.SoundId = "rbxassetid://18967004856"; snd.Volume = 5; snd:Play()
+            task.spawn(function()
+                for _ = 1, 8 do
+                    img.Position = UDim2.new(0, math.random(-20,20), 0, math.random(-20,20))
+                    task.wait(0.02)
+                end
             end)
-            if success and model then
-                model.Name = "BackroomsModel"
-                model.Parent = Workspace
-                model:SetPrimaryPartCFrame(CFrame.new(100000, 1000, 100000))
-                backroomsModel = model
-            else
-                -- Fallback: teleporta para uma posição vazia
-                hrp.CFrame = CFrame.new(10000, 500, 10000)
-                notify("Backrooms", "Modelo não carregado, teleporte alternativo.", 4)
-                return
-            end
+            task.delay(5, function() pcall(gui.Destroy, gui) end)
+        else
+            -- Envia comando de chat pro servidor do Brookhaven
+            sendChatCommand("/jumpscare "..player.Name)
         end
-
-        hrp.CFrame = backroomsModel:GetPrimaryPartCFrame() * CFrame.new(0, 5, 0)
-        notify("Backrooms", targetPlayer.Name .. " foi para os backrooms!", 4)
     end
 
-    -- ==================== TAG VISUAL (gradiente animado) ====================
+    function Backrooms(player)
+        if player == LocalPlayer then
+            local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.CFrame = CFrame.new(10000, 500, 10000)
+                notify("Backrooms", "Teleportado para os backrooms.", 4)
+            end
+        else
+            sendChatCommand("/backrooms "..player.Name)
+        end
+    end
+
+    -- ==================== TAG VISUAL ====================
     local function createHubTag(plr)
         if HubTags[plr] then
-            pcall(HubTags[plr].Destroy, HubTags[plr])
-            HubTags[plr] = nil
+            pcall(HubTags[plr].Destroy, HubTags[plr]); HubTags[plr] = nil
         end
-
         local char = plr.Character
         if not char then return end
         local head = char:FindFirstChild("Head")
         if not head then return end
 
         local bill = Instance.new("BillboardGui")
-        bill.Name = "StarHubTag"
-        bill.Adornee = head
+        bill.Name = "StarHubTag"; bill.Adornee = head
         bill.Size = UDim2.new(0, 200, 0, 45)
         bill.StudsOffset = Vector3.new(0, 3.2, 0)
-        bill.AlwaysOnTop = true
-        bill.Parent = head
+        bill.AlwaysOnTop = true; bill.Parent = head
 
         local frame = Instance.new("Frame", bill)
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundTransparency = 1
+        frame.Size = UDim2.new(1,0,1,0); frame.BackgroundTransparency = 1
 
-        local gradient = Instance.new("UIGradient", frame)
-        gradient.Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)),   -- dourado
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)), -- branco
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 215, 0))
+        local grad = Instance.new("UIGradient", frame)
+        grad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0,   Color3.fromRGB(255, 215, 0)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 255)),
+            ColorSequenceKeypoint.new(1,   Color3.fromRGB(255, 215, 0)),
         })
-        gradient.Rotation = 0
 
-        local text = Instance.new("TextLabel", frame)
-        text.Size = UDim2.new(1, 0, 1, 0)
-        text.BackgroundTransparency = 1
-        text.Text = "⭐ Usuário do Star Hub 💫"
-        text.TextColor3 = Color3.new(1, 1, 1)
-        text.TextScaled = true
-        text.Font = Enum.Font.GothamBold
-        text.TextStrokeTransparency = 0.4
-        text.TextStrokeColor3 = Color3.new(0, 0, 0)
+        local lbl = Instance.new("TextLabel", frame)
+        lbl.Size = UDim2.new(1,0,1,0); lbl.BackgroundTransparency = 1
+        lbl.Text = "⭐ Usuário do Star Hub 💫"
+        lbl.TextColor3 = Color3.new(1,1,1); lbl.TextScaled = true
+        lbl.Font = Enum.Font.GothamBold
+        lbl.TextStrokeTransparency = 0.4; lbl.TextStrokeColor3 = Color3.new(0,0,0)
 
-        -- Animação suave do gradiente
+        HubTags[plr] = bill
+
+        -- Animação gradiente
         task.spawn(function()
             local angle = 0
             while bill and bill.Parent do
                 angle = (angle + 1) % 360
-                gradient.Rotation = angle
+                grad.Rotation = angle
                 task.wait(0.03)
             end
         end)
-
-        HubTags[plr] = bill
     end
 
-    -- Reaplica a tag quando o personagem respawna
-    local function onCharacterAdded(plr)
-        if HubTags[plr] then
-            -- Aguarda a cabeça existir
-            plr.CharacterAdded:Connect(function()
-                task.wait(0.5)
-                createHubTag(plr)
+    local function hookCharTag(plr)
+        if not HubTags[plr] then return end
+        plr.CharacterAdded:Connect(function()
+            task.wait(0.5)
+            createHubTag(plr)
+        end)
+    end
+    for _, p in ipairs(Players:GetPlayers()) do hookCharTag(p) end
+    Players.PlayerAdded:Connect(hookCharTag)
+
+    -- ==================== CHAT LISTENER (CORRIGIDO) ====================
+    -- Busca por nome parcial: primeiro "começa com", depois "contém"
+    local function findTarget(nameStr)
+        if not nameStr or nameStr == "" then return nil end
+        local s = nameStr:lower()
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.Name:lower():sub(1, #s) == s then return p end
+        end
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p.Name:lower():find(s, 1, true) then return p end
+        end
+        return nil
+    end
+
+    local function setupChatListener()
+        local ok, err = pcall(function()
+            TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(message)
+                if not message or not message.Text then return end
+                local origText = message.Text
+                local text = origText:lower()
+                local sender = message.TextSource
+                    and Players:GetPlayerByUserId(message.TextSource.UserId)
+                if not sender then return end
+
+                -- DEDUP: ignora mensagens que NÓS enviamos via sendChatCommand
+                if sender == LocalPlayer then
+                    local t = sentCmdLog[text]
+                    if t and (tick() - t) < 6 then
+                        sentCmdLog[text] = nil
+                        return  -- foi a gente que mandou, ignora
+                    end
+                end
+
+                -- Outro admin mandou "Verificar" → respondemos
+                if text == "verificar" and sender ~= LocalPlayer
+                   and allowedUsers[sender.Name] then
+                    task.wait(math.random() * 1.2 + 0.2)
+                    sendChatCommand("STAR_Hub_Actived")
+                    return
+                end
+
+                -- Alguém respondeu com STAR_Hub_Actived
+                if text == "star_hub_actived" and sender ~= LocalPlayer then
+                    if allowedUsers[sender.Name] then
+                        createHubTag(sender)
+                    end
+                    return
+                end
+
+                -- Parse de comandos
+                local args = {}
+                for w in text:gmatch("%S+") do table.insert(args, w) end
+                local cmd        = args[1]
+                local targetName = args[2]
+                local target     = targetName and findTarget(targetName)
+                local isSelf     = (sender == LocalPlayer)
+
+                -- LocalPlayer digitou um comando → afeta o alvo
+                if isSelf and isAuthorized then
+                    if cmd == "/verificar" then
+                        -- Inicia verificação sem re-enviar (já está no chat)
+                        createHubTag(LocalPlayer)
+                        notify("Verificação", "Verificando...", 4)
+                        return
+                    end
+                    if not target then return end
+                    if     cmd == "/bring"    then BringPlayer(target)
+                    elseif cmd == "/kill"     then KillPlayer(target)
+                    elseif cmd == "/kick"     then sendChatCommand("/kick "..target.Name)
+                    elseif cmd == "/jail"     then pcall(CreateJail, target)
+                    elseif cmd == "/unjail"   then pcall(RemoveJail, target)
+                    elseif cmd == "/freeze"   then pcall(FreezePlayer, target)
+                    elseif cmd == "/unfreeze" then pcall(UnfreezePlayer, target)
+                    elseif cmd == "/fling"    then
+                        local r = target.Character
+                            and target.Character:FindFirstChild("HumanoidRootPart")
+                        if r then
+                            r.Velocity = Vector3.new(
+                                math.random(-300,300), 650, math.random(-300,300))
+                        end
+                    elseif cmd == "/jumpscare" then Jumpscare(target)
+                    elseif cmd == "/backrooms" then Backrooms(target)
+                    elseif cmd == "/explod"    then ExplodePlayer(target)
+                    elseif cmd == "/fires"     then sendChatCommand("/fires "..target.Name)
+                    elseif cmd == "/coolkidavatar" then CoolkidMode(target)
+                    end
+                    return
+                end
+
+                -- Outro admin autorizado manda comando → afeta LocalPlayer
+                if not isSelf and allowedUsers[sender.Name] then
+                    if not target or target ~= LocalPlayer then return end
+                    if     cmd == "/kill"     then KillPlayer(LocalPlayer)
+                    elseif cmd == "/kick"     then LocalPlayer:Kick("Expulso por admin.")
+                    elseif cmd == "/bring"    then
+                        local mh = LocalPlayer.Character
+                            and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        local sh = sender.Character
+                            and sender.Character:FindFirstChild("HumanoidRootPart")
+                        if mh and sh then mh.CFrame = sh.CFrame + Vector3.new(2,0,0) end
+                    elseif cmd == "/jail"     then CreateJail(LocalPlayer)
+                    elseif cmd == "/unjail"   then RemoveJail(LocalPlayer)
+                    elseif cmd == "/freeze"   then FreezePlayer(LocalPlayer)
+                    elseif cmd == "/unfreeze" then UnfreezePlayer(LocalPlayer)
+                    elseif cmd == "/explod"   then ExplodePlayer(LocalPlayer)
+                    elseif cmd == "/jumpscare" then Jumpscare(LocalPlayer)
+                    elseif cmd == "/backrooms" then Backrooms(LocalPlayer)
+                    end
+                end
+            end)
+        end)
+        if not ok then warn("Star Hub Admin: erro chat listener:", err) end
+    end
+
+    if TextChatService then
+        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+            task.spawn(function()
+                repeat task.wait(0.5)
+                until TextChatService.TextChannels
+                    and TextChatService.TextChannels.RBXGeneral
+                setupChatListener()
             end)
         end
     end
 
-    for _, plr in ipairs(Players:GetPlayers()) do
-        onCharacterAdded(plr)
+    -- ==================== LIMPEZA AO SAIR ====================
+    Players.PlayerRemoving:Connect(function(p)
+        if JailedPlayers[p] then
+            pcall(JailedPlayers[p].Destroy, JailedPlayers[p])
+            JailedPlayers[p] = nil
+        end
+        FrozenPlayers[p] = nil
+        if HubTags[p] then
+            pcall(HubTags[p].Destroy, HubTags[p])
+            HubTags[p] = nil
+        end
+    end)
+
+    -- ==================== INTERFACE (somente se autorizado) ====================
+    if not isAuthorized then
+        notify("Admin", "Sem permissão para o painel.", 5, true)
+        return
     end
-    Players.PlayerAdded:Connect(onCharacterAdded)
 
-    -- ==================== CRIAÇÃO DA INTERFACE GRÁFICA (Wind UI) ====================
-    if not isAuthorized then return end
-
+    -- ScreenGui
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "StarHubAdmin"
-    screenGui.Parent = PlayerGui
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.DisplayOrder = 999
+    if not pcall(function() screenGui.Parent = CoreGui end) then
+        screenGui.Parent = PlayerGui
+    end
 
-    -- Frame principal com sombra suave
-    local mainFrame = Instance.new("Frame")
+    -- Frame principal
+    local mainFrame = Instance.new("Frame", screenGui)
     mainFrame.Name = "MainFrame"
-    mainFrame.Size = UDim2.new(0, 580, 0, 500)
-    mainFrame.Position = UDim2.new(0.5, -290, 0.5, -250)
-    mainFrame.BackgroundColor3 = Colors.Background
+    mainFrame.Size = UDim2.new(0, 520, 0, 540)
+    mainFrame.Position = UDim2.new(0.5, -260, 0.5, -270)
+    mainFrame.BackgroundColor3 = C.BG
     mainFrame.BorderSizePixel = 0
     mainFrame.Active = true
     mainFrame.Draggable = true
-    mainFrame.Parent = screenGui
-    mainFrame.ClipsDescendants = true
+    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
+    local mStroke = Instance.new("UIStroke", mainFrame)
+    mStroke.Color = C.Gold; mStroke.Thickness = 1.5; mStroke.Transparency = 0.35
 
-    -- Cantos arredondados (8px)
-    local mainCorner = Instance.new("UICorner")
-    mainCorner.CornerRadius = UDim.new(0, 8)
-    mainCorner.Parent = mainFrame
-
-    -- Borda sutil
-    local mainStroke = Instance.new("UIStroke")
-    mainStroke.Color = Colors.PrimaryDark
-    mainStroke.Thickness = 1
-    mainStroke.Transparency = 0.5
-    mainStroke.Parent = mainFrame
-
-    -- Gradiente de fundo suave
-    local bgGradient = Instance.new("UIGradient")
-    bgGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Colors.Background),
-        ColorSequenceKeypoint.new(0.5, Colors.Surface),
-        ColorSequenceKeypoint.new(1, Colors.Background)
+    -- Gradiente sutil no fundo
+    local bgGrad = Instance.new("UIGradient", mainFrame)
+    bgGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   C.BG),
+        ColorSequenceKeypoint.new(0.5, C.Surface),
+        ColorSequenceKeypoint.new(1,   C.BG),
     })
-    bgGradient.Rotation = 45
-    bgGradient.Parent = mainFrame
+    bgGrad.Rotation = 135
 
-    -- Barra de título
-    local titleBar = Instance.new("Frame")
-    titleBar.Name = "TitleBar"
+    -- Title bar
+    local titleBar = Instance.new("Frame", mainFrame)
     titleBar.Size = UDim2.new(1, 0, 0, 50)
-    titleBar.BackgroundColor3 = Colors.Surface
+    titleBar.BackgroundColor3 = C.Surface
     titleBar.BorderSizePixel = 0
-    titleBar.Parent = mainFrame
-    Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 10)
+    local tbGrad = Instance.new("UIGradient", titleBar)
+    tbGrad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, C.Accent),
+        ColorSequenceKeypoint.new(1, C.Surface),
+    })
+    tbGrad.Rotation = 90
+    -- Borda dourada inferior da titlebar
+    local tbBorder = Instance.new("Frame", mainFrame)
+    tbBorder.Size = UDim2.new(1, 0, 0, 1)
+    tbBorder.Position = UDim2.new(0, 0, 0, 50)
+    tbBorder.BackgroundColor3 = C.Gold
+    tbBorder.BackgroundTransparency = 0.5
+    tbBorder.BorderSizePixel = 0
 
-    -- Ícone
-    local icon = Instance.new("ImageLabel")
-    icon.Size = UDim2.new(0, 30, 0, 30)
-    icon.Position = UDim2.new(0, 15, 0.5, -15)
-    icon.BackgroundTransparency = 1
-    icon.Image = "rbxassetid://15298567397"
-    icon.ImageColor3 = Colors.Primary
-    icon.Parent = titleBar
+    -- Ícone estrela na titlebar
+    local starIco = Instance.new("TextLabel", titleBar)
+    starIco.Size = UDim2.new(0, 38, 0, 38)
+    starIco.Position = UDim2.new(0, 10, 0.5, -19)
+    starIco.BackgroundTransparency = 1
+    starIco.Text = "⭐"
+    starIco.TextSize = 24
+    starIco.Font = Enum.Font.GothamBold
+    starIco.TextColor3 = C.Gold
 
     -- Título
-    local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, -80, 1, 0)
-    title.Position = UDim2.new(0, 55, 0, 0)
-    title.BackgroundTransparency = 1
-    title.Text = "✨ STAR HUB  |  PAINEL ADMIN"
-    title.TextColor3 = Colors.Text
-    title.TextSize = 18
-    title.Font = Enum.Font.GothamBlack
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = titleBar
+    local titleLbl = Instance.new("TextLabel", titleBar)
+    titleLbl.Size = UDim2.new(1, -140, 1, 0)
+    titleLbl.Position = UDim2.new(0, 52, 0, 0)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = "Star Hub  ·  Admin"
+    titleLbl.TextColor3 = C.Gold
+    titleLbl.TextSize = 18
+    titleLbl.Font = Enum.Font.GothamBlack
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Subtítulo / player name
+    local subLbl = Instance.new("TextLabel", titleBar)
+    subLbl.Size = UDim2.new(1, -140, 0, 14)
+    subLbl.Position = UDim2.new(0, 52, 1, -16)
+    subLbl.BackgroundTransparency = 1
+    subLbl.Text = LocalPlayer.Name
+    subLbl.TextColor3 = C.TextDim
+    subLbl.TextSize = 11
+    subLbl.Font = Enum.Font.Gotham
+    subLbl.TextXAlignment = Enum.TextXAlignment.Left
 
     -- Botão fechar
-    local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
-    closeBtn.BackgroundColor3 = Colors.Surface
-    closeBtn.Text = "✕"
-    closeBtn.TextColor3 = Colors.Error
-    closeBtn.TextSize = 20
-    closeBtn.Font = Enum.Font.GothamBold
+    local closeBtn = Instance.new("TextButton", titleBar)
+    closeBtn.Size = UDim2.new(0, 28, 0, 28)
+    closeBtn.Position = UDim2.new(1, -36, 0.5, -14)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(190, 45, 45)
+    closeBtn.Text = "✕"; closeBtn.TextColor3 = C.White
+    closeBtn.TextSize = 13; closeBtn.Font = Enum.Font.GothamBold
     closeBtn.BorderSizePixel = 0
-    closeBtn.Parent = titleBar
-    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
-    closeBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
+    Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+    closeBtn.MouseButton1Click:Connect(function() screenGui:Destroy() end)
 
     -- Botão minimizar
-    local minimizeBtn = Instance.new("TextButton")
-    minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
-    minimizeBtn.Position = UDim2.new(1, -75, 0.5, -15)
-    minimizeBtn.BackgroundColor3 = Colors.Surface
-    minimizeBtn.Text = "−"
-    minimizeBtn.TextColor3 = Colors.Primary
-    minimizeBtn.TextSize = 20
-    minimizeBtn.Font = Enum.Font.GothamBold
-    minimizeBtn.BorderSizePixel = 0
-    minimizeBtn.Parent = titleBar
-    Instance.new("UICorner", minimizeBtn).CornerRadius = UDim.new(0, 8)
-
+    local minBtn = Instance.new("TextButton", titleBar)
+    minBtn.Size = UDim2.new(0, 28, 0, 28)
+    minBtn.Position = UDim2.new(1, -68, 0.5, -14)
+    minBtn.BackgroundColor3 = C.Accent
+    minBtn.Text = "−"; minBtn.TextColor3 = C.Gold
+    minBtn.TextSize = 18; minBtn.Font = Enum.Font.GothamBold
+    minBtn.BorderSizePixel = 0
+    Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", minBtn).Color = C.GoldDk
     local minimized = false
-    local originalSize = mainFrame.Size
-    minimizeBtn.MouseButton1Click:Connect(function()
+    minBtn.MouseButton1Click:Connect(function()
         minimized = not minimized
-        if minimized then
-            mainFrame.Size = UDim2.new(0, 580, 0, 50)
-            minimizeBtn.Text = "+"
-        else
-            mainFrame.Size = originalSize
-            minimizeBtn.Text = "−"
+        mainFrame.Size = minimized
+            and UDim2.new(0, 520, 0, 50)
+            or  UDim2.new(0, 520, 0, 540)
+        minBtn.Text = minimized and "+" or "−"
+    end)
+
+    -- ScrollingFrame de conteúdo
+    -- IMPORTANTE: ClipsDescendants = false para dropdowns não cliparem
+    local content = Instance.new("ScrollingFrame", mainFrame)
+    content.Name = "Content"
+    content.Size = UDim2.new(1, -14, 1, -60)
+    content.Position = UDim2.new(0, 7, 0, 55)
+    content.BackgroundTransparency = 1
+    content.BorderSizePixel = 0
+    content.ScrollBarThickness = 3
+    content.ScrollBarImageColor3 = C.Gold
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    content.ScrollingDirection = Enum.ScrollingDirection.Y
+    content.ClipsDescendants = false   -- <-- SEM CLIPPING para dropdown funcionar
+
+    local listLayout = Instance.new("UIListLayout", content)
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Padding = UDim.new(0, 4)
+    local contentPad = Instance.new("UIPadding", content)
+    contentPad.PaddingBottom = UDim.new(0, 8)
+
+    -- ==================== DROPDOWN OVERLAY ====================
+    -- Parented no screenGui, acima de tudo — evita clipping do ScrollingFrame
+    local dropOverlay = Instance.new("Frame", screenGui)
+    dropOverlay.Name = "DropOverlay"
+    dropOverlay.Size = UDim2.new(1, 0, 1, 0)
+    dropOverlay.BackgroundTransparency = 1
+    dropOverlay.ZIndex = 100
+    dropOverlay.Visible = false
+
+    local activeList = nil
+
+    local function closeDropdown()
+        if activeList then activeList.Visible = false end
+        activeList = nil
+        dropOverlay.Visible = false
+    end
+
+    -- Clica fora → fecha
+    dropOverlay.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+            closeDropdown()
         end
     end)
 
-    -- Separador
-    local separator = Instance.new("Frame")
-    separator.Size = UDim2.new(1, -20, 0, 1)
-    separator.Position = UDim2.new(0, 10, 0, 51)
-    separator.BackgroundColor3 = Colors.Primary
-    separator.BackgroundTransparency = 0.7
-    separator.BorderSizePixel = 0
-    separator.Parent = mainFrame
+    -- ==================== HELPERS DE UI ====================
 
-    -- Área de conteúdo (ScrollingFrame)
-    local contentFrame = Instance.new("ScrollingFrame")
-    contentFrame.Name = "Content"
-    contentFrame.Size = UDim2.new(1, -20, 1, -70)
-    contentFrame.Position = UDim2.new(0, 10, 0, 60)
-    contentFrame.BackgroundTransparency = 1
-    contentFrame.BorderSizePixel = 0
-    contentFrame.ScrollBarThickness = 4
-    contentFrame.ScrollBarImageColor3 = Colors.Primary
-    contentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    contentFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    contentFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-    contentFrame.Parent = mainFrame
-
-    local layout = Instance.new("UIListLayout")
-    layout.SortOrder = Enum.SortOrder.LayoutOrder
-    layout.Padding = UDim.new(0, 8)
-    layout.Parent = contentFrame
-
-    -- ==================== FUNÇÕES PARA CRIAR ELEMENTOS (estilo Wind) ====================
     local function createSection(text)
-        local section = Instance.new("TextLabel")
-        section.Size = UDim2.new(1, 0, 0, 28)
-        section.BackgroundColor3 = Colors.PrimaryDark
-        section.BackgroundTransparency = 0.3
-        section.BorderSizePixel = 0
-        section.Text = "  ✦  " .. text:upper()
-        section.TextColor3 = Colors.Text
-        section.TextSize = 13
-        section.Font = Enum.Font.GothamBlack
-        section.TextXAlignment = Enum.TextXAlignment.Left
-        section.Parent = contentFrame
-        Instance.new("UICorner", section).CornerRadius = UDim.new(0, 8)
-        local pad = Instance.new("UIPadding", section)
-        pad.PaddingLeft = UDim.new(0, 5)
-        return section
+        local f = Instance.new("Frame", content)
+        f.Size = UDim2.new(1, 0, 0, 28)
+        f.BackgroundColor3 = C.Accent
+        f.BorderSizePixel = 0
+        Instance.new("UICorner", f).CornerRadius = UDim.new(0, 6)
+        local stroke = Instance.new("UIStroke", f)
+        stroke.Color = C.Gold; stroke.Thickness = 1; stroke.Transparency = 0.55
+        local lbl = Instance.new("TextLabel", f)
+        lbl.Size = UDim2.new(1, -10, 1, 0)
+        lbl.Position = UDim2.new(0, 10, 0, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = "◆  "..text:upper()
+        lbl.TextColor3 = C.Gold
+        lbl.TextSize = 11; lbl.Font = Enum.Font.GothamBlack
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        return f
     end
 
     local function createButton(text, callback)
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(1, 0, 0, 38)
-        btn.BackgroundColor3 = Colors.Surface
+        local btn = Instance.new("TextButton", content)
+        btn.Size = UDim2.new(1, 0, 0, 34)
+        btn.BackgroundColor3 = C.Surface
         btn.BorderSizePixel = 0
-        btn.Text = "  " .. text
-        btn.TextColor3 = Colors.Text
-        btn.TextSize = 14
-        btn.Font = Enum.Font.GothamBold
+        btn.Text = "  "..text
+        btn.TextColor3 = C.Text
+        btn.TextSize = 13; btn.Font = Enum.Font.GothamBold
         btn.TextXAlignment = Enum.TextXAlignment.Left
-        btn.Parent = contentFrame
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 7)
         local stroke = Instance.new("UIStroke", btn)
-        stroke.Color = Colors.Primary
-        stroke.Thickness = 1
-        stroke.Transparency = 0.7
-
-        -- Animação hover suave
+        stroke.Color = C.GoldDk; stroke.Thickness = 1; stroke.Transparency = 0.6
         btn.MouseEnter:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.2), { BackgroundColor3 = Colors.PrimaryDark }):Play()
+            btn.BackgroundColor3 = C.Accent
+            stroke.Transparency = 0.2
         end)
         btn.MouseLeave:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.2), { BackgroundColor3 = Colors.Surface }):Play()
+            btn.BackgroundColor3 = C.Surface
+            stroke.Transparency = 0.6
         end)
-        btn.MouseButton1Click:Connect(function()
-            pcall(callback)
-        end)
+        btn.MouseButton1Click:Connect(function() pcall(callback) end)
         return btn
     end
 
-    local function createDropdown(text, options, callback)
-        local frame = Instance.new("Frame")
-        frame.Size = UDim2.new(1, 0, 0, 38)
-        frame.BackgroundColor3 = Colors.Surface
-        frame.BorderSizePixel = 0
-        frame.Parent = contentFrame
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Color = Colors.Primary
-        stroke.Thickness = 1
-        stroke.Transparency = 0.7
+    local function createDropdown(label, initOptions, callback)
+        -- Frame cabeçalho (vai no content/scrollframe)
+        local header = Instance.new("Frame", content)
+        header.Name = "DDHeader"
+        header.Size = UDim2.new(1, 0, 0, 34)
+        header.BackgroundColor3 = C.Surface
+        header.BorderSizePixel = 0
+        Instance.new("UICorner", header).CornerRadius = UDim.new(0, 7)
+        local hStroke = Instance.new("UIStroke", header)
+        hStroke.Color = C.GoldDk; hStroke.Thickness = 1; hStroke.Transparency = 0.5
 
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(0.8, -10, 1, 0)
-        label.Position = UDim2.new(0, 10, 0, 0)
-        label.BackgroundTransparency = 1
-        label.Text = text
-        label.TextColor3 = Colors.TextDim
-        label.TextSize = 14
-        label.Font = Enum.Font.Gotham
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.Parent = frame
+        local hLabel = Instance.new("TextLabel", header)
+        hLabel.Size = UDim2.new(0.65, 0, 1, 0)
+        hLabel.Position = UDim2.new(0, 10, 0, 0)
+        hLabel.BackgroundTransparency = 1
+        hLabel.Text = label
+        hLabel.TextColor3 = C.TextDim
+        hLabel.TextSize = 13; hLabel.Font = Enum.Font.Gotham
+        hLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-        local valueLabel = Instance.new("TextLabel")
-        valueLabel.Size = UDim2.new(0.2, -5, 1, 0)
-        valueLabel.Position = UDim2.new(0.8, 0, 0, 0)
-        valueLabel.BackgroundTransparency = 1
-        valueLabel.Text = "..."
-        valueLabel.TextColor3 = Colors.Primary
-        valueLabel.TextSize = 14
-        valueLabel.Font = Enum.Font.GothamBold
-        valueLabel.TextXAlignment = Enum.TextXAlignment.Right
-        valueLabel.Parent = frame
+        local valLbl = Instance.new("TextLabel", header)
+        valLbl.Size = UDim2.new(0.3, -24, 1, 0)
+        valLbl.Position = UDim2.new(0.65, 0, 0, 0)
+        valLbl.BackgroundTransparency = 1
+        valLbl.Text = "—"
+        valLbl.TextColor3 = C.Gold
+        valLbl.TextSize = 12; valLbl.Font = Enum.Font.GothamBold
+        valLbl.TextXAlignment = Enum.TextXAlignment.Right
+        valLbl.TextTruncate = Enum.TextTruncate.AtEnd
 
-        local arrow = Instance.new("ImageLabel")
-        arrow.Size = UDim2.new(0, 16, 0, 16)
-        arrow.Position = UDim2.new(0.95, -8, 0.5, -8)
-        arrow.BackgroundTransparency = 1
-        arrow.Image = "rbxassetid://10709791523"
-        arrow.ImageColor3 = Colors.Primary
-        arrow.Parent = frame
+        local arrowLbl = Instance.new("TextLabel", header)
+        arrowLbl.Size = UDim2.new(0, 20, 1, 0)
+        arrowLbl.Position = UDim2.new(1, -22, 0, 0)
+        arrowLbl.BackgroundTransparency = 1
+        arrowLbl.Text = "▾"
+        arrowLbl.TextColor3 = C.Gold
+        arrowLbl.TextSize = 13; arrowLbl.Font = Enum.Font.GothamBold
 
-        local dropdownFrame = Instance.new("Frame")
-        dropdownFrame.Size = UDim2.new(1, 0, 0, 0)
-        dropdownFrame.Position = UDim2.new(0, 0, 1, 4)
-        dropdownFrame.BackgroundColor3 = Colors.Background
-        dropdownFrame.BorderSizePixel = 0
-        dropdownFrame.Visible = false
-        dropdownFrame.ClipsDescendants = true
-        dropdownFrame.Parent = frame
-        Instance.new("UICorner", dropdownFrame).CornerRadius = UDim.new(0, 8)
-        local dropStroke = Instance.new("UIStroke", dropdownFrame)
-        dropStroke.Color = Colors.Primary
-        dropStroke.Thickness = 1
-        dropStroke.Transparency = 0.5
+        -- Lista flutuante — parented no dropOverlay (screenGui level)
+        -- Não sofre clipping do ScrollingFrame
+        local listFrame = Instance.new("Frame", dropOverlay)
+        listFrame.Name = "DDList"
+        listFrame.BackgroundColor3 = C.Surface
+        listFrame.BorderSizePixel = 0
+        listFrame.Visible = false
+        listFrame.ZIndex = 110
+        Instance.new("UICorner", listFrame).CornerRadius = UDim.new(0, 7)
+        local lStroke = Instance.new("UIStroke", listFrame)
+        lStroke.Color = C.Gold; lStroke.Thickness = 1; lStroke.Transparency = 0.3
+        -- Scroll interno da lista
+        local listScroll = Instance.new("ScrollingFrame", listFrame)
+        listScroll.Size = UDim2.new(1, 0, 1, 0)
+        listScroll.BackgroundTransparency = 1
+        listScroll.BorderSizePixel = 0
+        listScroll.ScrollBarThickness = 2
+        listScroll.ScrollBarImageColor3 = C.Gold
+        listScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+        listScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        listScroll.ZIndex = 111
+        local listLL = Instance.new("UIListLayout", listScroll)
+        listLL.SortOrder = Enum.SortOrder.LayoutOrder
+        listLL.Padding = UDim.new(0, 2)
+        local lPad = Instance.new("UIPadding", listScroll)
+        lPad.PaddingTop = UDim.new(0, 4); lPad.PaddingBottom = UDim.new(0, 4)
+        lPad.PaddingLeft = UDim.new(0, 4); lPad.PaddingRight = UDim.new(0, 4)
 
-        local dropLayout = Instance.new("UIListLayout")
-        dropLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        dropLayout.Padding = UDim.new(0, 2)
-        dropLayout.Parent = dropdownFrame
+        local currentOptions = {}
 
-        local function updateOptions(newOptions)
-            for _, child in ipairs(dropdownFrame:GetChildren()) do
-                if child:IsA("TextButton") then child:Destroy() end
+        local function buildListItems()
+            for _, c in ipairs(listScroll:GetChildren()) do
+                if c:IsA("TextButton") then c:Destroy() end
             end
-            for _, opt in ipairs(newOptions) do
-                local optBtn = Instance.new("TextButton")
-                optBtn.Size = UDim2.new(1, -6, 0, 28)
-                optBtn.Position = UDim2.new(0, 3, 0, 0)
-                optBtn.BackgroundColor3 = Colors.Surface
-                optBtn.BorderSizePixel = 0
-                optBtn.Text = "  " .. opt
-                optBtn.TextColor3 = Colors.TextDim
-                optBtn.TextSize = 13
-                optBtn.Font = Enum.Font.Gotham
-                optBtn.TextXAlignment = Enum.TextXAlignment.Left
-                optBtn.Parent = dropdownFrame
-                Instance.new("UICorner", optBtn).CornerRadius = UDim.new(0, 4)
-                optBtn.MouseEnter:Connect(function()
-                    optBtn.BackgroundColor3 = Colors.PrimaryDark
+            for _, opt in ipairs(currentOptions) do
+                local ob = Instance.new("TextButton", listScroll)
+                ob.Size = UDim2.new(1, 0, 0, 28)
+                ob.BackgroundColor3 = C.Accent
+                ob.BorderSizePixel = 0
+                ob.Text = "  "..opt
+                ob.TextColor3 = C.Text
+                ob.TextSize = 12; ob.Font = Enum.Font.Gotham
+                ob.TextXAlignment = Enum.TextXAlignment.Left
+                ob.ZIndex = 112
+                Instance.new("UICorner", ob).CornerRadius = UDim.new(0, 5)
+                ob.MouseEnter:Connect(function()
+                    ob.BackgroundColor3 = C.GoldDk
+                    ob.TextColor3 = C.White
                 end)
-                optBtn.MouseLeave:Connect(function()
-                    optBtn.BackgroundColor3 = Colors.Surface
+                ob.MouseLeave:Connect(function()
+                    ob.BackgroundColor3 = C.Accent
+                    ob.TextColor3 = C.Text
                 end)
-                optBtn.MouseButton1Click:Connect(function()
-                    valueLabel.Text = opt
-                    callback(opt)
-                    dropdownFrame.Visible = false
-                    arrow.Image = "rbxassetid://10709791523"
+                ob.MouseButton1Click:Connect(function()
+                    valLbl.Text = opt
+                    arrowLbl.Text = "▾"
+                    closeDropdown()
+                    pcall(callback, opt)
                 end)
             end
-            dropdownFrame.Size = UDim2.new(1, 0, 0, math.min(#newOptions * 30, 150))
         end
 
-        frame.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dropdownFrame.Visible = not dropdownFrame.Visible
-                arrow.Image = dropdownFrame.Visible and "rbxassetid://10709790948" or "rbxassetid://10709791523"
+        local function openList()
+            closeDropdown()
+            buildListItems()
+            -- Posição absoluta do header na tela
+            local ap  = header.AbsolutePosition
+            local as  = header.AbsoluteSize
+            local nh  = math.min(#currentOptions * 32 + 10, 180)
+            listFrame.Size     = UDim2.new(0, as.X, 0, nh)
+            listFrame.Position = UDim2.new(0, ap.X, 0, ap.Y + as.Y + 3)
+            listFrame.Visible  = true
+            activeList = listFrame
+            dropOverlay.Visible = true
+            arrowLbl.Text = "▴"
+        end
+
+        -- Botão invisível sobre o header para capturar clique
+        local clickArea = Instance.new("TextButton", header)
+        clickArea.Size = UDim2.new(1, 0, 1, 0)
+        clickArea.BackgroundTransparency = 1
+        clickArea.Text = ""; clickArea.ZIndex = 5
+        clickArea.MouseButton1Click:Connect(function()
+            if listFrame.Visible then
+                closeDropdown(); arrowLbl.Text = "▾"
+            else
+                openList()
             end
         end)
 
+        currentOptions = initOptions
+        buildListItems()
+
         return {
-            UpdateOptions = updateOptions,
-            SetValue = function(val) valueLabel.Text = val end
+            UpdateOptions = function(opts)
+                currentOptions = opts
+                if listFrame.Visible then buildListItems() end
+            end,
+            GetValue  = function() return valLbl.Text ~= "—" and valLbl.Text or nil end,
+            SetValue  = function(v) valLbl.Text = v or "—" end,
         }
     end
 
-    -- ==================== CONSTRUÇÃO DA INTERFACE ====================
-    createSection("🎯 SELEÇÃO DE JOGADOR")
+    -- ==================== CONTEÚDO DA INTERFACE ====================
 
-    -- Lista inclui o próprio jogador (atualizada automaticamente)
-    local function refreshPlayerList()
+    local function requireTarget(fn)
+        if selectedPlayer then
+            fn(selectedPlayer)
+        else
+            notify("Erro", "Selecione um alvo primeiro!", 2, true)
+        end
+    end
+
+    -- SEÇÃO: Selecionar Alvo
+    createSection("🎯 Selecionar Alvo")
+
+    local function getPlayerList()
         local list = {}
         for _, p in ipairs(Players:GetPlayers()) do
             table.insert(list, p.Name)
@@ -13270,246 +13317,93 @@ do
         return list
     end
 
-    local playerDropdown = createDropdown("Jogador alvo", refreshPlayerList(), function(selected)
-        selectedPlayer = Players:FindFirstChild(selected)
+    local playerDrop = createDropdown("Jogador alvo", getPlayerList(), function(name)
+        selectedPlayer = Players:FindFirstChild(name)
+        if selectedPlayer then
+            notify("Alvo", "Alvo selecionado: "..name, 2)
+        end
     end)
 
-    -- Atualiza a lista quando jogadores entram/saem
-    local function updateDropdownOnPlayers()
-        playerDropdown.UpdateOptions(refreshPlayerList())
-    end
-    Players.PlayerAdded:Connect(updateDropdownOnPlayers)
-    Players.PlayerRemoving:Connect(updateDropdownOnPlayers)
-
-    createButton("🔄 Atualizar lista", function()
-        playerDropdown.UpdateOptions(refreshPlayerList())
+    createButton("🔄  Atualizar lista de jogadores", function()
+        playerDrop.UpdateOptions(getPlayerList())
+        notify("", "Lista atualizada!", 2)
     end)
 
-    createSection("⚔️ COMANDOS BÁSICOS")
-    createButton("📥 Bring (puxar)", function()
-        if selectedPlayer then BringPlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
+    Players.PlayerAdded:Connect(function()
+        task.wait(0.5)
+        playerDrop.UpdateOptions(getPlayerList())
     end)
-    createButton("💀 Kill (matar)", function()
-        if selectedPlayer then KillPlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-    createButton("👢 Kick (expulsar)", function()
-        if selectedPlayer then KickPlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
+    Players.PlayerRemoving:Connect(function()
+        task.wait(0.2)
+        playerDrop.UpdateOptions(getPlayerList())
     end)
 
-    createSection("⛓️ CONTROLE")
-    createButton("⛓️ Jail (prender)", function()
-        if selectedPlayer then CreateJail(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
+    -- SEÇÃO: Comandos Básicos
+    createSection("⚔️ Comandos Básicos")
+    createButton("📥  Bring — puxar até você",   function() requireTarget(BringPlayer)  end)
+    createButton("💀  Kill — matar",              function() requireTarget(KillPlayer)   end)
+    createButton("👢  Kick — expulsar do server", function() requireTarget(KickPlayer)   end)
+
+    -- SEÇÃO: Controle
+    createSection("⛓️ Controle")
+    createButton("⛓️  Jail — prender em jaula",  function() requireTarget(CreateJail)     end)
+    createButton("🔓  Unjail — soltar jaula",     function() requireTarget(RemoveJail)     end)
+    createButton("❄️  Freeze — congelar",         function() requireTarget(FreezePlayer)   end)
+    createButton("🔥  Unfreeze — resetar player", function() requireTarget(UnfreezePlayer) end)
+
+    -- SEÇÃO: Views / Efeitos
+    createSection("👁️ Views / Efeitos")
+    createButton("💥  Explodir",              function() requireTarget(ExplodePlayer) end)
+    createButton("👾  Coolkid Mode",          function() requireTarget(CoolkidMode)   end)
+    createButton("😱  Jumpscare",             function() requireTarget(Jumpscare)     end)
+    createButton("🏚️  Backrooms",            function() requireTarget(Backrooms)     end)
+    createButton("🔥  Fogo Inimigo (/fires)", function()
+        requireTarget(function(p) sendChatCommand("/fires "..p.Name) end)
     end)
-    createButton("🔓 Unjail (soltar)", function()
-        if selectedPlayer then RemoveJail(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-    createButton("❄️ Freeze (congelar)", function()
-        if selectedPlayer then FreezePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-    createButton("🔥 Unfreeze (resetar)", function()
-        if selectedPlayer then UnfreezePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
+    createButton("🕺  Jumpscare Messi",       function()
+        requireTarget(function(p) sendChatCommand("/messijumpscare "..p.Name) end)
     end)
 
-    createSection("👁️ VIEWS / DIVERSÃO")
-    createButton("💥 Explodir", function()
-        if selectedPlayer then ExplodePlayer(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-    createButton("👾 Coolkid Mode", function()
-        if selectedPlayer then CoolkidMode(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-    createButton("😱 Jumpscare", function()
-        if selectedPlayer then Jumpscare(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-    createButton("🏚️ Backrooms", function()
-        if selectedPlayer then Backrooms(selectedPlayer) else notify("Erro", "Selecione um jogador", 2, true) end
-    end)
-
-    createSection("✅ VERIFICAÇÃO")
-    createButton("🔍 Verificar usuários", function()
+    -- SEÇÃO: Verificação
+    createSection("✅ Verificação Star Hub")
+    createButton("🔍  Verificar usuários ativos", function()
         sendChatCommand("Verificar")
-        -- Adiciona a tag em si mesmo
         createHubTag(LocalPlayer)
-        notify("Verificação", "Verificando...", 4)
-
+        notify("Verificação", "Verificando usuários...", 4)
         local responses = {}
         local conn
-        if TextChatService and TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral then
-            conn = TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(msg)
-                pcall(function()
-                    if msg.Text == "STAR_Hub_Actived" then
-                        local responder = msg.TextSource and Players:GetPlayerByUserId(msg.TextSource.UserId)
-                        if responder and responder ~= LocalPlayer then
-                            responses[responder.Name] = true
-                            createHubTag(responder)
-                        end
-                    end
-                end)
-            end)
-
-            task.spawn(function()
-                task.wait(6)
-                if conn then conn:Disconnect() end
-                local count = 0
-                local names = {}
-                for name in pairs(responses) do
-                    count = count + 1
-                    table.insert(names, name)
-                end
-                if count > 0 then
-                    notify("Verificação completa", count .. " usuário(s): " .. table.concat(names, ", "), 7)
-                else
-                    notify("Verificação", "Nenhum outro usuário encontrado", 4)
-                end
-            end)
-        end
-    end)
-
-    -- Atualiza canvas size
-    task.spawn(function()
-        task.wait(0.1)
-        contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-    end)
-
-    -- ==================== LISTENER DE CHAT PARA COMANDOS REMOTOS (com debounce) ====================
-    if TextChatService then
-        local function setupChatListener()
-            local success, conn = pcall(function()
-                return TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(function(message)
-                    local text = message.Text:lower()
-                    local origText = message.Text
-                    local sender = message.TextSource and Players:GetPlayerByUserId(message.TextSource.UserId)
-                    if not sender then return end
-
-                    -- Verifica se é comando de verificação de outro usuário
-                    if (text == "verificar" or origText == "Verificar") and sender ~= LocalPlayer and allowedUsers[sender.Name] then
-                        task.wait(math.random(0.5, 1.5))
-                        sendChatCommand("STAR_Hub_Actived")
-                        return
-                    end
-
-                    -- Se for o próprio LocalPlayer digitando no chat, processa o comando
-                    local isSelf = (sender == LocalPlayer)
-
-                    -- Se não for autorizado e não for ele mesmo: ignora
-                    if not allowedUsers[sender.Name] and not isSelf then return end
-
-                    -- Função de busca por nome parcial (case insensitive, contém)
-                    local function findTarget(name)
-                        name = name:lower()
-                        for _, p in ipairs(Players:GetPlayers()) do
-                            if p.Name:lower():find(name, 1, true) then
-                                return p
+        local ok, _ = pcall(function()
+            conn = TextChatService.TextChannels.RBXGeneral.MessageReceived:Connect(
+                function(msg)
+                    pcall(function()
+                        if msg.Text and msg.Text:lower() == "star_hub_actived" then
+                            local r = msg.TextSource
+                                and Players:GetPlayerByUserId(msg.TextSource.UserId)
+                            if r and r ~= LocalPlayer then
+                                responses[r.Name] = true
+                                createHubTag(r)
                             end
                         end
-                    end
-
-                    local args = {}
-                    for word in text:gmatch("%S+") do
-                        table.insert(args, word)
-                    end
-
-                    local cmd = args[1]
-                    local targetName = args[2]
-                    local target = targetName and findTarget(targetName)
-
-                    -- ======================================
-                    -- LocalPlayer digitou o comando: executa nos outros
-                    -- ======================================
-                    if isSelf then
-                        if cmd == "/verificar" or origText:lower() == "verificar" then
-                            sendChatCommand("Verificar")
-                            createHubTag(LocalPlayer)
-                            notify("Verificação", "Verificando...", 4)
-                            return
-                        end
-                        if not target then return end
-                        if cmd == "/bring" then
-                            local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-                            local mRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                            if tRoot and mRoot then tRoot.CFrame = mRoot.CFrame + Vector3.new(2, 0, 0) end
-                        elseif cmd == "/kill" then
-                            local hum = target.Character and target.Character:FindFirstChildWhichIsA("Humanoid")
-                            if hum then hum.Health = 0 end
-                        elseif cmd == "/kick" then
-                            sendChatCommand("/kick " .. target.Name)
-                        elseif cmd == "/jail" then
-                            pcall(CreateJail, target)
-                        elseif cmd == "/unjail" then
-                            pcall(RemoveJail, target)
-                        elseif cmd == "/freeze" then
-                            pcall(FreezePlayer, target)
-                        elseif cmd == "/unfreeze" then
-                            pcall(UnfreezePlayer, target)
-                        elseif cmd == "/fling" then
-                            local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
-                            if tRoot then tRoot.Velocity = Vector3.new(math.random(-300,300), 600, math.random(-300,300)) end
-                        elseif cmd == "/jumpscare" then
-                            pcall(sendChatCommand, "/jumpscare " .. target.Name)
-                        elseif cmd == "/coolkidavatar" then
-                            pcall(sendChatCommand, "/coolkidavatar " .. target.Name)
-                        elseif cmd == "/backrooms" then
-                            pcall(sendChatCommand, "/backrooms " .. target.Name)
-                        elseif cmd == "/fires" then
-                            pcall(sendChatCommand, "/fires " .. target.Name)
-                        end
-                        return
-                    end
-
-                    -- ======================================
-                    -- Comandos de outros admins (visando o LocalPlayer)
-                    -- ======================================
-                    if not target or target ~= LocalPlayer then return end
-
-                    if cmd == "/kill" then
-                        local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid")
-                        if hum then hum.Health = 0 end
-                    elseif cmd == "/kick" then
-                        LocalPlayer:Kick("Você foi expulso por um administrador.")
-                    elseif cmd == "/bring" then
-                        local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                        local senderHRP = sender.Character and sender.Character:FindFirstChild("HumanoidRootPart")
-                        if myHRP and senderHRP then
-                            myHRP.CFrame = senderHRP.CFrame + Vector3.new(2, 0, 0)
-                        end
-                    elseif cmd == "/jail" then
-                        CreateJail(LocalPlayer)
-                    elseif cmd == "/unjail" then
-                        RemoveJail(LocalPlayer)
-                    elseif cmd == "/freeze" then
-                        FreezePlayer(LocalPlayer)
-                    elseif cmd == "/unfreeze" then
-                        UnfreezePlayer(LocalPlayer)
-                    elseif cmd == "/explod" then
-                        ExplodePlayer(LocalPlayer)
-                    elseif cmd == "/jumpscare" then
-                        Jumpscare(LocalPlayer)
-                    elseif cmd == "/backrooms" then
-                        Backrooms(LocalPlayer)
-                    end
+                    end)
                 end)
-            end)
-            if not success then
-                warn("Star Hub Admin: erro ao conectar listener de chat", conn)
+        end)
+        task.spawn(function()
+            task.wait(6)
+            if conn then pcall(conn.Disconnect, conn) end
+            local names = {}
+            for n in pairs(responses) do table.insert(names, n) end
+            if #names > 0 then
+                notify("Verificação OK", #names.." usuário(s): "
+                    ..table.concat(names, ", "), 8)
+            else
+                notify("Verificação", "Nenhum outro usuário encontrado.", 4)
             end
-        end
-
-        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            task.spawn(function()
-                repeat task.wait(1) until TextChatService.TextChannels and TextChatService.TextChannels.RBXGeneral
-                setupChatListener()
-            end)
-        end
-    end
-
-    -- ==================== LIMPEZA AO SAIR ====================
-    Players.PlayerRemoving:Connect(function(p)
-        if JailedPlayers[p] then pcall(JailedPlayers[p].Destroy, JailedPlayers[p]) JailedPlayers[p] = nil end
-        if FrozenPlayers[p] then FrozenPlayers[p] = nil end
-        if HubTags[p] then pcall(HubTags[p].Destroy, HubTags[p]) HubTags[p] = nil end
+        end)
     end)
 
-    notify("Admin", "Painel carregado com sucesso!", 4)
+    notify("Admin", "Painel Star Hub carregado com sucesso!", 4)
 end
+
 
 -----------------///////TABS - WebHook///////----------------
 
