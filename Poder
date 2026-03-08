@@ -777,6 +777,8 @@ Window:EditOpenButton({
 local SelectedPlayer = nil
 local function GetPlayerNames()
     local list = {}
+    -- LocalPlayer aparece primeiro na lista
+    table.insert(list, LocalPlayer.Name)
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer then
             table.insert(list, plr.Name)
