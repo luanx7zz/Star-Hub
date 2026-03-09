@@ -1,8 +1,11 @@
--- Star Hub | Made by Luan (Areal, RJ) - 2026 💫
+-- ╔══════════════════════════════════════════════════════╗
+-- ║          ⭐  STAR HUB  |  Brookhaven RP               ║
+-- ║  Feito por: Luan  ·  Areal, RJ  ·  2026              ║
+-- ║  Base: Redz Hub  |  Créditos: Luan (@luanx7zz)        ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -- Fallback para executors sem getgenv
 if not getgenv then getgenv = function() return _G end end
--- Base: Redz Hub Brookhaven RP (Enhanced with Premium Loading)
--- Créditos: Luan | From Areal-RJ
 
 -- ========== LOADING SCREEN PREMIUM MODERNA (11 segundos) ==========
 local TweenService = game:GetService("TweenService")
@@ -140,7 +143,7 @@ Stroke.Parent = Avatar
 
 local angle = 0
 RunService.RenderStepped:Connect(function(dt)
-	angle += dt * 45
+	angle = angle + dt * 45
 	LogoFrame.Rotation = angle % 360
 end)
 
@@ -237,7 +240,7 @@ if not redzlib then error("deu red") end
 workspace.FallenPartsDestroyHeight = -math.huge
 
 local Window = redzlib:MakeWindow({
-    Title = "STAR HUB | Brookhaven Rp 🏡 ",
+    Title = "⭐  Star Hub  |  Brookhaven RP",
     SaveFolder = "Star Hub | Brookhaven RP.lua"
 })
 
@@ -286,13 +289,6 @@ local function copyDiscordLink()
     -- Opcional: print ou notificação no jogo
     print("Discord copiado: https://discord.gg/YmNCGj3h8b")
 end
-
---[[
-local function AntiSkidder()
--- local antiSkidContent = game:HttpGet('https://raw.githubusercontent.com/scriptclient/Brookhaven/refs/heads/main/iploggs.lua', true)
--- loadstring(antiSkidContent)()
-end
-]]
 
 local function chatlogs()
 local player = game.Players.LocalPlayer
@@ -400,24 +396,29 @@ Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está 
     }
 })
 local Tabs = {
-    M = Window:MakeTab({Translator:traduzir("informações"), "Info"}),
-    H = Window:MakeTab({Translator:traduzir("Início"), "coffee"}),
-    SS = Window:MakeTab({Translator:traduzir("Skybox"), "cloud"}),
-    AI = Window:MakeTab({Translator:traduzir("Inteligência Artificial"), "bot"}),
-    SB = Window:MakeTab({Translator:traduzir("ScriptBlox"), "server"}),
-    PR = Window:MakeTab({Translator:traduzir("Proteção"), "shield"}),
-    Client = Window:MakeTab({Translator:traduzir("Spam/Client"), "eye"}),
-    JJ = Window:MakeTab({Translator:traduzir("Personagem"), "userplus"}),
-    RGB = Window:MakeTab({Translator:traduzir("RGB"), "rainbow"}),
-    TT = Window:MakeTab({Translator:traduzir("Trolar"), "flame"}),
-    Props = Window:MakeTab({Translator:traduzir("Props"), "package"}),
-    LG = Window:MakeTab({Translator:traduzir("Lag Servidor"), "bomb"}),
-    AD = Window:MakeTab({Translator:traduzir("Audio/Musica"), "headphones"}),
-    AVT = Window:MakeTab({Translator:traduzir("Roupas"), "shirt"}),
-    HouseTab = Window:MakeTab({Translator:traduzir("Casa"), "home"}),
-    Carros = Window:MakeTab({Translator:traduzir("Carro"), "truck"}),
-    Tp = Window:MakeTab({Translator:traduzir("Portal"), "apple"}),
-    CFG = Window:MakeTab({Translator:traduzir("Configurações"), "Settings"})
+    -- Informações & Início
+    M        = Window:MakeTab({Translator:traduzir("Informações"),  "info"}),
+    H        = Window:MakeTab({Translator:traduzir("Início"),       "zap"}),
+    -- Personagem & Efeitos
+    JJ       = Window:MakeTab({Translator:traduzir("Personagem"),   "user"}),
+    RGB      = Window:MakeTab({Translator:traduzir("RGB"),          "rainbow"}),
+    -- Trolagem & Combate
+    TT       = Window:MakeTab({Translator:traduzir("Trolar"),       "flame"}),
+    Props    = Window:MakeTab({Translator:traduzir("Props"),        "package"}),
+    Client   = Window:MakeTab({Translator:traduzir("Spam"),         "repeat"}),
+    LG       = Window:MakeTab({Translator:traduzir("Lag"),          "bomb"}),
+    -- Personalização
+    AD       = Window:MakeTab({Translator:traduzir("Áudio"),        "headphones"}),
+    AVT      = Window:MakeTab({Translator:traduzir("Roupas"),       "shirt"}),
+    HouseTab = Window:MakeTab({Translator:traduzir("Casa"),         "home"}),
+    Carros   = Window:MakeTab({Translator:traduzir("Carro"),        "truck"}),
+    -- Mundo & Utilidades
+    SS       = Window:MakeTab({Translator:traduzir("Skybox"),       "cloud"}),
+    PR       = Window:MakeTab({Translator:traduzir("Proteção"),     "shield"}),
+    AI       = Window:MakeTab({Translator:traduzir("IA"),           "cpu"}),
+    SB       = Window:MakeTab({Translator:traduzir("Scripts"),      "code"}),
+    Tp       = Window:MakeTab({Translator:traduzir("Portal"),       "map-pin"}),
+    CFG      = Window:MakeTab({Translator:traduzir("Config"),       "settings"}),
 }
 
 Tabs.M:AddDiscordInvite({
@@ -427,7 +428,7 @@ Tabs.M:AddDiscordInvite({
     Invite = "https://discord.gg/YmNCGj3h8b"
 })
 
-Tabs.M:AddSection({Name = Translator:traduzir("Atualizações")})
+Tabs.M:AddSection({Name = Translator:traduzir("📋 Atualizações")})
 Tabs.M:AddButton({Name = Translator:traduzir("Novidades do Hub"), Callback = function()
 Window:Dialog({
 Title = "Update",
@@ -443,7 +444,7 @@ end}
 })
 end})
 
-Tabs.M:AddSection({Translator:traduzir("Acess Admin")})
+Tabs.M:AddSection({Translator:traduzir("🔑 Acesso Admin")})
 Tabs.M:AddButton({Translator:traduzir("Painel Admin"), function()
 Window:Dialog({
     Title = Translator:traduzir("Como Obter Grátis"),
@@ -470,12 +471,12 @@ if success and gameInfo then
     gameName = gameInfo.Name
 end
 
-Tabs.M:AddSection({Translator:traduzir("Mapa Status")})
+Tabs.M:AddSection({Translator:traduzir("🗺️ Status do Mapa")})
 local Paragraph1 = Tabs.M:AddParagraph({Translator:traduzir("Nome do Jogo: " .. gameName)})
 local executor = identifyexecutor()
 local Paragraph = Tabs.M:AddParagraph({Translator:traduzir("Executor: " .. executor)})
 do
-Tabs.M:AddSection({Translator:traduzir("Ánuncios <announcement>")})
+Tabs.M:AddSection({Translator:traduzir("📢 Anúncios")})
 Tabs.M:AddButton({Translator:traduzir("Aviso Externo"), function()
 Window:Dialog({
     Title = "Erros",
@@ -505,7 +506,7 @@ Window:Dialog({
 })
 end})
 
-local Section = Tabs.M:AddSection({Translator:traduzir("Resoluções Da Tela")})
+local Section = Tabs.M:AddSection({Translator:traduzir("🖥️ Resolução da Tela")})
 
         Tabs.M:AddButton({Translator:traduzir("Resolução Normal"), 
           function()
@@ -566,6 +567,14 @@ getgenv().gg_scripters = "Aori0001"
       }
     )
 end
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: INÍCIO / PODERES (H)                            ║
+-- ╚══════════════════════════════════════════════════════╝
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: INÍCIO / PODERES (H)                            ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - HH ///////-----------------
 do
 local Config = {
@@ -583,7 +592,7 @@ local PlayerStats = {
     gravityValue = Config.defaultGravity
 }
 
-Tabs.H:AddSection({Translator:traduzir("Super Poderes")})
+Tabs.H:AddSection({Translator:traduzir("⚡ Super Poderes")})
 
 local function validateNumber(value, defaultValue)
     local number = tonumber(value)
@@ -646,7 +655,7 @@ local resetButton = Tabs.H:AddButton({
     end
 })
 
-Tabs.H:AddSection({Translator:traduzir("Status Atualização")})
+Tabs.H:AddSection({Translator:traduzir("📊 Status")})
 
 local scoutTrack = Tabs.H:AddParagraph({Translator:traduzir("Dono: luan04082011")})
 
@@ -686,7 +695,7 @@ task.spawn(function()
         local formatado = string.format("%02d:%02d:%02d", horas, minutos, segundos)
         tempoTrack:Set("  " .. formatado)
 
-        tempoAtual += Config.statusUpdateInterval
+        tempoAtual = tempoAtual + Config.statusUpdateInterval
         task.wait(Config.statusUpdateInterval)
     end
 end)
@@ -698,8 +707,8 @@ local frameCount = 0
 local currentFPS = 0
 
 RunService.RenderStepped:Connect(function(dt)
-      frameCount += 1
-      lastUpdate += dt
+      frameCount = frameCount + 1
+      lastUpdate = lastUpdate + dt
 
     if lastUpdate >= 1 then
         currentFPS = frameCount
@@ -721,7 +730,7 @@ Players.PlayerRemoving:Connect(updatePlayerCount)
 updatePlayerCount()
 
 --[[
-Tabs.H:AddSection({Translator:traduzir("Basquete <Item>")})
+Tabs.H:AddSection({Translator:traduzir("🏀 Basquete")})
 local BNumber = 1000
 local Toggle = Tabs.H:AddToggle({Name = Translator:traduzir("Arremesso de bolas V2"), Description = Translator:traduzir("Telepkrt/Ball/Volta/Arremessa"), Default = false})
 
@@ -765,13 +774,21 @@ Toggle:Callback(function(state)
 end)
 ]]--
 
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: RGB                                             ║
+-- ╚══════════════════════════════════════════════════════╝
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: RGB                                             ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - RGB///////-----------------
 do
 
 -- ============================
 -- SEÇÃO PERSONAGEM LGBT
 -- ============================
-Tabs.RGB:AddSection({Translator:traduzir("Personagem RGB")})
+Tabs.RGB:AddSection({Translator:traduzir("🌈 Personagem RGB")})
 
 -- Variáveis de estado
 local isNameActive  = false
@@ -895,7 +912,7 @@ local function fireServerRGB(eventName, args)
     end
 end
 
-Tabs.RGB:AddSection({Translator:traduzir("Veículos & Casa")})
+Tabs.RGB:AddSection({Translator:traduzir("🚗 Veículos & Casa")})
 
 local rgbCasaActive = false
 Tabs.RGB:AddToggle({
@@ -970,7 +987,7 @@ Tabs.RGB:AddToggle({
 })
 
 -- Itens / Tools
-Tabs.RGB:AddSection({Translator:traduzir("Itens & Tools")})
+Tabs.RGB:AddSection({Translator:traduzir("🛠️ Itens & Tools")})
 
 local radioRGBActive_new = false
 Tabs.RGB:AddToggle({
@@ -1027,7 +1044,7 @@ Tabs.RGB:AddToggle({
 })
 
 -- RP Name & Bio animado
-Tabs.RGB:AddSection({Translator:traduzir("RP Name & Bio Animado")})
+Tabs.RGB:AddSection({Translator:traduzir("✍️ RP Name & Bio Animado")})
 
 local RPTextRemote_new = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1RPNam1eTex1t")
 local RPNameText_new, RPBioText_new = "", ""
@@ -1108,7 +1125,7 @@ Tabs.RGB:AddToggle({
     end
 })
 
-Tabs.RGB:AddSection({Translator:traduzir("Repetição De Nomes")})
+Tabs.RGB:AddSection({Translator:traduzir("🔁 Repetição de Nomes")})
 
 local Remote = ReplicatedStorage.RE:FindFirstChild("1RPNam1eTex1t")
 local name1, name2, name3 = "", "", ""
@@ -1203,7 +1220,7 @@ Toggle:Callback(function(R)
     end
 end)
 
-Tabs.RGB:AddSection({Translator:traduzir("Nomes Ja feitos!")})
+Tabs.RGB:AddSection({Translator:traduzir("⭐ Nomes Prontos")})
 
 local names = {
     {"TINTALEY", " TINTALEY "},
@@ -1226,7 +1243,7 @@ end
 
 --==== Skybox Tab ====--
 
-Tabs.SS:AddSection({Name = Translator:traduzir("Se você quiser mudar o skybox, basta trocar de camisa.")})
+Tabs.SS:AddSection({Name = Translator:traduzir("☁️ Skybox")})
 
 -- Variáveis para controlar os estados
 local SkyboxActive = false
@@ -1401,7 +1418,7 @@ player.CharacterAdded:Connect(function()
     print("Character reset - Everything disabled")
 end)
 
-Tabs.SS:AddSection({Name = "Nuke Server"})
+Tabs.SS:AddSection({Name = "☢️ Nuke Server"})
 
 local SkyboxActive = false
 local CurrentTrack = nil
@@ -1910,8 +1927,12 @@ Tabs.AI:AddChat()
 
 Tabs.SB:AddScriptBlox()
 
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: PROTEÇÃO (PR)                                   ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - PR///////-----------------
-Tabs.PR:AddSection({Translator:traduzir("Proteções Local & Anti Lags")})
+Tabs.PR:AddSection({Translator:traduzir("🛡️ Proteções & Anti-Lag")})
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 
@@ -2175,12 +2196,7 @@ Toggle1:Callback(function(Value)
     fullScan()
 end)
 
-[local Toggle2 = Tabs.PR:AddToggle({Name = Translator:traduzir("Anti Car"), Description = Translator:traduzir("Impede sentar em Carro"), Default = false})
-Toggle2:Callback(function(Value)
-    antiCarSit = Value
-    updateSitState()
-    fullScan()
-end)]
+
 
 local Toggle3 = Tabs.PR:AddToggle({Name = Translator:traduzir("Anti Script"), Description = Translator:traduzir("Proteção contra colisões de veículos/objetos"), Default = false})
 Toggle3:Callback(function(Value)
@@ -2189,7 +2205,7 @@ Toggle3:Callback(function(Value)
     fullScan()
 end)]]
 
-Tabs.PR:AddSection({Translator:traduzir("Efeito e desefeitos")})
+Tabs.PR:AddSection({Translator:traduzir("✨ Efeitos Locais")})
 local Button = Tabs.PR:AddButton({Translator:traduzir("Anti Lag"), function()
       local itemsToRemove = {
         "Burger Tray", "Bomb", "Laptop", "Paper Bag", "Chips", "Ice Cream", "Taser",
@@ -2251,6 +2267,10 @@ end})
     }
   })
 end})
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: SPAM / CLIENT                                   ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - CLIENT///////-----------------
 do
 local Config = {
@@ -2336,7 +2356,7 @@ Tabs.Client:AddButton({
     end
 })
 
-Tabs.Client:AddSection({Translator:traduzir("Mensagens De Chat")})
+Tabs.Client:AddSection({Translator:traduzir("💬 Mensagens de Chat")})
 
 local predefinedMessages = {
     {"c00lkidd invaded", "c00lkidd invaded"},
@@ -2358,7 +2378,7 @@ for _, message in ipairs(predefinedMessages) do
     })
 end
 ]]
-Tabs.Client:AddSection({Translator:traduzir("MENU Esp")})
+Tabs.Client:AddSection({Translator:traduzir("👁️ ESP / Radar")})
 
 local ESPSystem = {
     showLine = false,
@@ -2473,7 +2493,7 @@ for _, toggle in ipairs(espToggles) do
     })
 end
 
-Tabs.Client:AddSection({Translator:traduzir("Spam Varios Jatos <BETA>")})
+Tabs.Client:AddSection({Translator:traduzir("✈️ Spam de Jatos")})
 
 local JetSystem = {
     spawnActive = false,
@@ -2587,6 +2607,10 @@ local function stopJetSpam()
 end
 
 
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: SPAM / CLIENT                                   ║
+-- ╚══════════════════════════════════════════════════════╝
 -----------------///////SPAM VEÍCULOS & ITEMS///////-----------------
 -- Variáveis compartilhadas para spams
 local function getSpamVars()
@@ -2599,9 +2623,9 @@ local function getSpamVars()
 end
 
 -- SPAM CANOA
-Tabs.Client:AddSection({Translator:traduzir("Spam Canoa")})
+Tabs.Client:AddSection({Translator:traduzir("🛶 Spam Canoa")})
 Tabs.Client:AddToggle({
-    Name = Translator:traduzir("Spam Canoa"),
+    Name = Translator:traduzir("🛶 Spam Canoa"),
     Description = Translator:traduzir("Spawna canoas repetidamente"),
     Default = false,
     Callback = function(state)
@@ -2659,7 +2683,7 @@ Tabs.Client:AddToggle({
 })
 
 -- SPAM BASKETBALL
-Tabs.Client:AddSection({Translator:traduzir("Spam Items (Tools)")})
+Tabs.Client:AddSection({Translator:traduzir("🏀 Spam de Items")})
 Tabs.Client:AddToggle({
     Name = Translator:traduzir("Spam Basketball"),
     Default = false,
@@ -2751,7 +2775,7 @@ Tabs.Client:AddButton({
     end
 })
 
-Tabs.Client:AddSection({Translator:traduzir("Auto Spamar Jatos <Jogador>")})
+Tabs.Client:AddSection({Translator:traduzir("🎯 Auto Spam Jatos")})
 
 local TargetJetSystem = {
     flingActive = false,
@@ -2838,7 +2862,7 @@ local function updateCameraView(enabled)
 end
 
 local playerDropdown = Tabs.Client:AddDropdown({
-    Name = Translator:traduzir("Selecionar Jogador"),
+    Name = Translator:traduzir("🎯 Selecionar Jogador"),
     Description = Translator:traduzir("Selecione uma pessoa para mandar os jatos"),
     Options = getPlayerList(),
     Default = "Pessoa",
@@ -2888,7 +2912,7 @@ Tabs.Client:AddToggle({
     end
 })
 
-Tabs.Client:AddSection({Translator:traduzir("Navio Pirado")})
+Tabs.Client:AddSection({Translator:traduzir("🚢 Navio")})
 local ShipSystem = {
     tornadoActive = false,
     currentShip = nil
@@ -3036,6 +3060,10 @@ TornadoToggle:Callback(function(Value)
     end
 end)
 end
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: PERSONAGEM (JJ)                                 ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - JJ///////-----------------
 do
 --[[Tabs.JJ:AddButton({
@@ -3116,7 +3144,7 @@ Tabs.JJ:AddButton({
     end
 })]]
 
-Tabs.JJ:AddSection({"Crie Nomes Com Extinto"})
+Tabs.JJ:AddSection({"🔤 Nomes com Extintor"})
 getgenv().CustomText = "New Message!"
 
 Tabs.JJ:AddTextBox({
@@ -3273,7 +3301,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
                 local ok, children = pcall(function() return c:GetChildren() end)
                 if ok and children then
                     for _, tool in ipairs(children) do
-                        if tool:IsA("Tool") then total += 1 end
+                        if tool:IsA("Tool") then total = total + 1 end
                     end
                 end
             end
@@ -3287,7 +3315,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
             local rows = CHAR_MAP[c]
             if rows then
                 for _, row in ipairs(rows) do
-                    total += row:gsub("0", ""):len()
+                    total = total + row:gsub("0", ""):len()
                 end
             else
                 warn("Invalid character:", c)
@@ -3353,7 +3381,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
             fireclickdetector(clickDetector)
             toolsCountLabel.Text = "Tools: " .. countTools() .. "/" .. maxTools
             task.wait(0.05)
-            attempts += 1
+            attempts = attempts + 1
             if attempts % 15 == 0 then
                 task.wait(0.08)
             end
@@ -3403,12 +3431,12 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
                                     startPos.Y + (y - 1) * pixelSize.Y,
                                     startPos.Z
                                 )
-                                toolIndex += 1
+                                toolIndex = toolIndex + 1
                             end
                         end
                     end
                 end
-                offsetX += #map[1] + 1
+                offsetX = offsetX + #map[1] + 1
             end
         end
 
@@ -3440,7 +3468,7 @@ Tabs.JJ:AddButton({"Cria Nome Extinto", function()
         getgenv()._Running = false
     end)
 end})
-Tabs.JJ:AddSection({Translator:traduzir("Crie um Muro de tools")})
+Tabs.JJ:AddSection({Translator:traduzir("🧱 Muro de Tools")})
 local selectedSize = 100 -- valor padrão
 
 local Dropdown = Tabs.JJ:AddDropdown({
@@ -3579,7 +3607,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -3591,7 +3619,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -3666,7 +3694,7 @@ Tabs.JJ:AddButton({
                             startPos.Y + (y - 1) * pixelSize.Y,
                             startPos.Z
                         )
-                        toolIndex += 1
+                        toolIndex = toolIndex + 1
                     end
                 end
             end
@@ -3692,7 +3720,7 @@ Tabs.JJ:AddButton({
         end)
     end
 })
-Tabs.JJ:AddSection({Translator:traduzir("Crie Um Tornado de tools")})
+Tabs.JJ:AddSection({Translator:traduzir("🌪️ Tornado de Tools")})
 local selectedSize = 50
 
 local Dropdown = Tabs.JJ:AddDropdown({
@@ -3830,7 +3858,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -3842,7 +3870,7 @@ Tabs.JJ:AddButton({
             local total = 0
             for _, c in ipairs({player.Backpack, player.Character}) do
                 for _, tool in ipairs(c:GetChildren()) do
-                    if tool:IsA("Tool") then total += 1 end
+                    if tool:IsA("Tool") then total = total + 1 end
                 end
             end
             return total
@@ -4004,7 +4032,7 @@ Tabs.JJ:AddButton({
         warn("Tornado interrompido com sucesso.")
     end
 })
-Tabs.JJ:AddSection({Translator:traduzir("Notificações Mapa")})
+Tabs.JJ:AddSection({Translator:traduzir("🔔 Notificações do Mapa")})
 local NotificationSystem = {
     joinLeaveEnabled = false,
     deathEnabled = false
@@ -4095,7 +4123,7 @@ if workspacePlayers then
     end)
 end
 
-Tabs.JJ:AddSection({Translator:traduzir("Jogador Euzinho")})
+Tabs.JJ:AddSection({Translator:traduzir("🤏 Modo Miniatura")})
 
 local PlayerAbilities = {
     noClip = false,
@@ -4184,7 +4212,7 @@ Tabs.JJ:AddToggle({
     end
 })
 
-Tabs.JJ:AddSection({Translator:traduzir("Voo & Equipe All")})
+Tabs.JJ:AddSection({Translator:traduzir("🦅 Voo & Equipe")})
 Tabs.JJ:AddButton({
     Translator:traduzir("Fly Mobile"),
     function()
@@ -4202,7 +4230,7 @@ end})
 -- ===========================
 -- SEÇÃO: PEGAR TOOLS (DROPDOWN)
 -- ===========================
-Tabs.JJ:AddSection({Translator:traduzir("Pegar Tools")})
+Tabs.JJ:AddSection({Translator:traduzir("🧰 Pegar Tools")})
 
 local toolsJJ = {
     -- Items do fireclickdetector (001_GiveTools)
@@ -4329,7 +4357,7 @@ Tabs.JJ:AddButton({
 RunService.Stepped:Connect(updateNoClip)
 UserInputService.JumpRequest:Connect(onJumpRequest)
 -- ================== SEÇÃO: SISTEMA DE TELEPORTE ==================
-Tabs.JJ:AddSection({Translator:traduzir("Teleporte")})
+Tabs.JJ:AddSection({Translator:traduzir("📍 Teleporte")})
 
 local TeleportSystem = {
     selectedPlayer = nil,
@@ -4464,6 +4492,10 @@ Tabs.JJ:AddToggle({
     end
 })
 end
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: TROLAR (TT)                                     ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - TT///////-----------------
 do
 local Players = game:GetService("Players")
@@ -4586,7 +4618,7 @@ local selectedPlayer = nil
 local flingEnabled = false
 
 local Annoy = Tabs.TT:AddDropdown({
-  Name = Translator:traduzir("Selecionar Jogador"),
+  Name = Translator:traduzir("🎯 Selecionar Jogador"),
   Description = Translator:traduzir("Escolha um jogador para aplicar o efeito"),
   Options = novaTabela,
   Default = "Players",
@@ -4695,7 +4727,7 @@ local parteMapeada = {
 }
 
 
-Tabs.TT:AddSection({Name = Translator:traduzir("Pirralhos Trolagem <filho>")})
+Tabs.TT:AddSection({Name = Translator:traduzir("😈 Trolagem Geral")})
 
 local playerDropdown = Tabs.TT:AddDropdown({
     Name = Translator:traduzir("Escolher Jogador"),
@@ -4811,7 +4843,7 @@ Tabs.TT:AddButton({
     end
 })
 
-Tabs.TT:AddSection({Translator:traduzir("Criar Estruturas")})
+Tabs.TT:AddSection({Translator:traduzir("🏗️ Criar Estruturas")})
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
@@ -4861,7 +4893,7 @@ local Button = Tabs.TT:AddButton({
 })
 end
 do
-Tabs.TT:AddSection({Translator:traduzir("Bring Partes Update  [Beta]")})
+Tabs.TT:AddSection({Translator:traduzir("🔄 Bring Partes")})
 local Players,RS,RunService,TweenService,Lighting,Workspace,TCS,UserInputService =
     game:GetService("Players"),
     game:GetService("ReplicatedStorage"),
@@ -5002,8 +5034,8 @@ local function toggleBlackHole(v)
         task.spawn(function()
             local rotationSpeed, pulseTime = 0,0
             while blackHoleActive and blackHoleModel.Parent do
-                rotationSpeed += math.rad(1.5)
-                pulseTime += 0.02
+                rotationSpeed = rotationSpeed + math.rad(1.5)
+                pulseTime = pulseTime + 0.02
                 for i,disk in pairs(diskLayers) do
                     if disk and disk.Parent then
                         local diskSpeed = rotationSpeed*(1+i*0.2)
@@ -5213,7 +5245,7 @@ Dropdown.BorderSizePixel = 0
 Dropdown.Position = UDim2.new(0.08, 0, 0.25, 0) 
 Dropdown.Size = UDim2.new(0.84, 0, 0.25, 0) 
 Dropdown.FontFace = Font.new("rbxasset://fonts/families/Nunito.json", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal) 
-Dropdown.Text = "Selecionar Jogador" 
+Dropdown.Text = "🎯 Selecionar Jogador" 
 Dropdown.TextColor3 = Color3.fromRGB(220, 220, 220) 
 Dropdown.TextScaled = true 
 Dropdown.TextSize = 18
@@ -5646,7 +5678,7 @@ local function KillPlayerCouch()
     hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
     hum.PlatformStand = false
     local cam = workspace.CurrentCamera
-    cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
+    Camera.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
 
     local align = Instance.new("BodyPosition")
     align.Name = "BringPosition"
@@ -5666,7 +5698,7 @@ local function KillPlayerCouch()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle += 50
+            angle = angle + 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -5676,7 +5708,7 @@ local function KillPlayerCouch()
         align:Destroy()
         hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
         hum.PlatformStand = false
-        cam.CameraSubject = hum
+        Camera.CameraSubject = hum
 
         for _, p in pairs(char:GetDescendants()) do
             if p:IsA("BasePart") then
@@ -5737,7 +5769,7 @@ local function BringPlayerLLL()
 
     hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
     hum.PlatformStand = false
-    cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
+    Camera.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
 
     local align = Instance.new("BodyPosition")
     align.Name = "BringPosition"
@@ -5757,7 +5789,7 @@ local function BringPlayerLLL()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle += 50
+            angle = angle + 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -5767,7 +5799,7 @@ local function BringPlayerLLL()
         align:Destroy()
         hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
         hum.PlatformStand = false
-        cam.CameraSubject = hum
+        Camera.CameraSubject = hum
 
         for _, p in pairs(char:GetDescendants()) do
             if p:IsA("BasePart") then
@@ -6028,7 +6060,7 @@ local function playerCorrupt()
     task.wait()
     couch.Parent = LocalPlayer.Backpack
     seat1.CFrame = CFrame.new(Vector3.new(0/0, 0/0, 0/0))
-    seat2.CFrame.new(Vector3.new(0/0, 0/0, 0/0))
+    seat2.CFrame = CFrame.new(Vector3.new(0/0, 0/0, 0/0))
     couch.Parent = LocalPlayer.Character
     task.wait(0.1)
     couch.Parent = LocalPlayer.Backpack
@@ -6078,7 +6110,7 @@ local function jailcouch()
     hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
     hum.PlatformStand = false
     local cam = workspace.CurrentCamera
-    cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
+    Camera.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
 
     local align = Instance.new("BodyPosition")
     align.Name = "BringPosition"
@@ -6098,7 +6130,7 @@ local function jailcouch()
             local hrp = target.Character.HumanoidRootPart
             local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
 
-            angle += 50
+            angle = angle + 50
             root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
             align.Position = root.Position + Vector3.new(2, 0, 0)
 
@@ -6108,7 +6140,7 @@ local function jailcouch()
         align:Destroy()
         hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
         hum.PlatformStand = false
-        cam.CameraSubject = hum
+        Camera.CameraSubject = hum
 
         for _, p in pairs(char:GetDescendants()) do
             if p:IsA("BasePart") then
@@ -6132,7 +6164,7 @@ local function jailcouch()
 end
 
 
-    local PlayerSection = Tabs.TT:AddSection({ Name = "Trolar Jogadores <News Functions>" })
+    local PlayerSection = Tabs.TT:AddSection({ Name = "🎭 Trolar Jogadores" })
 
     local killDropdown = Tabs.TT:AddDropdown({
         Name = Translator:traduzir("Selecione um jogador"),
@@ -6203,7 +6235,7 @@ Tabs.TT:AddToggle({
         end
     })
 
-local MethodSection = Tabs.TT:AddSection({Name = Translator:traduzir("Formas De matar <Variados>")})
+local MethodSection = Tabs.TT:AddSection({Name = Translator:traduzir("💀 Formas de Matar")})
 
 Tabs.TT:AddSlider({
     Name = Translator:traduzir("Estabilizador de Tp"),
@@ -6554,7 +6586,7 @@ local function FlingBall(target)
 
                 local position = Vector3.new(pos_x, pos_y, pos_z)
                 Ball.CFrame = CFrame.new(position)
-                Ball.Orientation += Vector3.new(45, 60, 30)
+                Ball.Orientation = Orientation + Vector3.new(45, 60, 30)
                 else
                 for i, v in pairs(tchar:GetChildren()) do
                 if v:IsA("BasePart") and v.CanCollide and not v.Anchored then
@@ -6966,7 +6998,7 @@ end
 })]]
 end
 do
-Tabs.TT:AddSection({Translator:traduzir("Funções Mata <Todos>")})
+Tabs.TT:AddSection({Translator:traduzir("☠️ Matar Todos")})
 Tabs.TT:AddButton({
     Name = Translator:traduzir("Mata Geral De Ônibus"),
     Callback = function()
@@ -7358,11 +7390,11 @@ local Button = Tabs.TT:AddButton({Translator:traduzir("Joga bola <Todos>"), func
                     while t < 3 and player.Character and player.Character:FindFirstChild("Humanoid") do
                         if wasFlinged(player) then break end
                         task.wait(0.2)
-                        t += 0.2
+                        t = t + 0.2
                     end
 
                     if wasFlinged(player) then
-                        flingCount += 1
+                        flingCount = flingCount + 1
                     end
                 end
             end
@@ -8032,7 +8064,7 @@ function InputHandler.handleTouch(touches, processed, callback)
     end
 end
 
-    Tabs.TT:AddSection({Translator:traduzir("Matar Jogadores Com Clique")})
+    Tabs.TT:AddSection({Translator:traduzir("🖱️ Kill por Clique")})
     
     Tabs.TT:AddButton({
         Name = Translator:traduzir("Clique Admin <Fling>"),
@@ -8158,7 +8190,7 @@ local function FlingBall(target)
 		
 			local altura = math.sin(tempo * 7) * 2
 			Ball.CFrame = CFrame.new(pos.X, pos.Y + altura, pos.Z)
-			Ball.Orientation += Vector3.new(45, 60, 30)
+			Ball.Orientation = Orientation + Vector3.new(45, 60, 30)
 
 			task.wait(1 / 5000)
 		until troot.Velocity.Magnitude > 1000 or thum.Health <= 0 or not tchar:IsDescendantOf(mundo) or target.Parent ~= jogadores
@@ -8180,7 +8212,7 @@ entrada.TouchTap:Connect(function(toques, processado)
 end)
 
 end
-Tabs.TT:AddSection({Translator:traduzir("Items Tool")})
+Tabs.TT:AddSection({Translator:traduzir("🔧 Items Tool")})
 local Button = Tabs.TT:AddButton({Translator:traduzir("Telecinese"), function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/SAZXHUB/Control-update/main/README.md', true))()
 end})
@@ -8274,7 +8306,7 @@ local Button = Tabs.TT:AddButton({Translator:traduzir("Pegar Teleport tool"), fu
 end})
 
 do
-Tabs.TT:AddSection({Translator:traduzir("Orbitar")})
+Tabs.TT:AddSection({Translator:traduzir("🔵 Orbitar")})
 local orbit = nil
 local orbiting = false
 local tweenSpeed = 20
@@ -8338,7 +8370,7 @@ Tabs.TT:AddToggle({
 	end
 })
 
-Tabs.TT:AddSection({Translator:traduzir("Zaralha boneco headsit")})
+Tabs.TT:AddSection({Translator:traduzir("🪑 Headsit / Boneco")})
 local selectedHeadSit = nil
 local headSitConnection = nil
 
@@ -8360,6 +8392,8 @@ Tabs.TT:AddButton({
                 table.insert(novaTabela, v.Name)
             end
         end
+        -- novaTabela deve estar definida acima
+
         headSitDropdown:Set(novaTabela)
     end
 })
@@ -8515,7 +8549,7 @@ pcall(function()
 end)
 
 -- ===== UI DA TAB PROPS =====
-Tabs.Props:AddSection({Translator:traduzir("Selecionar Jogador")})
+Tabs.Props:AddSection({Translator:traduzir("🎯 Selecionar Jogador")})
 
 local propPlayerDropdown = Tabs.Props:AddDropdown({
     Name = Translator:traduzir("Escolher Player"),
@@ -8541,7 +8575,7 @@ Tabs.Props:AddButton({
 })
 
 -- ===== RGB PROPS =====
-Tabs.Props:AddSection({Translator:traduzir("Efeitos Visuais")})
+Tabs.Props:AddSection({Translator:traduzir("🎆 Efeitos Visuais")})
 Tabs.Props:AddToggle({
     Name = Translator:traduzir("Auto RGB Props"),
     Default = false,
@@ -8595,10 +8629,10 @@ local function StartPropRaid_SH()
         local props = GetMyPropsRaid_SH()
         local targets = getTargetsRaid_SH()
         if #props == 0 or #targets == 0 then return end
-        angle_SH += math.rad(20)
+        angle_SH = angle_SH + math.rad(20)
         if height_SH > 4 then dir_SH = -1 end
         if height_SH < -4 then dir_SH = 1 end
-        height_SH += 0.3 * dir_SH
+        height_SH = height_SH + 0.3 * dir_SH
         for i, prop in ipairs(props) do
             local target = PROP_RAID_Targets_SH[prop]
             if not target or not target.Character then
@@ -8635,7 +8669,7 @@ local function StartHunter_SH()
     local t = 0
     HUNT_CONNECTION_SH = RunService.Heartbeat:Connect(function(dt)
         if not CHARACTER_SH or not HRP_SH then return end
-        t += dt
+        t = t + dt
         local props = GetMyPropsRaid_SH()
         if #props == 0 then return end
         local targets = {}
@@ -8703,7 +8737,7 @@ Tabs.Props:AddToggle({
                 if not CHARACTER_SH or not HRP_SH then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                time_c += dt * 10
+                time_c = time_c + dt * 10
                 for i, prop in ipairs(props) do
                     local phase = time_c - i * 1.1
                     local backDir = -HRP_SH.CFrame.LookVector
@@ -8730,7 +8764,7 @@ Tabs.Props:AddToggle({
                 if not CHARACTER_SH or not HRP_SH then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 4
+                t = t + dt * 4
                 for i, prop in ipairs(props) do
                     local ang = t + (i*0.7)
                     local radius = 4 + math.sin(t+i)*3
@@ -8758,7 +8792,7 @@ Tabs.Props:AddToggle({
                 if not CHARACTER_SH or not HRP_SH then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                spin += dt * 1.5
+                spin = spin + dt * 1.5
                 local total = #props
                 for i, prop in ipairs(props) do
                     local angle = ((i-1)/total)*math.pi*2 + spin
@@ -8785,7 +8819,7 @@ Tabs.Props:AddToggle({
                 if not CHARACTER_SH or not HRP_SH then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 2.5
+                t = t + dt * 2.5
                 for i, prop in ipairs(props) do
                     local phase = t + i
                     local dir = (HRP_SH.CFrame.LookVector * math.cos(phase*1.3)*8) + (HRP_SH.CFrame.RightVector * math.sin(phase*1.7)*8)
@@ -8814,7 +8848,7 @@ Tabs.Props:AddToggle({
                 if not CHARACTER_SH or not HRP_SH then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 1.8
+                t = t + dt * 1.8
                 local center = HRP_SH.Position + HRP_SH.CFrame.LookVector*8 + Vector3.new(0,2,0)
                 local total = #props
                 for i, prop in ipairs(props) do
@@ -8855,7 +8889,7 @@ Tabs.Props:AddToggle({
                 if not root or not hum then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 3
+                t = t + dt * 3
                 for i, prop in ipairs(props) do
                     if hum.Sit then
                         if not SentProps_SH[prop] then
@@ -8894,7 +8928,7 @@ Tabs.Props:AddToggle({
                 if not root or not hum then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 3
+                t = t + dt * 3
                 for i, prop in ipairs(props) do
                     if hum.Sit then
                         pcall(function() prop.SetCurrentCFrame:InvokeServer(CFrame.new(root.Position.X, -460, root.Position.Z)) end)
@@ -8928,7 +8962,7 @@ Tabs.Props:AddToggle({
                 if not root or not hum or hum.Health <= 0 then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 10
+                t = t + dt * 10
                 for i, prop in ipairs(props) do
                     local phase = t - i*1.1
                     local backDir = -root.CFrame.LookVector
@@ -8958,7 +8992,7 @@ Tabs.Props:AddToggle({
                 if not root then return end
                 local props = GetMyPropsRaid_SH()
                 if #props == 0 then return end
-                t += dt * 1.8
+                t = t + dt * 1.8
                 local total = #props
                 local gapAngle = math.rad(70)
                 local usableAngle = (math.pi*2) - gapAngle
@@ -8976,6 +9010,10 @@ Tabs.Props:AddToggle({
 end -- end Props do block
 
 
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: LAG SERVIDOR (LG)                               ║
+-- ╚══════════════════════════════════════════════════════╝
 
 -----------------/////// TABS - LG (CORRIGIDA E COMPLETA) /////////-----------------
 do
@@ -9287,7 +9325,7 @@ do
     -- (Nota: Assumimos que Tabs.LG existe e tem métodos AddSection, AddDropdown, AddToggle, AddButton)
     -- Se não existir, o código quebraria, mas faz parte do script principal.
 
-    Tabs.LG:AddSection({"Lag Server Controle"})
+    Tabs.LG:AddSection({"⚙️ Controle de Lag"})
 
     Tabs.LG:AddDropdown({
         Name = "Selecione Tipo de lag",
@@ -9309,7 +9347,7 @@ do
         end
     })
 
-    Tabs.LG:AddSection({"Alvos Do Lags v1"})
+    Tabs.LG:AddSection({"🎯 Alvos do Lag"})
 
     local function UpdatePlayerList()
         local list = {}
@@ -9395,7 +9433,7 @@ do
         end
     })
 
-    Tabs.LG:AddSection({"Lag Geral e uma pessoa"})
+    Tabs.LG:AddSection({"👤 Lag Individual"})
 
     local selectedTarget = nil
 
@@ -9511,7 +9549,7 @@ do
     })
 
     -- ========== PAINEL DE LAGS V3 (com cache e spam controlado) ==========
-    Tabs.LG:AddSection({"Painel De Lags V3"})
+    Tabs.LG:AddSection({"📋 Painel de Lag V3"})
 
     local heartbeatConnection = nil
     local selectedName = "Common"
@@ -9623,6 +9661,14 @@ do
         end
     end)
 end
+
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: ÁUDIO / MÚSICA (AD)                             ║
+-- ╚══════════════════════════════════════════════════════╝
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: ÁUDIO / MÚSICA (AD)                             ║
+-- ╚══════════════════════════════════════════════════════╝
 
 -----------------///////TABS - AD///////-----------------
 do
@@ -9912,7 +9958,7 @@ local audioManager = AudioManager.new()
 local trollAudioNames = extractAudioNames(TROLL_AUDIOS)
 local loudAudioNames = extractAudioNames(LOUD_AUDIOS)
 
-Tabs.AD:AddSection({Translator:traduzir("Áudios de Trollagem")})
+Tabs.AD:AddSection({Translator:traduzir("😂 Áudios de Trolagem")})
 Tabs.AD:AddDropdown({
     Name = Translator:traduzir("Escolher Áudio de Troll"),
     Description = Translator:traduzir("Selecione um áudio para trollar"),
@@ -9960,7 +10006,7 @@ Tabs.AD:AddToggle({
     end
 })
 
-Tabs.AD:AddSection({Translator:traduzir("Áudios Estourados")})
+Tabs.AD:AddSection({Translator:traduzir("💥 Áudios Estourados")})
 
 Tabs.AD:AddDropdown({
     Name = Translator:traduzir("Escolher Áudio Estourado"),
@@ -10000,7 +10046,7 @@ Tabs.AD:AddToggle({
     end
 })
 
-Tabs.AD:AddSection({Translator:traduzir("Configurações Especiais")})
+Tabs.AD:AddSection({Translator:traduzir("⚙️ Configurações de Áudio")})
 
 Tabs.AD:AddToggle({
     Name = Translator:traduzir("Áudio Estourado Rápido"),
@@ -10162,7 +10208,7 @@ Toggle:Callback(function(Value)
 end)
 
 -- ========== NOVA SEÇÃO DE MÚSICA (baseada no modelo) ==========
-Tabs.AD:AddSection({Translator:traduzir("🎧 Música no Rádio <Game Pass>")})
+Tabs.AD:AddSection({Translator:traduzir("🎧 Rádio (Game Pass)")})
 Tabs.AD:AddParagraph({
     Title = "💡 Dicas Rápidas",
     Content = "1. Equipe o rádio primeiro.\n2. IDs podem expirar (Roblox bloqueia).\n3. Use 0 para parar todas as músicas."
@@ -10365,14 +10411,14 @@ local function makeMusicDropdown(name, data)
 end
 
 -- Cria os dropdowns por categoria
-Tabs.AD:AddSection({Translator:traduzir("🎵 Categorias de Música")})
+Tabs.AD:AddSection({Translator:traduzir("🎵 Categorias")})
 makeMusicDropdown("🔥 Funk", Funk)
 makeMusicDropdown("💨 Phonk", Phonk)
 makeMusicDropdown("🎶 Forró", Forro)
 makeMusicDropdown("🎧 Aleatórios", Aleatorio)
 
 -- ID personalizado
-Tabs.AD:AddSection({Translator:traduzir("🎵 ID Personalizado")})
+Tabs.AD:AddSection({Translator:traduzir("🎼 ID Personalizado")})
 local CustomMusicID = ""
 Tabs.AD:AddTextBox({
     Name = "Digite o ID da Música",
@@ -10393,7 +10439,7 @@ Tabs.AD:AddButton({
 })
 
 -- Ferramentas rápidas
-Tabs.AD:AddSection({Translator:traduzir("🔧 Ferramentas Rápidas")})
+Tabs.AD:AddSection({Translator:traduzir("⚡ Ferramentas Rápidas")})
 Tabs.AD:AddButton({
     Name = "📻 Equipar Rádio / Boombox",
     Callback = function()
@@ -10419,9 +10465,17 @@ Tabs.AD:AddButton({
 
 print("✅ Sistema de música carregado com categorias!")
 end
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: ROUPAS / AVATAR (AVT)                           ║
+-- ╚══════════════════════════════════════════════════════╝
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: ROUPAS / AVATAR (AVT)                           ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - AVT///////-----------------
 do
-Tabs.AVT:AddSection({Translator:traduzir("Animação & Reset")})
+Tabs.AVT:AddSection({Translator:traduzir("🕺 Animação & Reset")})
 Tabs.AVT:AddButton({Translator:traduzir("Reseta Avatar"), function()
 game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
 end})
@@ -10434,7 +10488,7 @@ game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
 
 end})
 
-Tabs.AVT:AddSection({Translator:traduzir("Melhores Partes")})
+Tabs.AVT:AddSection({Translator:traduzir("⭐ Melhores Partes")})
 Tabs.AVT:AddButton({Translator:traduzir("Cabeça Invisível"), function()
     local args = {
     [1] = 134082579
@@ -10450,10 +10504,10 @@ Tabs.AVT:AddButton({Translator:traduzir("Machado Escuro"), function()
 game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
 end})
 
-Tabs.AVT:AddSection({Translator:traduzir("Sistema de Avatares")})
+Tabs.AVT:AddSection({Translator:traduzir("👤 Sistema de Avatares")})
 local Target = nil
 local Playestt = Tabs.AVT:AddDropdown({
-    Name = Translator:traduzir("Selecionar Jogador"),
+    Name = Translator:traduzir("🎯 Selecionar Jogador"),
     Description = " ",
     Options = {},
     Default = Target,
@@ -10613,7 +10667,7 @@ redzlib:Notify({
     end
 })
 
-Tabs.AVT:AddSection({Translator:traduzir("Super Heróis <Packs>")})
+Tabs.AVT:AddSection({Translator:traduzir("🦸 Packs — Super Heróis")})
 
 local roupasCompletas = {
     ["Homen Aranha"] = {14908247332, 16845737664, 17582186503,4211409027, 14840793625, 11774975425, 18507527463, 3346307465},
@@ -10687,7 +10741,7 @@ local function aplicarPackCompleto(idsDeRoupas, corpoParts, corHex)
     end
 end
 
-Tabs.AVT:AddSection({Translator:traduzir("Mulher Bonita <Packs>")})
+Tabs.AVT:AddSection({Translator:traduzir("💃 Packs — Femininos")})
 
 Tabs.AVT:AddButton({Translator:traduzir("Diva"), function()
     aplicarPackCompleto(
@@ -10749,7 +10803,7 @@ Window:Dialog({
 end})
 ----‐-----////////////up
 
-Tabs.AVT:AddSection({Translator:traduzir("Packs <Masculinos")})
+Tabs.AVT:AddSection({Translator:traduzir("🧑 Packs — Masculinos")})
 Tabs.AVT:AddButton({Translator:traduzir("E os D <Masculino>"), function()
     aplicarPackCompleto(
         {619544080, 4545294588, 5727822995, 3131092953, 14394019402, 14908247332, 6105519422, 100214234209945, 12655501529, 5315424251, 4378579302, 10569953351, 4078052877, 4508445398, 6070755733, 10159610478, 14159848208, 162068415, 6093227893,},
@@ -10793,7 +10847,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Sem dona <Masculino>"), function()
         "Dark nougat"
     )
 end})
-Tabs.AVT:AddSection({Translator:traduzir("Packs Variados <Conjuntos>")})
+Tabs.AVT:AddSection({Translator:traduzir("🎨 Conjuntos Variados")})
 Tabs.AVT:AddButton({Translator:traduzir(" Paty Urbana"), function()
     aplicarPackCompleto(
         {11356850323, 11437083587, 11352777399},
@@ -10808,7 +10862,7 @@ Tabs.AVT:AddButton({Translator:traduzir(" Freak Show"), function()
         "Ivory"
     )
 end})
-Tabs.AVT:AddSection({Translator:traduzir("Roupas 3D <Conjuntos>")})
+Tabs.AVT:AddSection({Translator:traduzir("👗 Roupas 3D")})
 local skinIDs = {
 	["Mostro do S.A"] = 123609977175226,
 	["Impostor"] = 18234669337,
@@ -10851,7 +10905,7 @@ Tabs.AVT:AddButton({Translator:traduzir("Vestir"), function()
 end})
 end
 do
-Tabs.AVT:AddSection({Translator:traduzir("Especiais Efeitos <Acessórios>")})
+Tabs.AVT:AddSection({Translator:traduzir("✨ Efeitos Especiais")})
 
 local acessoriosEspeciais = {
     ["Fada do Outono"] = 128217885,
@@ -10894,9 +10948,13 @@ Tabs.AVT:AddButton({
     end
 })
 end
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: CASA (HouseTab)                                 ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - HouseTab///////-----------------
 do
-Tabs.HouseTab:AddSection({Translator:traduzir("Música na Casa (Game Pass)")})
+Tabs.HouseTab:AddSection({Translator:traduzir("🎵 Música na Casa")})
 local selectedMusic = ""
 local MusicsList = {
 	{ Name = "Leaked by WxDeveloper", Id =  10561310081763},
@@ -10974,7 +11032,7 @@ end
 
 local selectedHouseNumber = nil
 
-Tabs.HouseTab:AddSection({Translator:traduzir("Funções Avançadas <Casas>")})
+Tabs.HouseTab:AddSection({Translator:traduzir("🏠 Funções Avançadas")})
 local CasasOpem = Tabs.HouseTab:AddDropdown({
     Name = Translator:traduzir("Selecionar Uma Casa"),
     Description = "Select the <font color='rgb(88, 101, 242)'>House</font>",
@@ -11093,7 +11151,7 @@ Toggle:Callback(function(Value)
                     end
                 end
 end)
-Tabs.HouseTab:AddSection({Translator:traduzir("Casa Assombrada")})
+Tabs.HouseTab:AddSection({Translator:traduzir("👻 Casa Assombrada")})
 local RemoteEvent = ReplicatedStorage.RE:FindFirstChild("1Player1sHous1e")
 
 local toggles = {
@@ -11155,7 +11213,7 @@ do
 local selectedPlayer = nil
 local blacklistActive = false
 
-Tabs.HouseTab:AddSection({Translator:traduzir("Banir Jogadores")})
+Tabs.HouseTab:AddSection({Translator:traduzir("🚫 Banir Jogadores")})
 
 local Players11 = Tabs.HouseTab:AddDropdown({
     Name = Translator:traduzir("Jogadores"),
@@ -11253,7 +11311,7 @@ local House1, House2, House3 = "", "", ""
 
 local repeatNames = false
 
-Tabs.HouseTab:AddSection({Translator:traduzir("Funções Avançada Da Casa")})
+Tabs.HouseTab:AddSection({Translator:traduzir("🔧 Funções Extras")})
 
 Tabs.HouseTab:AddTextBox({
 	Title = Translator:traduzir("Definir O Nome"),
@@ -11315,9 +11373,13 @@ Tabs.HouseTab:AddToggle({
 	end
 })
 end
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: CARRO (Carros)                                  ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - Carros///////-----------------
 do
-Tabs.Carros:AddSection({Translator:traduzir("Velocidade Do Carro Sem <GamePass>")})
+Tabs.Carros:AddSection({Translator:traduzir("⚡ Velocidade do Carro")})
 local carSpeed = 25
 local turboValue = "25"
 
@@ -11386,7 +11448,7 @@ Tabs.Carros:AddButton({
 })
 end
 do
-Tabs.Carros:AddSection({Translator:traduzir("Musica No Carro (Game Pass)")})
+Tabs.Carros:AddSection({Translator:traduzir("🎵 Música no Carro")})
 local selectedMusic = ""
 
 local MusicsList = {
@@ -11594,7 +11656,7 @@ end
 
 local selectedVehicle = nil
 
-Tabs.Carros:AddSection({Translator:traduzir("Carro Funções")})
+Tabs.Carros:AddSection({Translator:traduzir("🔩 Funções do Carro")})
 local CarrosTT = Tabs.Carros:AddDropdown({
     Name = Translator:traduzir("Selecione um carro"),
     Description = Translator:traduzir("Selecionar Um Carro para as funções"),
@@ -11684,7 +11746,7 @@ Tabs.Carros:AddToggle({
 })
 end
 do
-Tabs.Carros:AddSection({Translator:traduzir("Extreme Carros <Super>")})
+Tabs.Carros:AddSection({Translator:traduzir("🚀 Carros Extremos")})
 Tabs.Carros:AddButton({
     Name = Translator:traduzir("Fly Carro Free"),
     Callback = function()
@@ -11890,7 +11952,7 @@ local function toggleESP(state)
     end
 end
 
-Tabs.Carros:AddSection({Translator:traduzir("Avançado")})
+Tabs.Carros:AddSection({Translator:traduzir("🔬 Avançado")})
 local Toggle = Tabs.Carros:AddToggle({Name = Translator:traduzir("Esp Carros"), Description = Translator:traduzir("Mostra Carros no mapa"), Default = false})
 
 Toggle:Callback(function(value)
@@ -11932,7 +11994,7 @@ Tabs.Carros:AddToggle({
     end
 })
 
-Tabs.Carros:AddSection({Translator:traduzir("Seção Kill Car")})
+Tabs.Carros:AddSection({Translator:traduzir("💥 Kill Car")})
 local selectedPlayer = nil
 local flingLoop = false
 local viewLoop = false
@@ -12067,6 +12129,10 @@ Day_Toggle:Callback(function(Value)
         game:GetService("Lighting").ClockTime = 0
     end
 end)]]
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: PORTAL / TELEPORTE (Tp)                         ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - Tp///////-----------------
 do
 local teleportButtons = {
@@ -12146,7 +12212,7 @@ if #opcoesTeleporte > 0 then
     end
 end
 
-Tabs.Tp:AddSection({Translator:traduzir("Teleportes Variados")})
+Tabs.Tp:AddSection({Translator:traduzir("🗺️ Teleportes")})
 local Button = Tabs.Tp:AddButton({Translator:traduzir("Servidor Com Pouca Pessoas"), function()
   Hop()
 end})
@@ -12278,8 +12344,12 @@ local Button = Tabs.Tp:AddButton({Translator:traduzir("Reentra No Servidor"), fu
   game:GetService("TeleportService"):Teleport(game.PlaceId, game:GetService("Players").LocalPlayer)
 end})
 end
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  TAB: CONFIGURAÇÕES (CFG)                             ║
+-- ╚══════════════════════════════════════════════════════╝
+
 -----------------///////TABS - CFG///////----------------
-Tabs.CFG:AddSection({Translator:traduzir("Sistema De Variações")})
+Tabs.CFG:AddSection({Translator:traduzir("⚙️ Variações")})
 local antiSitConnections = {}
 local isAntiSitActive = false
 
@@ -12353,7 +12423,7 @@ Tabs.CFG:AddToggle({
 Tabs.CFG:AddToggle({Name = Translator:traduzir("Clube Brooks"), Description = Translator:traduzir("Sistema de webhook do clube!"), Default = true})
 Tabs.CFG:AddToggle({Name = Translator:traduzir("Anti Skidder"), Description = Translator:traduzir("Anti Skid > Open Source [ Discord ]"), Default = true})
 
-   Tabs.CFG:AddSection({Translator:traduzir("Desenvolvedores")})
+   Tabs.CFG:AddSection({Translator:traduzir("👨‍💻 Desenvolvedores")})
 local function createBillboard(playerName, displayText, guiName)
     local target = workspace:FindFirstChild(playerName)
     if not target then return end
@@ -12505,6 +12575,10 @@ print([[
 | Version:                 4.0.2                    |
 =====================================================
 ]])
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  PAINEL ADMIN  (autorizado via GitHub)                ║
+-- ╚══════════════════════════════════════════════════════╝
 -----------------/////// STAR HUB - PAINEL ADMIN PREMIUM /////////-----------------
 do
     -- ==================== SERVIÇOS ====================
