@@ -396,28 +396,23 @@ Text = Translator:traduzir("E aí! Você acaba de dar o play no STAR HUB. Está 
     }
 })
 local Tabs = {
-    -- Informações & Início
     M        = Window:MakeTab({Translator:traduzir("Informações"),  "info"}),
-    H        = Window:MakeTab({Translator:traduzir("Início"),       "zap"}),
-    -- Personagem & Efeitos
+    H        = Window:MakeTab({Translator:traduzir("Início"),       "activity"}),
     JJ       = Window:MakeTab({Translator:traduzir("Personagem"),   "user"}),
-    RGB      = Window:MakeTab({Translator:traduzir("RGB"),          "rainbow"}),
-    -- Trolagem & Combate
+    RGB      = Window:MakeTab({Translator:traduzir("RGB"),          "palette"}),
     TT       = Window:MakeTab({Translator:traduzir("Trolar"),       "flame"}),
     Props    = Window:MakeTab({Translator:traduzir("Props"),        "package"}),
     Client   = Window:MakeTab({Translator:traduzir("Spam"),         "repeat"}),
     LG       = Window:MakeTab({Translator:traduzir("Lag"),          "bomb"}),
-    -- Personalização
     AD       = Window:MakeTab({Translator:traduzir("Áudio"),        "headphones"}),
     AVT      = Window:MakeTab({Translator:traduzir("Roupas"),       "shirt"}),
     HouseTab = Window:MakeTab({Translator:traduzir("Casa"),         "home"}),
     Carros   = Window:MakeTab({Translator:traduzir("Carro"),        "truck"}),
-    -- Mundo & Utilidades
     SS       = Window:MakeTab({Translator:traduzir("Skybox"),       "cloud"}),
     PR       = Window:MakeTab({Translator:traduzir("Proteção"),     "shield"}),
     AI       = Window:MakeTab({Translator:traduzir("IA"),           "cpu"}),
     SB       = Window:MakeTab({Translator:traduzir("Scripts"),      "code"}),
-    Tp       = Window:MakeTab({Translator:traduzir("Portal"),       "map-pin"}),
+    Tp       = Window:MakeTab({Translator:traduzir("Portal"),       "map"}),
     CFG      = Window:MakeTab({Translator:traduzir("Config"),       "settings"}),
 }
 
