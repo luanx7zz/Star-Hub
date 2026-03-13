@@ -1,4 +1,4 @@
---// ServiÃ§os
+--// Serviços
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,7 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local SoundService = game:GetService("SoundService")
 local ChatService = game:GetService("Chat") or game:GetService("TextChatService")
-local TextChatService = game:GetService("TextChatService") -- para usar na funÃ§Ã£o SendChat
+local TextChatService = game:GetService("TextChatService") -- para usar na função SendChat
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -32,7 +32,7 @@ local BoardCount = Workspace.WorkspaceCom["001_OfficeBuildings"].OfficeSigns.Off
 local BoardRemote = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Schoo1lDr1yBoard1s")
 
 -- ========================================
--- FUNÃ‡ÃƒO PARA ENVIAR CHAT (fornecida)
+-- FUNÇÃO PARA ENVIAR CHAT (fornecida)
 -- ========================================
 local function SendChat(msg)
     if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
@@ -81,7 +81,7 @@ local function GetCargo(playerName)
     return ""
 end
 
--- FunÃ§Ã£o para criar tags
+-- Função para criar tags
 local function CreatePlayerTag(playerName, tagText, tagName, borderColor, gradientColor)
     tagName = tagName or "SpectraTag"
     local player = Players:FindFirstChild(playerName)
@@ -192,7 +192,7 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 -- ========================================
--- VARIÃVEIS GLOBAIS PARA COMANDOS
+-- VARIÁVEIS GLOBAIS PARA COMANDOS
 -- ========================================
 local playerOriginalSpeed = {}
 local INVISIBLE_JAILED_PLAYERS = {}
@@ -202,14 +202,14 @@ local LOOP_FIRE_PLAYERS = {}
 local CRASHED_PLAYERS = {}
 
 -- ========================================
--- FUNÃ‡Ã•ES AUXILIARES
+-- FUNÇÕES AUXILIARES
 -- ========================================
 local function Char() return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait() end
 local function Humanoid() return Char():WaitForChild("Humanoid") end
 local function HRP() return Char():WaitForChild("HumanoidRootPart") end
 
 -- ========================================
--- FUNÃ‡Ã•ES DE COMANDOS
+-- FUNÇÕES DE COMANDOS
 -- ========================================
 
 -- Kill
@@ -310,19 +310,19 @@ local function GotoPlayer(targetPlayer)
     local targetHrp = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not targetHrp then return false end
 
-    -- PosiÃ§Ã£o alvo: um pouco Ã  frente do jogador (para nÃ£o ficar dentro dele)
+    -- Posição alvo: um pouco à frente do jogador (para não ficar dentro dele)
     local targetPos = targetHrp.Position + targetHrp.CFrame.LookVector * 3
 
     -- Teleporta o personagem do executor
     local character = LocalPlayer.Character
     if not character then return false end
 
-    -- Move todas as partes do personagem (incluindo acessÃ³rios)
+    -- Move todas as partes do personagem (incluindo acessórios)
     local rootPart = character:FindFirstChild("HumanoidRootPart")
     if rootPart then
         rootPart.CFrame = CFrame.new(targetPos)
     else
-        -- fallback: se nÃ£o achar o root, tenta mover todas as partes
+        -- fallback: se não achar o root, tenta mover todas as partes
         for _, v in pairs(character:GetDescendants()) do
             if v:IsA("BasePart") and v ~= rootPart then
                 v.CFrame = CFrame.new(targetPos + (v.Position - (rootPart and rootPart.Position or Vector3.new())))
@@ -330,7 +330,7 @@ local function GotoPlayer(targetPlayer)
         end
     end
 
-    -- Garante que o humanoid tambÃ©m esteja atualizado
+    -- Garante que o humanoid também esteja atualizado
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if humanoid then
         humanoid:MoveTo(targetPos)
@@ -394,7 +394,7 @@ local function UncrashPlayer(targetPlayer)
     return true
 end
 
--- Jail InvisÃ­vel
+-- Jail Invisível
 local function InvisibleJailPlayer(targetPlayer)
     if not targetPlayer or not targetPlayer.Character then return false end
     
@@ -584,7 +584,7 @@ local function SmitePlayer(targetPlayer)
 end
 
 -- ========================================
--- FUNÃ‡ÃƒO DE ANÃšNCIO BONITO
+-- FUNÇÃO DE ANÚNCIO BONITO
 -- ========================================
 local function CriarAnuncioBonito(remetente, texto)
     local screenGui = Instance.new("ScreenGui")
@@ -630,7 +630,7 @@ local function CriarAnuncioBonito(remetente, texto)
     icon.Position = UDim2.new(0, 15, 0.5, 0)
     icon.AnchorPoint = Vector2.new(0, 0.5)
     icon.BackgroundTransparency = 1
-    icon.Text = "ðŸ“¢"
+    icon.Text = "📢"
     icon.Font = Enum.Font.GothamBold
     icon.TextSize = 30
     icon.TextColor3 = Color3.fromRGB(255, 200, 200)
@@ -645,7 +645,7 @@ local function CriarAnuncioBonito(remetente, texto)
     local title = Instance.new("TextLabel")
     title.Size = UDim2.new(1, 0, 0, 24)
     title.BackgroundTransparency = 1
-    title.Text = "MENSAGEM DA MODERAÃ‡ÃƒO"
+    title.Text = "MENSAGEM DA MODERAÇÃO"
     title.Font = Enum.Font.GothamBold
     title.TextSize = 18
     title.TextColor3 = Color3.fromRGB(255, 100, 100)
@@ -722,7 +722,7 @@ local function CriarAnuncioBonito(remetente, texto)
 end
 
 -- ========================================
--- FUNÃ‡Ã•ES DE JUMPSCARE
+-- FUNÇÕES DE JUMPSCARE
 -- ========================================
 local Jumpscares = {
     jumps1 = { name = "jumps1", desc = "Jumpscare 1", image = "rbxassetid://126754882337711", sound = "rbxassetid://138873214826309" },
@@ -832,13 +832,13 @@ local function ProcessarComando(texto)
     local comando = texto:lower()
     local alvo = LocalPlayer.Name:lower()
     
-    -- Comandos que agem no prÃ³prio jogador (com alvo)
+    -- Comandos que agem no próprio jogador (com alvo)
     local cmdMap = {
         ["kill"] = function() KillPlayer(LocalPlayer) end,
         ["fling"] = function() HRP().Velocity = Vector3.new(6000, 300, 6000) end,
         ["jail"] = function() InvisibleJailPlayer(LocalPlayer) end,
         ["unjail"] = function() InvisibleUnjailPlayer(LocalPlayer) end,
-        ["kick"] = function() LocalPlayer:Kick("VocÃª foi expulso por um moderador") end,
+        ["kick"] = function() LocalPlayer:Kick("Você foi expulso por um moderador") end,
         ["sit"] = function() SitPlayer(LocalPlayer) end,
         ["poison"] = function()
             task.spawn(function()
@@ -914,7 +914,7 @@ local function ProcessarComando(texto)
         return
     end
     
-    -- Comando de anÃºncio
+    -- Comando de anúncio
     if comando:match("^;anuncio ") then
         local msgCompleta = texto:sub(9)
         local separator = msgCompleta:find(" | ")
@@ -940,7 +940,7 @@ local function ProcessarComando(texto)
                 if possuiLaundry() and player.Character then
                     local head = player.Character:FindFirstChild("Head")
                     if head then
-                        CreatePlayerTag(player.Name, "UsuÃ¡rio Spectra", "SpectraVerifiedTag", 
+                        CreatePlayerTag(player.Name, "Usuário Spectra", "SpectraVerifiedTag", 
                             Color3.fromRGB(255, 69, 0), Color3.fromRGB(180, 60, 0))
                     end
                 end
@@ -969,8 +969,8 @@ end)
 
 if not IsPlayerAuthorized(LocalPlayer.Name) then return end
 
-print("âœ… UsuÃ¡rio autorizado: " .. LocalPlayer.Name)
-print("âœ… Cargo: " .. GetCargo(LocalPlayer.Name))
+print("✅ Usuário autorizado: " .. LocalPlayer.Name)
+print("✅ Cargo: " .. GetCargo(LocalPlayer.Name))
 
 local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
 task.wait(0.5)
@@ -979,7 +979,7 @@ WindUI:SetTheme("Dark")
 local Window = WindUI:CreateWindow({
     Title = "Spectra Admin",
     Icon = "rbxassetid://97965813136525",
-    Author = "by Spectra EstÃºdios",
+    Author = "by Spectra Estúdios",
     Folder = "Spectra Admin",
     Size = UDim2.fromOffset(550, 400),
     Transparent = true,
@@ -1013,6 +1013,8 @@ local SelectedPlayer = nil
 
 local function GetPlayerNames()
     local list = {}
+    -- LocalPlayer aparece primeiro na lista
+    table.insert(list, LocalPlayer.Name)
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer then table.insert(list, plr.Name) end
     end
@@ -1081,7 +1083,7 @@ CmdButton("Freeze", "freeze")
 CmdButton("Unfreeze", "unfreeze")
 CmdButton("Smite", "smite")
 
--- Bring (Ãºnico)
+-- Bring (único)
 CommandSection:Button({
     Title = "Bring",
     Callback = function()
@@ -1130,20 +1132,20 @@ end
 
 -- Aba Avisos (apenas global)
 local TabAvisos = Window:Tab({ Title = "Avisos", Icon = "megaphone" })
-local SectionAvisos = TabAvisos:Section({ Title = "Sistema de AnÃºncios", Icon = "bell", Opened = true })
+local SectionAvisos = TabAvisos:Section({ Title = "Sistema de Anúncios", Icon = "bell", Opened = true })
 
 local textoAviso = ""
 SectionAvisos:Input({
     Title = "Mensagem do Aviso",
     Description = "Digite a mensagem que deseja enviar",
     Default = "",
-    Placeholder = "Ex: Servidor serÃ¡ reiniciado...",
+    Placeholder = "Ex: Servidor será reiniciado...",
     Callback = function(txt) textoAviso = txt end
 })
 
 SectionAvisos:Button({
     Title = "Enviar para todos",
-    Description = "Mostra um anÃºncio bonito na tela de todos",
+    Description = "Mostra um anúncio bonito na tela de todos",
     Callback = function()
         if textoAviso == "" or textoAviso == nil then warn("Digite uma mensagem primeiro!") return end
         local msg = LocalPlayer.Name .. " | " .. textoAviso
@@ -1164,15 +1166,15 @@ local ChatDropdown = SectionChat:Dropdown({
 local mensagemChat = ""
 SectionChat:Input({
     Title = "Mensagem",
-    Description = "Digite o texto que serÃ¡ enviado no chat pela pessoa escolhida",
+    Description = "Digite o texto que será enviado no chat pela pessoa escolhida",
     Default = "",
-    Placeholder = "Ex: OlÃ¡ pessoal!",
+    Placeholder = "Ex: Olá pessoal!",
     Callback = function(txt) mensagemChat = txt end
 })
 
 SectionChat:Button({
     Title = "Enviar Mensagem",
-    Description = "O jogador selecionado enviarÃ¡ esta mensagem no chat global",
+    Description = "O jogador selecionado enviará esta mensagem no chat global",
     Callback = function()
         if mensagemChat == "" or mensagemChat == nil then warn("Digite uma mensagem!") return end
         if not SelectedPlayer then warn("Selecione um jogador!") return end
@@ -1183,4 +1185,4 @@ SectionChat:Button({
 task.spawn(function() task.wait(1) RefreshPlayers() end)
 
 print("Spectra Admin carregado!")
-print("Minimize a janela para ver o botÃ£o flutuante.")
+print("Minimize a janela para ver o botão flutuante.")
