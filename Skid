@@ -14,7 +14,39 @@ local executor = (syn and "Synapse X")
     or (getexecutorname and getexecutorname())
     or "Unknown"
 
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Zyroniszx/Zyro/refs/heads/main/Main.txt"))()
+-- Carrega a biblioteca com proteção contra nil/erro
+local redzlib
+do
+    local url = "https://raw.githubusercontent.com/Zyroniszx/Zyro/refs/heads/main/Main.txt"
+    local ok, result = pcall(function()
+        local content = game:HttpGet(url)
+        local fn, err = loadstring(content)
+        if not fn then
+            error("Falha ao compilar redzlib: " .. tostring(err))
+        end
+        return fn()
+    end)
+    if not ok or not result then
+        -- Tenta uma segunda vez após 2 segundos
+        task.wait(2)
+        local ok2, result2 = pcall(function()
+            return loadstring(game:HttpGet(url))()
+        end)
+        if ok2 and result2 then
+            redzlib = result2
+        else
+            error("[ZYRONIS HUB] Falha ao carregar a biblioteca redzlib. Verifique sua conexão ou o executor.
+Erro: " .. tostring(result))
+        end
+    else
+        redzlib = result
+    end
+end
+
+-- Garante que redzlib carregou antes de usar
+if not redzlib then
+    error("[ZYRONIS HUB] redzlib é nil — a biblioteca não foi carregada. Verifique o executor e a conexão.")
+end
 
 local Window = redzlib:MakeWindow({
 
