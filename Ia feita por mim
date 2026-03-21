@@ -1,0 +1,959 @@
+-- ╔══════════════════════════════════════════════╗
+-- ║          ChatAI v3.0 - Star Syndicate        ║
+-- ║   Multi-model AI com histórico de conversa  ║
+-- ╚══════════════════════════════════════════════╝
+--
+-- API Keys (defina antes de executar):
+--   getgenv().GeminiApi   = "AIzaSyBCTqyL2MDprefqGFXAKVlSBQe8qkNsaWA"
+--   getgenv().GroqApi     = "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"
+--   getgenv().ClaudeApi   = "sua_chave"
+--   getgenv().ChatGptApi  = "sua_chave"
+--
+-- Pollinations é grátis, sem precisar de chave!
+
+local CollectionService = game:GetService("CollectionService")
+local TweenService      = game:GetService("TweenService")
+local HttpService       = game:GetService("HttpService")
+local UserInputService  = game:GetService("UserInputService")
+local TextService       = game:GetService("TextService")
+local lp                = game:GetService("Players").LocalPlayer
+
+local G2L = {}
+
+-- ── API Keys ───────────────────────────────────────────────────────────────
+local Api_Gemini  = (getgenv and getgenv().GeminiApi)  or ""
+local Api_Groq    = (getgenv and getgenv().GroqApi)    or ""
+local Api_Claude  = (getgenv and getgenv().ClaudeApi)  or ""
+local Api_ChatGPT = (getgenv and getgenv().ChatGptApi) or ""
+
+-- ── Load libs ──────────────────────────────────────────────────────────────
+local Icons  = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Footagesus/Icons/main/Main-v2.lua"))()
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local New    = WindUI.Creator.New
+Icons.Init(New, "Icon")
+
+-- ── Estado global ──────────────────────────────────────────────────────────
+local currentAI           = "Pollinations"
+local conversationHistory = {}   -- histórico multi-turn
+local messageOrder        = 0
+local isAIResponding      = false
+local currentAIRequest    = nil
+
+-- System prompt enviado para todos os modelos
+local SYSTEM_PROMPT = "Você é um assistente especialista em Lua/Luau para Roblox, scripts de executor e desenvolvimento de jogos. "
+    .. "Responda SEMPRE em português brasileiro de forma direta e objetiva. "
+    .. "Para trechos de código use blocos ```lua ... ```. Seja prático e conciso."
+
+-- ── Helpers ────────────────────────────────────────────────────────────────
+local function NextOrder()
+    messageOrder += 1
+    return messageOrder
+end
+
+local function ScrollToBottom()
+    task.defer(function()
+        local sf = G2L["ScrollingFrame_c"]
+        if sf then
+            sf.CanvasPosition = Vector2.new(0, sf.AbsoluteCanvasSize.Y)
+        end
+    end)
+end
+
+-- Muda a cor de todos os ImageLabels dentro de um ícone WindUI
+local function ChangeIconColor(iconObj, color)
+    if not iconObj or not iconObj.IconFrame then return end
+    for _, v in ipairs(iconObj.IconFrame:GetDescendants()) do
+        if v:IsA("ImageLabel") then v.ImageColor3 = color end
+    end
+end
+
+local function Tween(obj, info, goal)
+    TweenService:Create(obj, info, goal):Play()
+end
+local TWEEN_FAST  = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local TWEEN_MED   = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local TWEEN_MED_I = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+
+-- ╔══════════════════════════════════════════════╗
+-- ║              CHAMADAS DE API                 ║
+-- ╚══════════════════════════════════════════════╝
+
+-- Função genérica para requests com tratamento de erro padronizado
+local function DoRequest(opts)
+    local ok, res = pcall(function() return request(opts) end)
+    if not ok or not res or not res.Body then
+        return nil, "Erro: Falha na requisição ao servidor"
+    end
+    local dok, data = pcall(HttpService.JSONDecode, HttpService, res.Body)
+    if not dok then
+        return nil, "Erro: Resposta inválida do servidor"
+    end
+    return data, nil
+end
+
+-- ── Pollinations (GRÁTIS, sem chave) ──────────────────────────────────────
+local function CallPollinationsAPI(userMessage)
+    local messages = {{ role = "system", content = SYSTEM_PROMPT }}
+    for _, m in ipairs(conversationHistory) do
+        table.insert(messages, m)
+    end
+    table.insert(messages, { role = "user", content = userMessage })
+
+    local data, err = DoRequest({
+        Url    = "https://text.pollinations.ai/openai",
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body   = HttpService:JSONEncode({ model = "openai", messages = messages, private = true })
+    })
+    if err then return err end
+    if data and data.choices and data.choices[1] then
+        return data.choices[1].message.content
+    end
+    return "Erro: Sem resposta da Pollinations"
+end
+
+-- ── Gemini ─────────────────────────────────────────────────────────────────
+local function CallGeminiAPI(userMessage)
+    if Api_Gemini == "" then
+        return "❌ Defina getgenv().GeminiApi antes de executar"
+    end
+    local contents = {}
+    for _, m in ipairs(conversationHistory) do
+        table.insert(contents, {
+            role  = m.role == "assistant" and "model" or "user",
+            parts = {{ text = m.content }}
+        })
+    end
+    table.insert(contents, { role = "user", parts = {{ text = userMessage }} })
+
+    local data, err = DoRequest({
+        Url    = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" .. Api_Gemini,
+        Method = "POST",
+        Headers = { ["Content-Type"] = "application/json" },
+        Body   = HttpService:JSONEncode({
+            system_instruction = { parts = {{ text = SYSTEM_PROMPT }} },
+            contents = contents
+        })
+    })
+    if err then return err end
+    if data and data.candidates and data.candidates[1] then
+        return data.candidates[1].content.parts[1].text
+    end
+    if data and data.error then return "Gemini: " .. (data.error.message or "Erro desconhecido") end
+    return "Erro: Sem resposta do Gemini"
+end
+
+-- ── Groq (Llama / Compound) ────────────────────────────────────────────────
+local function CallGroqAPI(userMessage, model)
+    if Api_Groq == "" then
+        return "❌ Defina getgenv().GroqApi antes de executar"
+    end
+    local messages = {{ role = "system", content = SYSTEM_PROMPT }}
+    for _, m in ipairs(conversationHistory) do table.insert(messages, m) end
+    table.insert(messages, { role = "user", content = userMessage })
+
+    local data, err = DoRequest({
+        Url    = "https://api.groq.com/openai/v1/chat/completions",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"]  = "application/json",
+            ["Authorization"] = "Bearer " .. Api_Groq
+        },
+        Body = HttpService:JSONEncode({
+            model       = model,
+            messages    = messages,
+            max_tokens  = 1024,
+            temperature = 0.7
+        })
+    })
+    if err then return err end
+    if data and data.choices and data.choices[1] then
+        return data.choices[1].message.content
+    end
+    if data and data.error then return "Groq: " .. (data.error.message or "Erro") end
+    return "Erro: Sem resposta do Groq"
+end
+
+-- ── Claude ─────────────────────────────────────────────────────────────────
+local function CallClaudeAPI(userMessage)
+    if Api_Claude == "" then
+        return "❌ Defina getgenv().ClaudeApi antes de executar"
+    end
+    local messages = {}
+    for _, m in ipairs(conversationHistory) do table.insert(messages, m) end
+    table.insert(messages, { role = "user", content = userMessage })
+
+    local data, err = DoRequest({
+        Url    = "https://api.anthropic.com/v1/messages",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"]      = "application/json",
+            ["x-api-key"]         = Api_Claude,
+            ["anthropic-version"] = "2023-06-01"
+        },
+        Body = HttpService:JSONEncode({
+            model      = "claude-sonnet-4-5",
+            max_tokens = 1024,
+            system     = SYSTEM_PROMPT,
+            messages   = messages
+        })
+    })
+    if err then return err end
+    if data and data.content and data.content[1] then return data.content[1].text end
+    if data and data.error then return "Claude: " .. (data.error.message or "Erro") end
+    return "Erro: Sem resposta do Claude"
+end
+
+-- ── ChatGPT ────────────────────────────────────────────────────────────────
+local function CallChatGPTAPI(userMessage)
+    if Api_ChatGPT == "" then
+        return "❌ Defina getgenv().ChatGptApi antes de executar"
+    end
+    local messages = {{ role = "system", content = SYSTEM_PROMPT }}
+    for _, m in ipairs(conversationHistory) do table.insert(messages, m) end
+    table.insert(messages, { role = "user", content = userMessage })
+
+    local data, err = DoRequest({
+        Url    = "https://api.openai.com/v1/chat/completions",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"]  = "application/json",
+            ["Authorization"] = "Bearer " .. Api_ChatGPT
+        },
+        Body = HttpService:JSONEncode({
+            model       = "gpt-4o-mini",
+            messages    = messages,
+            max_tokens  = 1024,
+            temperature = 0.7
+        })
+    })
+    if err then return err end
+    if data and data.choices and data.choices[1] then return data.choices[1].message.content end
+    if data and data.error then return "ChatGPT: " .. (data.error.message or "Erro") end
+    return "Erro: Sem resposta do ChatGPT"
+end
+
+-- ── Dispatcher ─────────────────────────────────────────────────────────────
+local function CallAI(userMessage)
+    if     currentAI == "Pollinations"     then return CallPollinationsAPI(userMessage)
+    elseif currentAI == "Gemini"           then return CallGeminiAPI(userMessage)
+    elseif currentAI == "(Groq) Llama"     then return CallGroqAPI(userMessage, "llama-3.3-70b-versatile")
+    elseif currentAI == "(Groq) Compound"  then return CallGroqAPI(userMessage, "compound-beta")
+    elseif currentAI == "Claude"           then return CallClaudeAPI(userMessage)
+    elseif currentAI == "ChatGPT 4o"       then return CallChatGPTAPI(userMessage)
+    else   return "Selecione um modelo de IA nas configurações" end
+end
+
+-- ╔══════════════════════════════════════════════╗
+-- ║                 UI – FUNÇÕES                 ║
+-- ╚══════════════════════════════════════════════╝
+
+local function AddMessage(sender, message, isUser)
+    local label = Instance.new("TextLabel")
+    label.LayoutOrder       = NextOrder()
+    label.Size              = UDim2.new(1, 0, 0, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3        = isUser
+        and Color3.fromRGB(100, 200, 255)
+        or (sender == "System" and Color3.fromRGB(255, 200, 50) or Color3.fromRGB(210, 210, 210))
+    label.FontFace          = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+    label.TextSize          = 14
+    label.TextWrapped       = true
+    label.TextXAlignment    = Enum.TextXAlignment.Left
+    label.TextYAlignment    = Enum.TextYAlignment.Top
+    label.Text              = (sender ~= "" and (sender .. ": ") or "") .. message
+    label.Parent            = G2L["ScrollingFrame_c"]
+
+    -- Cálculo de altura baseado no texto real
+    local sfWidth = G2L["ScrollingFrame_c"].AbsoluteSize.X - 16
+    local bounds = TextService:GetTextSize(
+        label.Text, 14, Enum.Font.Code,
+        Vector2.new(sfWidth > 0 and sfWidth or 440, math.huge)
+    )
+    label.Size = UDim2.new(1, 0, 0, math.max(bounds.Y + 10, 22))
+
+    ScrollToBottom()
+    return label
+end
+
+
+local function CreateCodeBlock(code, language)
+    local frame = Instance.new("Frame")
+    frame.LayoutOrder       = NextOrder()
+    frame.Size              = UDim2.new(1, 0, 0, 60)
+    frame.BackgroundColor3  = Color3.fromRGB(18, 18, 24)
+    frame.BorderSizePixel   = 0
+    frame.Parent            = G2L["ScrollingFrame_c"]
+
+    local corner = Instance.new("UICorner", frame)
+    corner.CornerRadius = UDim.new(0, 6)
+
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Color     = Color3.fromRGB(55, 55, 75)
+    stroke.Thickness = 1
+
+    -- Rótulo de linguagem
+    local langLabel = Instance.new("TextLabel", frame)
+    langLabel.Size               = UDim2.new(1, -60, 0, 16)
+    langLabel.Position           = UDim2.new(0, 8, 0, 3)
+    langLabel.BackgroundTransparency = 1
+    langLabel.Text               = (language and language ~= "") and language or "lua"
+    langLabel.TextSize           = 11
+    langLabel.TextColor3         = Color3.fromRGB(100, 100, 150)
+    langLabel.TextXAlignment     = Enum.TextXAlignment.Left
+    langLabel.FontFace           = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+
+    -- Separador
+    local sep = Instance.new("Frame", frame)
+    sep.Size              = UDim2.new(1, -16, 0, 1)
+    sep.Position          = UDim2.new(0, 8, 0, 20)
+    sep.BackgroundColor3  = Color3.fromRGB(50, 50, 70)
+    sep.BorderSizePixel   = 0
+
+    -- TextBox com o código
+    local codeBox = Instance.new("TextBox", frame)
+    codeBox.Size              = UDim2.new(1, -58, 1, -26)
+    codeBox.Position          = UDim2.new(0, 8, 0, 24)
+    codeBox.BackgroundTransparency = 1
+    codeBox.TextColor3        = Color3.fromRGB(0, 230, 120)
+    codeBox.FontFace          = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+    codeBox.TextSize          = 12
+    codeBox.TextWrapped       = true
+    codeBox.TextXAlignment    = Enum.TextXAlignment.Left
+    codeBox.TextYAlignment    = Enum.TextYAlignment.Top
+    codeBox.Text              = code
+    codeBox.TextEditable      = false
+    codeBox.ClearTextOnFocus  = false
+    codeBox.MultiLine         = true
+
+    -- Botão Copiar
+    local copyBtn = Instance.new("ImageButton", frame)
+    copyBtn.Size              = UDim2.new(0, 22, 0, 22)
+    copyBtn.Position          = UDim2.new(1, -50, 0, 2)
+    copyBtn.BackgroundTransparency = 1
+    copyBtn.ZIndex            = 2
+
+    local copyIco = Icons.Image({ Icon = "copy", Colors = {Color3.fromRGB(170, 170, 170)}, Size = UDim2.new(0, 16, 0, 16) })
+    copyIco.IconFrame.Parent     = copyBtn
+    copyIco.IconFrame.Position   = UDim2.new(0.5, 0, 0.5, 0)
+    copyIco.IconFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+    copyBtn.MouseButton1Click:Connect(function()
+        setclipboard(code)
+        ChangeIconColor(copyIco, Color3.fromRGB(0, 230, 120))
+        task.wait(1.2)
+        ChangeIconColor(copyIco, Color3.fromRGB(170, 170, 170))
+    end)
+
+    -- Botão Executar
+    local execBtn = Instance.new("ImageButton", frame)
+    execBtn.Size              = UDim2.new(0, 22, 0, 22)
+    execBtn.Position          = UDim2.new(1, -26, 0, 2)
+    execBtn.BackgroundTransparency = 1
+    execBtn.ZIndex            = 2
+
+    local execIco = Icons.Image({ Icon = "play", Colors = {Color3.fromRGB(170, 170, 170)}, Size = UDim2.new(0, 16, 0, 16) })
+    execIco.IconFrame.Parent     = execBtn
+    execIco.IconFrame.Position   = UDim2.new(0.5, 0, 0.5, 0)
+    execIco.IconFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+    execBtn.MouseButton1Click:Connect(function()
+        local ok, err = pcall(loadstring(code))
+        local okColor  = Color3.fromRGB(255, 140, 0)
+        local errColor = Color3.fromRGB(255, 60, 60)
+        ChangeIconColor(execIco, ok and okColor or errColor)
+        if not ok then
+            AddMessage("Exec Error", tostring(err), false)
+        end
+        task.wait(1.2)
+        ChangeIconColor(execIco, Color3.fromRGB(170, 170, 170))
+    end)
+
+    -- Redimensiona o frame pelo tamanho real do código
+    local sfWidth = G2L["ScrollingFrame_c"].AbsoluteSize.X - 74
+    local bounds = TextService:GetTextSize(
+        code, 12, Enum.Font.Code,
+        Vector2.new(sfWidth > 0 and sfWidth or 400, math.huge)
+    )
+    frame.Size = UDim2.new(1, 0, 0, math.max(bounds.Y + 50, 60))
+
+    ScrollToBottom()
+    return frame
+end
+
+
+local function ExtractCodeBlocks(message)
+    local parts = {}
+    local lastIndex = 1
+    for codeStart, language, code, codeEnd in message:gmatch("()```([%w]*)\n?(.-)\n?```()") do
+        if codeStart > lastIndex then
+            local txt = message:sub(lastIndex, codeStart - 1)
+            if txt:gsub("%s+", "") ~= "" then
+                table.insert(parts, { type = "text", content = txt })
+            end
+        end
+        table.insert(parts, { type = "code", content = code, language = language })
+        lastIndex = codeEnd
+    end
+    if lastIndex <= #message then
+        local txt = message:sub(lastIndex)
+        if txt:gsub("%s+", "") ~= "" then
+            table.insert(parts, { type = "text", content = txt })
+        end
+    end
+    if #parts == 0 then
+        table.insert(parts, { type = "text", content = message })
+    end
+    return parts
+end
+
+
+local function DisplayAIResponse(message)
+    local parts = ExtractCodeBlocks(message)
+    local first  = true
+    for _, part in ipairs(parts) do
+        if part.type == "text" then
+            AddMessage(first and currentAI or "", part.content, false)
+            first = false
+        elseif part.type == "code" then
+            CreateCodeBlock(part.content, part.language)
+            first = false
+        end
+    end
+end
+
+
+local function ShowLoadingMessage()
+    local label = Instance.new("TextLabel")
+    label.Name               = "LoadingMessage"
+    label.LayoutOrder        = NextOrder()
+    label.Size               = UDim2.new(1, 0, 0, 22)
+    label.BackgroundTransparency = 1
+    label.TextColor3         = Color3.fromRGB(150, 150, 150)
+    label.FontFace           = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+    label.TextSize           = 14
+    label.TextXAlignment     = Enum.TextXAlignment.Left
+    label.Text               = currentAI .. ": ●○○"
+    label.Parent             = G2L["ScrollingFrame_c"]
+    ScrollToBottom()
+
+    local running = true
+    local step    = 0
+    local patterns = {"●○○", "●●○", "●●●", "○●●", "○○●", "○○○"}
+
+    task.spawn(function()
+        while running and label and label.Parent do
+            step = (step % #patterns) + 1
+            label.Text = currentAI .. ": " .. patterns[step]
+            task.wait(0.3)
+        end
+    end)
+
+    return label, function() running = false end
+end
+
+-- ╔══════════════════════════════════════════════╗
+-- ║               CONSTRUÇÃO DA UI               ║
+-- ╚══════════════════════════════════════════════╝
+
+G2L["ScreenGui_1"] = Instance.new("ScreenGui", lp:WaitForChild("PlayerGui"))
+G2L["ScreenGui_1"].ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+G2L["ScreenGui_1"].ResetOnSpawn   = false
+CollectionService:AddTag(G2L["ScreenGui_1"], "main")
+
+-- Frame principal
+G2L["Frame_2"] = Instance.new("Frame", G2L["ScreenGui_1"])
+G2L["Frame_2"].BorderSizePixel   = 0
+G2L["Frame_2"].BackgroundColor3  = Color3.fromRGB(0, 0, 0)
+G2L["Frame_2"].Size              = UDim2.new(0, 490, 0, 294)
+G2L["Frame_2"].Position          = UDim2.new(0, 140, 0, -18)
+G2L["Frame_2"].BackgroundTransparency = 0.5
+Instance.new("UICorner", G2L["Frame_2"])
+
+-- Bolinhas estilo macOS
+do
+    local cols = {Color3.fromRGB(42,255,0), Color3.fromRGB(255,253,15), Color3.fromRGB(255,0,0)}
+    for i, col in ipairs(cols) do
+        local d = Instance.new("TextLabel", G2L["Frame_2"])
+        d.BorderSizePixel = 0; d.BackgroundColor3 = col
+        d.Size = UDim2.new(0,10,0,10); d.Text = ""
+        d.Position = UDim2.new(0, 4+(i-1)*16, 0, 2)
+        Instance.new("UICorner", d)
+    end
+end
+
+-- Título
+G2L["TextLabel_4"] = Instance.new("TextLabel", G2L["Frame_2"])
+G2L["TextLabel_4"].BorderSizePixel    = 0
+G2L["TextLabel_4"].TextSize           = 24
+G2L["TextLabel_4"].BackgroundTransparency = 1
+G2L["TextLabel_4"].FontFace           = Font.new([[rbxasset://fonts/families/DenkOne.json]])
+G2L["TextLabel_4"].TextColor3         = Color3.fromRGB(240, 240, 240)
+G2L["TextLabel_4"].Size               = UDim2.new(0, 200, 0, 22)
+G2L["TextLabel_4"].Text               = "ChatAI"
+G2L["TextLabel_4"].Position           = UDim2.new(0, 148, 0, -2)
+
+-- Botão fechar (X)
+G2L["TextButton_3"] = Instance.new("TextButton", G2L["Frame_2"])
+G2L["TextButton_3"].BorderSizePixel      = 0
+G2L["TextButton_3"].TextSize             = 13
+G2L["TextButton_3"].TextColor3           = Color3.fromRGB(255, 255, 255)
+G2L["TextButton_3"].BackgroundColor3     = Color3.fromRGB(255, 0, 0)
+G2L["TextButton_3"].BackgroundTransparency = 1
+G2L["TextButton_3"].Size                 = UDim2.new(0, 18, 0, 16)
+G2L["TextButton_3"].Text                 = "X"
+G2L["TextButton_3"].Position             = UDim2.new(0, 472, 0, 0)
+
+-- ScrollingFrame (usa UIListLayout para posicionamento automático)
+G2L["ScrollingFrame_c"] = Instance.new("ScrollingFrame", G2L["Frame_2"])
+G2L["ScrollingFrame_c"].BorderSizePixel       = 0
+G2L["ScrollingFrame_c"].BackgroundTransparency = 1
+G2L["ScrollingFrame_c"].Size                   = UDim2.new(0, 472, 0, 202)
+G2L["ScrollingFrame_c"].Position               = UDim2.new(0, 14, 0, 28)
+G2L["ScrollingFrame_c"].ScrollBarThickness     = 3
+G2L["ScrollingFrame_c"].ScrollBarImageColor3   = Color3.fromRGB(80, 80, 80)
+G2L["ScrollingFrame_c"].CanvasSize             = UDim2.new(0, 0, 0, 0)
+G2L["ScrollingFrame_c"].AutomaticCanvasSize    = Enum.AutomaticSize.Y
+
+local uiList = Instance.new("UIListLayout", G2L["ScrollingFrame_c"])
+uiList.SortOrder = Enum.SortOrder.LayoutOrder
+uiList.Padding   = UDim.new(0, 4)
+
+local uiPad = Instance.new("UIPadding", G2L["ScrollingFrame_c"])
+uiPad.PaddingLeft   = UDim.new(0, 4)
+uiPad.PaddingRight  = UDim.new(0, 4)
+uiPad.PaddingTop    = UDim.new(0, 4)
+uiPad.PaddingBottom = UDim.new(0, 4)
+
+-- Barra de input (fundo escuro, coerente com o tema)
+G2L["Frame2_d"] = Instance.new("Frame", G2L["Frame_2"])
+G2L["Frame2_d"].BorderSizePixel   = 0
+G2L["Frame2_d"].BackgroundColor3  = Color3.fromRGB(16, 16, 22)
+G2L["Frame2_d"].Size              = UDim2.new(0, 482, 0, 50)
+G2L["Frame2_d"].Position          = UDim2.new(0, 4, 0, 238)
+Instance.new("UICorner", G2L["Frame2_d"])
+
+local stroke2d = Instance.new("UIStroke", G2L["Frame2_d"])
+stroke2d.Color     = Color3.fromRGB(45, 45, 60)
+stroke2d.Thickness = 1
+
+-- TextBox de input
+G2L["TextBox_f"] = Instance.new("TextBox", G2L["Frame_2"])
+G2L["TextBox_f"].CursorPosition     = -1
+G2L["TextBox_f"].LineHeight         = 1          -- FIX: era 0, quebrava o input
+G2L["TextBox_f"].PlaceholderColor3  = Color3.fromRGB(110, 110, 120)
+G2L["TextBox_f"].BorderSizePixel    = 0
+G2L["TextBox_f"].TextWrapped        = true
+G2L["TextBox_f"].TextSize           = 14
+G2L["TextBox_f"].TextColor3         = Color3.fromRGB(215, 215, 215)
+G2L["TextBox_f"].BackgroundTransparency = 1
+G2L["TextBox_f"].FontFace           = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+G2L["TextBox_f"].MultiLine          = true
+G2L["TextBox_f"].ClearTextOnFocus   = false
+G2L["TextBox_f"].ClipsDescendants   = true
+G2L["TextBox_f"].PlaceholderText    = "Pergunte algo ao " .. currentAI .. "..."
+G2L["TextBox_f"].Size               = UDim2.new(0, 448, 0, 44)
+G2L["TextBox_f"].Position           = UDim2.new(0, 4, 0, 242)
+G2L["TextBox_f"].Text               = ""
+Instance.new("UICorner", G2L["TextBox_f"])
+
+-- Botão enviar / parar
+G2L["ImageButton_11"] = Instance.new("ImageButton", G2L["Frame_2"])
+G2L["ImageButton_11"].BorderSizePixel       = 0
+G2L["ImageButton_11"].BackgroundTransparency = 1
+G2L["ImageButton_11"].BackgroundColor3      = Color3.fromRGB(255, 140, 0)
+G2L["ImageButton_11"].Size                  = UDim2.new(0, 28, 0, 26)
+G2L["ImageButton_11"].Position              = UDim2.new(0, 456, 0, 256)
+Instance.new("UICorner", G2L["ImageButton_11"])
+
+-- DragDetector no frame principal
+G2L["UIDragDetector_12"] = Instance.new("UIDragDetector", G2L["Frame_2"])
+G2L["UIDragDetector_12"].DragUDim2 = UDim2.new(0, -11, 0, -15)
+
+-- Botão toggle (minimizar)
+G2L["ImageButton_Toggle"] = Instance.new("ImageButton", G2L["ScreenGui_1"])
+G2L["ImageButton_Toggle"].BorderSizePixel        = 0
+G2L["ImageButton_Toggle"].BackgroundTransparency = 0.1
+G2L["ImageButton_Toggle"].BackgroundColor3       = Color3.fromRGB(27, 27, 27)
+G2L["ImageButton_Toggle"].Size                   = UDim2.new(0, 44, 0, 42)
+G2L["ImageButton_Toggle"].Position               = UDim2.new(0, 176, 0, -42)
+G2L["ImageButton_Toggle"].Visible                = false
+local toggleCorner = Instance.new("UICorner", G2L["ImageButton_Toggle"])
+toggleCorner.CornerRadius = UDim.new(0, 26)
+
+-- ── Settings Frame ─────────────────────────────────────────────────────────
+G2L["SettingsFrame"] = Instance.new("Frame", G2L["ScreenGui_1"])
+G2L["SettingsFrame"].BorderSizePixel        = 0
+G2L["SettingsFrame"].BackgroundColor3       = Color3.fromRGB(9, 9, 9)
+G2L["SettingsFrame"].Size                   = UDim2.new(0, 424, 0, 300)
+G2L["SettingsFrame"].Position               = UDim2.new(0, 167, 0, -13)
+G2L["SettingsFrame"].BackgroundTransparency = 0.3
+G2L["SettingsFrame"].Visible                = false
+G2L["SettingsFrame"].ZIndex                 = 20
+local sfCorner = Instance.new("UICorner", G2L["SettingsFrame"])
+sfCorner.CornerRadius = UDim.new(0, 14)
+Instance.new("UIDragDetector", G2L["SettingsFrame"])
+
+-- Bolinhas do settings
+do
+    local cols = {Color3.fromRGB(148,0,255), Color3.fromRGB(255,0,0), Color3.fromRGB(30,30,30)}
+    for i, col in ipairs(cols) do
+        local d = Instance.new("TextLabel", G2L["SettingsFrame"])
+        d.BorderSizePixel = 0; d.BackgroundColor3 = col
+        d.Size = UDim2.new(0,10,0,10); d.Text = ""
+        d.Position = UDim2.new(0, 6+(i-1)*14, 0, 3); d.ZIndex = 21
+        Instance.new("UICorner", d)
+    end
+end
+
+G2L["SettingsTitle"] = Instance.new("TextLabel", G2L["SettingsFrame"])
+G2L["SettingsTitle"].BorderSizePixel        = 0
+G2L["SettingsTitle"].TextSize               = 14
+G2L["SettingsTitle"].TextTransparency       = 0.9
+G2L["SettingsTitle"].BackgroundTransparency = 1
+G2L["SettingsTitle"].FontFace               = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+G2L["SettingsTitle"].TextColor3             = Color3.fromRGB(200, 200, 200)
+G2L["SettingsTitle"].TextStrokeTransparency = 0
+G2L["SettingsTitle"].Size                   = UDim2.new(0, 294, 0, 34)
+G2L["SettingsTitle"].Text                   = "Script Syndicate"
+G2L["SettingsTitle"].Position               = UDim2.new(0, 58, 0, -8)
+G2L["SettingsTitle"].ZIndex                 = 21
+
+G2L["SettingsCloseButton"] = Instance.new("TextButton", G2L["SettingsFrame"])
+G2L["SettingsCloseButton"].BorderSizePixel      = 0
+G2L["SettingsCloseButton"].TextColor3           = Color3.fromRGB(255, 255, 255)
+G2L["SettingsCloseButton"].BackgroundTransparency = 1
+G2L["SettingsCloseButton"].BackgroundColor3     = Color3.fromRGB(255, 255, 255)
+G2L["SettingsCloseButton"].Size                 = UDim2.new(0, 22, 0, 20)
+G2L["SettingsCloseButton"].Text                 = "X"
+G2L["SettingsCloseButton"].Position             = UDim2.new(0, 402, 0, 2)
+G2L["SettingsCloseButton"].ZIndex               = 21
+
+-- AI Selection dropdown container
+G2L["AISelectionFrame"] = Instance.new("Frame", G2L["SettingsFrame"])
+G2L["AISelectionFrame"].BorderSizePixel        = 0
+G2L["AISelectionFrame"].BackgroundColor3       = Color3.fromRGB(0, 0, 0)
+G2L["AISelectionFrame"].Size                   = UDim2.new(0, 404, 0, 56)
+G2L["AISelectionFrame"].Position               = UDim2.new(0, 12, 0, 28)
+G2L["AISelectionFrame"].BackgroundTransparency = 0.2
+G2L["AISelectionFrame"].ZIndex                 = 21
+Instance.new("UICorner", G2L["AISelectionFrame"])
+
+G2L["TextButton_SelectAI"] = Instance.new("TextButton", G2L["AISelectionFrame"])
+G2L["TextButton_SelectAI"].BorderSizePixel = 0
+G2L["TextButton_SelectAI"].TextSize        = 14
+G2L["TextButton_SelectAI"].TextColor3      = Color3.fromRGB(79, 210, 255)
+G2L["TextButton_SelectAI"].BackgroundColor3 = Color3.fromRGB(48, 48, 48)
+G2L["TextButton_SelectAI"].FontFace        = Font.new([[rbxasset://fonts/families/ComicNeueAngular.json]])
+G2L["TextButton_SelectAI"].Size            = UDim2.new(0, 376, 0, 26)
+G2L["TextButton_SelectAI"].Text            = currentAI
+G2L["TextButton_SelectAI"].Position        = UDim2.new(0, 12, 0, 16)
+G2L["TextButton_SelectAI"].ZIndex          = 22
+Instance.new("UICorner", G2L["TextButton_SelectAI"])
+
+G2L["DropdownFrame"] = Instance.new("Frame", G2L["SettingsFrame"])
+G2L["DropdownFrame"].BorderSizePixel   = 0
+G2L["DropdownFrame"].BackgroundColor3  = Color3.fromRGB(45, 45, 45)
+G2L["DropdownFrame"].Size              = UDim2.new(0, 376, 0, 0)
+G2L["DropdownFrame"].Position          = UDim2.new(0, 26, 0, 84)
+G2L["DropdownFrame"].Visible           = false
+G2L["DropdownFrame"].ClipsDescendants  = true
+G2L["DropdownFrame"].ZIndex            = 25
+Instance.new("UICorner", G2L["DropdownFrame"])
+local ddStroke = Instance.new("UIStroke", G2L["DropdownFrame"])
+ddStroke.Color = Color3.fromRGB(80, 80, 80); ddStroke.Thickness = 1
+
+G2L["DropdownScroll"] = Instance.new("ScrollingFrame", G2L["DropdownFrame"])
+G2L["DropdownScroll"].BorderSizePixel    = 0
+G2L["DropdownScroll"].BackgroundTransparency = 1
+G2L["DropdownScroll"].Size               = UDim2.new(1, 0, 1, 0)
+G2L["DropdownScroll"].CanvasSize         = UDim2.new(0, 0, 0, 0)
+G2L["DropdownScroll"].ScrollBarThickness = 4
+G2L["DropdownScroll"].ZIndex             = 26
+
+-- Botão "Limpar Conversa"
+local clearBtn = Instance.new("TextButton", G2L["SettingsFrame"])
+clearBtn.BorderSizePixel        = 0
+clearBtn.TextSize               = 13
+clearBtn.TextColor3             = Color3.fromRGB(255, 90, 90)
+clearBtn.BackgroundColor3       = Color3.fromRGB(40, 15, 15)
+clearBtn.BackgroundTransparency = 0.3
+clearBtn.Size                   = UDim2.new(0, 376, 0, 30)
+clearBtn.Position               = UDim2.new(0, 26, 0, 200)
+clearBtn.ZIndex                 = 21
+clearBtn.Text                   = "🗑  Limpar Conversa"
+clearBtn.FontFace               = Font.new([[rbxasset://fonts/families/Inconsolata.json]])
+Instance.new("UICorner", clearBtn)
+
+clearBtn.MouseEnter:Connect(function()
+    Tween(clearBtn, TWEEN_FAST, { BackgroundTransparency = 0.1 })
+end)
+clearBtn.MouseLeave:Connect(function()
+    Tween(clearBtn, TWEEN_FAST, { BackgroundTransparency = 0.3 })
+end)
+clearBtn.MouseButton1Click:Connect(function()
+    conversationHistory = {}
+    messageOrder = 0
+    for _, child in ipairs(G2L["ScrollingFrame_c"]:GetChildren()) do
+        if not child:IsA("UIListLayout") and not child:IsA("UIPadding") then
+            child:Destroy()
+        end
+    end
+    AddMessage("System", "Conversa limpa! Histórico resetado.", false)
+end)
+
+-- Botão settings (engrenagem)
+local settingsButton = Instance.new("ImageButton", G2L["Frame_2"])
+settingsButton.BorderSizePixel        = 0
+settingsButton.BackgroundTransparency = 1
+settingsButton.BackgroundColor3       = Color3.fromRGB(50, 50, 50)
+settingsButton.Size                   = UDim2.new(0, 22, 0, 22)
+settingsButton.Position               = UDim2.new(0, 445, 0, -3)
+settingsButton.ZIndex                 = 10
+settingsButton.Image                  = ""
+local settingsCornerBtn = Instance.new("UICorner", settingsButton)
+settingsCornerBtn.CornerRadius = UDim.new(0, 6)
+
+-- ── Dropdown de modelos ────────────────────────────────────────────────────
+local dropdownOptions = {
+    "Pollinations",   -- grátis, sem chave
+    "Gemini",
+    "(Groq) Llama",
+    "(Groq) Compound",
+    "Claude",
+    "ChatGPT 4o"
+}
+
+local function createDropdownOptions()
+    local totalH = 0
+    for i, option in ipairs(dropdownOptions) do
+        local btn = Instance.new("TextButton", G2L["DropdownScroll"])
+        btn.BorderSizePixel  = 0
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        btn.Size             = UDim2.new(1, -8, 0, 28)
+        btn.Position         = UDim2.new(0, 4, 0, (i-1)*28 + 4)
+        btn.Text             = option .. (option == "Pollinations" and "  ✦ free" or "")
+        btn.TextSize         = 12
+        btn.TextColor3       = Color3.fromRGB(220, 220, 220)
+        btn.FontFace         = Font.new([[rbxasset://fonts/families/ComicNeueAngular.json]])
+        btn.ZIndex           = 27
+        local c = Instance.new("UICorner", btn); c.CornerRadius = UDim.new(0, 3)
+
+        btn.MouseEnter:Connect(function()
+            Tween(btn, TWEEN_FAST, { BackgroundColor3 = Color3.fromRGB(70, 70, 90) })
+        end)
+        btn.MouseLeave:Connect(function()
+            Tween(btn, TWEEN_FAST, { BackgroundColor3 = Color3.fromRGB(45, 45, 45) })
+        end)
+        btn.MouseButton1Click:Connect(function()
+            currentAI = option
+            G2L["TextButton_SelectAI"].Text  = option
+            G2L["TextBox_f"].PlaceholderText = "Pergunte algo ao " .. option .. "..."
+            G2L["DropdownFrame"].Visible     = false
+            AddMessage("System", "Modelo alterado para " .. option, false)
+        end)
+        totalH += 28
+    end
+    G2L["DropdownScroll"].CanvasSize = UDim2.new(0, 0, 0, totalH + 8)
+end
+createDropdownOptions()
+
+-- ── Ícones ─────────────────────────────────────────────────────────────────
+local sendIcon = Icons.Image({ Icon = "circle-arrow-up", Colors = {Color3.fromRGB(255, 140, 0)}, Size = UDim2.new(0, 22, 0, 22) })
+sendIcon.IconFrame.Parent     = G2L["ImageButton_11"]
+sendIcon.IconFrame.Position   = UDim2.new(0.5, 0, 0.5, 0)
+sendIcon.IconFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+local function UpdateSendIcon(iconName, color)
+    if sendIcon and sendIcon.IconFrame then sendIcon.IconFrame:Destroy() end
+    sendIcon = Icons.Image({ Icon = iconName, Colors = {color}, Size = UDim2.new(0, 22, 0, 22) })
+    sendIcon.IconFrame.Parent     = G2L["ImageButton_11"]
+    sendIcon.IconFrame.Position   = UDim2.new(0.5, 0, 0.5, 0)
+    sendIcon.IconFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+end
+
+-- ╔══════════════════════════════════════════════╗
+-- ║             LÓGICA DE ENVIO                  ║
+-- ╚══════════════════════════════════════════════╝
+
+-- Função unificada (evita código duplicado entre botão e Enter)
+local function SendMessage()
+    if isAIResponding then
+        -- Cancelar resposta em andamento
+        isAIResponding = false
+        if currentAIRequest then task.cancel(currentAIRequest); currentAIRequest = nil end
+        UpdateSendIcon("circle-arrow-up", Color3.fromRGB(255, 140, 0))
+        for _, child in ipairs(G2L["ScrollingFrame_c"]:GetChildren()) do
+            if child.Name == "LoadingMessage" then child:Destroy() end
+        end
+        AddMessage("System", "Resposta cancelada.", false)
+        return
+    end
+
+    local userMessage = G2L["TextBox_f"].Text
+    if userMessage:gsub("%s+", "") == "" then return end
+
+    AddMessage("Você", userMessage, true)
+    G2L["TextBox_f"].Text = ""
+
+    UpdateSendIcon("circle-stop", Color3.fromRGB(255, 60, 60))
+    isAIResponding = true
+
+    local loadingMsg, stopAnim = ShowLoadingMessage()
+
+    currentAIRequest = task.spawn(function()
+        local aiResponse = CallAI(userMessage)
+
+        if isAIResponding then
+            stopAnim()
+            if loadingMsg and loadingMsg.Parent then loadingMsg:Destroy() end
+
+            -- Atualiza histórico de conversa (mantém até 20 mensagens = 10 turnos)
+            table.insert(conversationHistory, { role = "user",      content = userMessage })
+            table.insert(conversationHistory, { role = "assistant", content = aiResponse  })
+            while #conversationHistory > 20 do table.remove(conversationHistory, 1) end
+
+            DisplayAIResponse(aiResponse)
+        end
+
+        isAIResponding   = false
+        currentAIRequest = nil
+        UpdateSendIcon("circle-arrow-up", Color3.fromRGB(255, 140, 0))
+    end)
+end
+
+-- ╔══════════════════════════════════════════════╗
+-- ║               CONEXÕES DE EVENTO             ║
+-- ╚══════════════════════════════════════════════╝
+
+-- Enviar
+G2L["ImageButton_11"].MouseButton1Click:Connect(SendMessage)
+
+G2L["TextBox_f"].FocusLost:Connect(function(enterPressed)
+    if enterPressed and not isAIResponding then
+        SendMessage()
+        task.wait(0.1)
+        G2L["TextBox_f"]:CaptureFocus()
+    end
+end)
+
+-- Hover do botão enviar
+G2L["ImageButton_11"].MouseEnter:Connect(function()
+    Tween(G2L["ImageButton_11"], TWEEN_FAST, { BackgroundTransparency = 0.7, BackgroundColor3 = Color3.fromRGB(255,140,0) })
+end)
+G2L["ImageButton_11"].MouseLeave:Connect(function()
+    Tween(G2L["ImageButton_11"], TWEEN_FAST, { BackgroundTransparency = 1 })
+end)
+
+-- Botão fechar (X do Frame_2)
+G2L["TextButton_3"].MouseEnter:Connect(function()
+    Tween(G2L["TextButton_3"], TWEEN_FAST, { BackgroundTransparency = 0.4, BackgroundColor3 = Color3.fromRGB(255,60,60) })
+end)
+G2L["TextButton_3"].MouseLeave:Connect(function()
+    Tween(G2L["TextButton_3"], TWEEN_FAST, { BackgroundTransparency = 1 })
+end)
+G2L["TextButton_3"].MouseButton1Click:Connect(function()
+    local t = TweenService:Create(G2L["Frame_2"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut),
+        { BackgroundTransparency = 1, Position = UDim2.new(0.5, -245, 0.5, -147) })
+    t:Play()
+    t.Completed:Connect(function()
+        G2L["Frame_2"].Visible = false
+        G2L["ImageButton_Toggle"].Visible = true
+        Tween(G2L["ImageButton_Toggle"], TWEEN_MED, { Position = UDim2.new(0, 176, 0, 10) })
+    end)
+end)
+
+-- Toggle (reabrir)
+G2L["ImageButton_Toggle"].MouseButton1Click:Connect(function()
+    local t = TweenService:Create(G2L["ImageButton_Toggle"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        { Position = UDim2.new(0, 176, 0, -42) })
+    t:Play()
+    t.Completed:Connect(function()
+        G2L["ImageButton_Toggle"].Visible = false
+        G2L["Frame_2"].Visible = true
+        G2L["Frame_2"].BackgroundTransparency = 1
+        G2L["Frame_2"].Position = UDim2.new(0.5, -245, 0.5, -147)
+        Tween(G2L["Frame_2"], TWEEN_MED, { BackgroundTransparency = 0.5, Position = UDim2.new(0, 140, 0, -18) })
+    end)
+end)
+
+-- Dropdown AI
+G2L["TextButton_SelectAI"].MouseButton1Click:Connect(function()
+    G2L["DropdownFrame"].Visible = not G2L["DropdownFrame"].Visible
+    if G2L["DropdownFrame"].Visible then
+        G2L["DropdownFrame"].Size = UDim2.new(0, 376, 0, math.min(#dropdownOptions * 28 + 8, 180))
+    end
+end)
+
+-- Fechar dropdown clicando fora
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp or input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+    if not G2L["DropdownFrame"].Visible then return end
+    local mouse = lp:GetMouse()
+    local bPos, bSize = G2L["TextButton_SelectAI"].AbsolutePosition, G2L["TextButton_SelectAI"].AbsoluteSize
+    local dPos, dSize = G2L["DropdownFrame"].AbsolutePosition, G2L["DropdownFrame"].AbsoluteSize
+    local mx, my = mouse.X, mouse.Y
+    local inBtn = mx >= bPos.X and mx <= bPos.X+bSize.X and my >= bPos.Y and my <= bPos.Y+bSize.Y
+    local inDd  = mx >= dPos.X and mx <= dPos.X+dSize.X and my >= dPos.Y and my <= dPos.Y+dSize.Y
+    if not inBtn and not inDd then G2L["DropdownFrame"].Visible = false end
+end)
+
+-- Botão X do settings
+G2L["SettingsCloseButton"].MouseButton1Click:Connect(function()
+    local t = TweenService:Create(G2L["SettingsFrame"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        { BackgroundTransparency = 1 })
+    t:Play()
+    t.Completed:Connect(function()
+        G2L["SettingsFrame"].Visible = false
+        G2L["Frame_2"].Visible = true
+        G2L["Frame_2"].BackgroundTransparency = 1
+        Tween(G2L["Frame_2"], TWEEN_MED, { BackgroundTransparency = 0.5 })
+    end)
+end)
+
+-- Botão engrenagem (abrir settings)
+settingsButton.MouseEnter:Connect(function()
+    Tween(settingsButton, TWEEN_FAST, { BackgroundTransparency = 0.6, BackgroundColor3 = Color3.fromRGB(80,80,100) })
+end)
+settingsButton.MouseLeave:Connect(function()
+    Tween(settingsButton, TWEEN_FAST, { BackgroundTransparency = 1 })
+end)
+settingsButton.MouseButton1Click:Connect(function()
+    if G2L["SettingsFrame"].Visible then return end
+    local t = TweenService:Create(G2L["Frame_2"], TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+        { BackgroundTransparency = 1 })
+    t:Play()
+    t.Completed:Connect(function()
+        G2L["Frame_2"].Visible = false
+        G2L["SettingsFrame"].Visible = true
+        G2L["SettingsFrame"].BackgroundTransparency = 1
+        Tween(G2L["SettingsFrame"], TWEEN_MED, { BackgroundTransparency = 0.3 })
+    end)
+end)
+
+-- ── Ícones finais ──────────────────────────────────────────────────────────
+local botIcon = Icons.Image({ Icon = "bot-message-square", Colors = {Color3.fromRGB(255,255,255)}, Size = UDim2.new(0,30,0,30) })
+botIcon.IconFrame.Parent     = G2L["ImageButton_Toggle"]
+botIcon.IconFrame.Position   = UDim2.new(0.5, 0, 0.5, 0)
+botIcon.IconFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+local settingIco = Icons.Image({ Icon = "settings", Colors = {Color3.fromRGB(200,200,200)}, Size = UDim2.new(0,18,0,18) })
+settingIco.IconFrame.Parent     = settingsButton
+settingIco.IconFrame.Position   = UDim2.new(0.5, 0, 0.5, 0)
+settingIco.IconFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+
+-- ── Mensagem de boas-vindas ────────────────────────────────────────────────
+AddMessage("System",
+    "[V3.0] Olá " .. lp.DisplayName .. "! ChatAI melhorado!\n\n"
+    .. "✦ Pollinations (grátis, sem chave) — padrão\n"
+    .. "  Gemini         → getgenv().GeminiApi\n"
+    .. "  Groq Llama/Compound → getgenv().GroqApi\n"
+    .. "  Claude         → getgenv().ClaudeApi\n"
+    .. "  ChatGPT 4o     → getgenv().ChatGptApi\n\n"
+    .. "O chat agora lembra o contexto da conversa (até 10 turnos)!",
+false)
+
+CreateCodeBlock([[game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50]], "lua")
+AddMessage("VelocityX", "Execute usando o ícone ▷ no bloco acima!", false)
+
+return G2L["ScreenGui_1"]
