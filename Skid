@@ -1,14 +1,3 @@
--- ============================================
--- ZYRONIS HUB V1.5 - CORRIGIDO E ORGANIZADO
--- ============================================
--- Correções aplicadas:
--- 1. Services consolidados no início
--- 2. Botões Kill e Bring adicionados na aba Troll
--- 3. Variáveis globais corrigidas para acesso entre funções
--- 4. Código completo mantido (9000+ linhas)
--- ============================================
-
--- Services (consolidados)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
@@ -16,11 +5,10 @@ local StarterGui = game:GetService("StarterGui")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local LogService = game:GetService("LogService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local Workspace = game:GetService("Workspace")
 
 local redzlib = loadstring(game:HttpGet("https://pastefy.app/RV5lNVbE/raw"))()
+
+local NotifyEnabled = true -- variavel de controle de notificações
 
 local Window = redzlib:MakeWindow({
 
@@ -46,16 +34,17 @@ Window:AddMinimizeButton({
 ------InfoTab
 local InfoTab = Window:MakeTab({ Title = "Info", Icon = "rbxassetid://15309138473" })
 
-InfoTab:AddSection({ "Script Information" })
-InfoTab:AddParagraph({ "Owner / Developer:", "Zyronis" })
-InfoTab:AddParagraph({ "Collaboration:", "lolytadev & Rick/Shelby" })
-InfoTab:AddParagraph({ "You are using:", "Zyronis Hub Brookhaven " })
-InfoTab:AddParagraph({"Your executor:", tostring(getgenv().executor or identifyexecutor and identifyexecutor() or "Unknown")})
+InfoTab:AddSection({ Name = "Script Information" })
+InfoTab:AddParagraph({ Title = "Owner / Developer:", Content = "Zyronis" })
+InfoTab:AddParagraph({ Title = "Collaboration:", Content = "lolytadev & Rick/Shelby" })
+InfoTab:AddParagraph({ Title = "You are using:", Content = "Zyronis Hub Brookhaven" })
+InfoTab:AddParagraph({ Title = "Your executor:", Content = tostring(getgenv().executor or identifyexecutor and identifyexecutor() or "Unknown") })
 
-InfoTab:AddSection({ "Rejoin" })
+InfoTab:AddSection({ Name = "Rejoin" })
 InfoTab:AddButton({
     Name = "Rejoin",
     Callback = function()
+        local TeleportService = game:GetService("TeleportService")
         TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
     end
 })
@@ -63,9 +52,12 @@ InfoTab:AddButton({
 --------TrollPlayers
 local Troll = Window:MakeTab({ Title = "Troll Players", Icon = "skull" })
 
-Troll:AddSection({ "Fling player com novo carro [BETA OP]" })
+Troll:AddSection({ Name = "Fling player com novo carro [BETA OP]" })
 
 --// SERVIÇOS
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local workspace = game:GetService("Workspace")
 
 --// VARIÁVEIS
@@ -270,7 +262,11 @@ Troll:AddToggle({
     end
 })
 
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
 local cam = workspace.CurrentCamera
 
 
@@ -521,10 +517,10 @@ local function BringWithCouch()
         return
     end
 
-    local args = { [1] = "ClearAllTools" }
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(args))
-    local args = { [1] = "PickingTools", [2] = "Couch" }
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
+    local argsC1 = { [1] = "ClearAllTools" }
+    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(argsC1))
+    local argsC2 = { [1] = "PickingTools", [2] = "Couch" }
+    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(argsC2))
 
     local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
     if not couch then
@@ -566,12 +562,14 @@ local function BringWithCouch()
         tet:Destroy()
         couch.Parent = LocalPlayer.Backpack
         task.wait()
-        couch:FindFirstChild("Handle ").Name = "Handle"
+        local h1 = couch:FindFirstChild("Handle ")
+        if h1 then h1.Name = "Handle" end
         task.wait(0.2)
         couch.Parent = LocalPlayer.Character
         task.wait()
         couch.Parent = LocalPlayer.Backpack
-        couch.Handle.Name = "Handle "
+        local h2 = couch:FindFirstChild("Handle")
+        if h2 then h2.Name = "Handle " end
         task.wait(0.2)
         couch.Parent = LocalPlayer.Character
         tet = Instance.new("BodyVelocity", seat1)
@@ -584,7 +582,8 @@ local function BringWithCouch()
     tet:Destroy()
     couch.Parent = LocalPlayer.Backpack
     task.wait()
-    couch:FindFirstChild("Handle ").Name = "Handle"
+    local h3 = couch:FindFirstChild("Handle ")
+    if h3 then h3.Name = "Handle" end
     task.wait(0.3)
     couch.Parent = LocalPlayer.Character
     task.wait(0.3)
@@ -605,10 +604,10 @@ local function KillWithCouch()
         return
     end
 
-    local args = { [1] = "ClearAllTools" }
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(args))
-    local args = { [1] = "PickingTools", [2] = "Couch" }
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
+    local argsK1 = { [1] = "ClearAllTools" }
+    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(argsK1))
+    local argsK2 = { [1] = "PickingTools", [2] = "Couch" }
+    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(argsK2))
 
     local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2)
     if not couch then
@@ -650,12 +649,12 @@ local function KillWithCouch()
         tet:Destroy()
         couch.Parent = LocalPlayer.Backpack
         task.wait()
-        couch:FindFirstChild("Handle ").Name = "Handle"
+        do local _h = couch:FindFirstChild("Handle ") if _h then _h.Name = "Handle" end end
         task.wait(0.2)
         couch.Parent = LocalPlayer.Character
         task.wait()
         couch.Parent = LocalPlayer.Backpack
-        couch.Handle.Name = "Handle "
+        do local _h2 = couch:FindFirstChild("Handle") if _h2 then _h2.Name = "Handle " end end
         task.wait(0.2)
         couch.Parent = LocalPlayer.Character
         tet = Instance.new("BodyVelocity", seat1)
@@ -690,15 +689,6 @@ local function SendNotification(title, text)
             Icon = "rbxassetid://6023426915", 
         }) 
     end) 
-    if OrionLib then 
-        pcall(function() 
-            OrionLib:MakeNotification({ 
-                Name = title, 
-                Content = text, 
-                Time = 5 
-            }) 
-        end) 
-    end 
     warn("" .. title .. ": " .. text) 
 end 
 
@@ -1087,11 +1077,11 @@ local function BringCouch(target)
 
     SendNotification("Iniciando", "Trazendo " .. target.Name .. " com Couch...") 
 
-    local args = { [1] = "ClearAllTools" } 
-    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(args)) 
+    local argsBC1 = { [1] = "ClearAllTools" } 
+    ReplicatedStorage.RE["1Clea1rTool1s"]:FireServer(unpack(argsBC1)) 
 
-    local args = { [1] = "PickingTools", [2] = "Couch" } 
-    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args)) 
+    local argsBC2 = { [1] = "PickingTools", [2] = "Couch" } 
+    ReplicatedStorage.RE:FindFirstChild("1Too1l"):InvokeServer(unpack(argsBC2)) 
 
     local couch = LocalPlayer.Backpack:WaitForChild("Couch", 2) 
     if not couch then 
@@ -1138,12 +1128,12 @@ local function BringCouch(target)
         tet:Destroy() 
         couch.Parent = LocalPlayer.Backpack 
         task.wait() 
-        couch:FindFirstChild("Handle ").Name = "Handle" 
+        do local _h = couch:FindFirstChild("Handle ") if _h then _h.Name = "Handle" end end 
         task.wait(0.2) 
         couch.Parent = LocalPlayer.Character 
         task.wait() 
         couch.Parent = LocalPlayer.Backpack 
-        couch.Handle.Name = "Handle " 
+        do local _h2 = couch:FindFirstChild("Handle") if _h2 then _h2.Name = "Handle " end end 
         task.wait(0.2) 
         couch.Parent = LocalPlayer.Character 
 
@@ -1159,7 +1149,7 @@ local function BringCouch(target)
     tet:Destroy() 
     couch.Parent = LocalPlayer.Backpack 
     task.wait() 
-    couch:FindFirstChild("Handle ").Name = "Handle" 
+    do local _h = couch:FindFirstChild("Handle ") if _h then _h.Name = "Handle" end end 
     task.wait(0.3) 
     couch.Parent = LocalPlayer.Character 
     task.wait(0.3) 
@@ -1697,12 +1687,12 @@ end
             tet:Destroy() 
             couch.Parent = LocalPlayer.Backpack 
             task.wait() 
-            couch:FindFirstChild("Handle ").Name = "Handle" 
+            do local _h = couch:FindFirstChild("Handle ") if _h then _h.Name = "Handle" end end 
             task.wait(0.2) 
             couch.Parent = LocalPlayer.Character 
             task.wait() 
             couch.Parent = LocalPlayer.Backpack 
-            couch.Handle.Name = "Handle " 
+            do local _h2 = couch:FindFirstChild("Handle") if _h2 then _h2.Name = "Handle " end end 
             task.wait(0.2) 
             couch.Parent = LocalPlayer.Character 
 
@@ -1721,7 +1711,7 @@ end
         couch.Parent = LocalPlayer.Backpack 
         task.wait() 
         if couch:FindFirstChild("Handle ") then 
-            couch:FindFirstChild("Handle ").Name = "Handle" 
+            do local _h = couch:FindFirstChild("Handle ") if _h then _h.Name = "Handle" end end 
         end 
         task.wait(0.3) 
         couch.Parent = LocalPlayer.Character 
@@ -2335,7 +2325,7 @@ Troll:AddButton({
 }) 
 
 
-Troll:AddSection({ "All methods" })
+Troll:AddSection({ Name = "All methods" })
 
 Troll:AddButton({
     Name = "Fling Boat All",
@@ -2446,6 +2436,8 @@ print("Fling Boat All button created")
 Troll:AddButton({
     Name = "Auto Fling All",
     Callback = function()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local LocalPlayer = Players.LocalPlayer
     local cam = workspace.CurrentCamera
 
@@ -2543,8 +2535,12 @@ task.wait(0.25)
 })
 
 
-Troll:AddSection({ "Clicks" }) 
+Troll:AddSection({ Name = "Clicks" }) 
 
+local Players = game:GetService("Players") 
+local Workspace = game:GetService("Workspace") 
+local RunService = game:GetService("RunService") 
+local UserInputService = game:GetService("UserInputService") 
 
 local LocalPlayer = Players.LocalPlayer 
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait() 
@@ -2707,6 +2703,9 @@ local posInicial = nil
 local raiz = nil 
 
 local mochila = eu:WaitForChild("Backpack") 
+-- declaração antecipada para evitar forward reference
+local limparSofa
+
 if not mochila:FindFirstChild(NOME_FERRAMENTA) then 
         local ferramenta = Instance.new("Tool") 
         ferramenta.Name = NOME_FERRAMENTA 
@@ -2878,6 +2877,11 @@ Troll:AddButton({
     Name = "Click Kill Bus", 
     Callback = function() 
 
+local Players = game:GetService("Players") 
+local ReplicatedStorage = game:GetService("ReplicatedStorage") 
+local RunService = game:GetService("RunService") 
+local Workspace = game:GetService("Workspace") 
+local UserInputService = game:GetService("UserInputService") 
 
 local LocalPlayer = Players.LocalPlayer 
 local Camera = Workspace.CurrentCamera 
@@ -3163,6 +3167,11 @@ Troll:AddButton({
     Name = "Click Kill Police Boat", 
     Callback = function() 
 
+local Players = game:GetService("Players") 
+local ReplicatedStorage = game:GetService("ReplicatedStorage") 
+local RunService = game:GetService("RunService") 
+local Workspace = game:GetService("Workspace") 
+local UserInputService = game:GetService("UserInputService") 
 
 local LocalPlayer = Players.LocalPlayer 
 local Camera = Workspace.CurrentCamera 
@@ -3488,7 +3497,7 @@ SendNotification("Click Kill Police Boat", "Ferramenta criada! Equipe e clique e
 ------------------kill praça BETAAAAAAA--------------------
 
 -- Cria a seção para o tornado
-Troll:AddSection({ "Free!" })
+Troll:AddSection({ Name = "Free!" })
 
 -- Adiciona o toggle na seção
 Troll:AddToggle({
@@ -3496,7 +3505,10 @@ Troll:AddToggle({
     Description = "para parar, reinicie o personagem",
     Default = false,
     Callback = function(Value)
+        local Players = game:GetService("Players")
         local RS = game:GetService("ReplicatedStorage")
+        local RunService = game:GetService("RunService")
+        local Workspace = game:GetService("Workspace")
 
         local LocalPlayer = Players.LocalPlayer
         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -3676,15 +3688,17 @@ Troll:AddToggle({
 
 ------------------kill praça Vip------------------
 
-Troll:AddSection({ "precisa de VIP!" })
+Troll:AddSection({ Name = "precisa de VIP!" })
 
 local ToggleTornado = Troll:AddToggle({
     Name = "kill mindriki BETA",
-    Description = "fling em mindriki praÃ§a hihi pode bugar",
-    Default = false
-})
-ToggleTornado:Callback(function(Value)
+    Description = "fling em mindriki praca hihi pode bugar",
+    Default = false,
+    Callback = function(Value)
     if Value then
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local Workspace = game:GetService("Workspace")
 
         local LocalPlayer = Players.LocalPlayer
         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -3828,6 +3842,7 @@ ToggleTornado:Callback(function(Value)
         end
 
         local player = game.Players.LocalPlayer
+        local Workspace = game:GetService("Workspace")
         local chinook = Workspace:FindFirstChild("Helicopters") and Workspace.Helicopters:FindFirstChild("ChinookAgency")
         if chinook then
            
@@ -3853,6 +3868,7 @@ ToggleTornado:Callback(function(Value)
         end
 
         
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local Remotes = ReplicatedStorage:WaitForChild("Remotes")
         Remotes:WaitForChild("DespawnAirVehicles"):FireServer()
 
@@ -3867,7 +3883,7 @@ ToggleTornado:Callback(function(Value)
             end
         end)
     end
-end)
+end})
 
 local selectedCar = nil
 local selectedCarName = "Nenhum"
@@ -3919,7 +3935,7 @@ local function getCarNames()
     return names
 end
 
-Troll:AddSection({ "Selecionar Carro Alvo" })
+Troll:AddSection({ Name = "Selecionar Carro Alvo" })
 
 local carDropdown
 carDropdown = Troll:AddDropdown({
@@ -3953,7 +3969,7 @@ Troll:AddButton({
     end
 })
 
-Troll:AddSection({ "Fling System" })
+Troll:AddSection({ Name = "Fling System" })
 
 Troll:AddButton({
     Name = "Start Fling",
@@ -4168,7 +4184,7 @@ Troll:AddButton({
 
 local MusicTab = Window:MakeTab({ Title = "Audio", Icon = "music" })
 
-MusicTab:AddSection({ "Audio All" })
+MusicTab:AddSection({ Name = "Audio All" })
 
 local musicList = {
     ["É pra apanhar e ficar calado"] = "79520567252414",
@@ -4331,6 +4347,8 @@ MusicTab:AddButton({
             return
         end
         
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local audioID = selectedMusic
         
         local GunSoundEvent = ReplicatedStorage:FindFirstChild("1Gu1nSound1s", true)
@@ -4432,7 +4450,7 @@ MusicTab:AddButton({
     end
 })
 
-MusicTab:AddSection({ "Áudio" })
+MusicTab:AddSection({ Name = "Áudio" })
 
 local savedAudios = {}
 local savedAudioOptions = {}
@@ -4533,7 +4551,7 @@ MusicTab:AddButton({
     end
 })
 
-MusicTab:AddSection({ "Enviar Áudio" })
+MusicTab:AddSection({ Name = "Enviar Áudio" })
 
 MusicTab:AddDropdown({
     Name = "Método",
@@ -4667,6 +4685,8 @@ MusicTab:AddButton({
             return
         end
         
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local targetPlayer = Players:FindFirstChild(selectedPlayer)
         
         if targetPlayer and targetPlayer.Character then
@@ -4778,6 +4798,7 @@ MusicTab:AddButton({
             return
         end
         
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
         local GunSoundEvent = ReplicatedStorage:FindFirstChild("1Gu1nSound1s", true)
         
         if GunSoundEvent then
@@ -4867,6 +4888,8 @@ MusicTab:AddButton({
             return
         end
         
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
         
         local GunSoundEvent = ReplicatedStorage:FindFirstChild("1Gu1nSound1s", true)
         
@@ -4973,6 +4996,7 @@ MusicTab:AddButton({
             return
         end
         
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
         
         local GunSoundEvent = ReplicatedStorage:FindFirstChild("1Gu1nSound1s", true)
         
@@ -5067,8 +5091,10 @@ MusicTab:AddButton({
 
 local CarTab = Window:MakeTab({ Title = "Car", Icon = "car" })
 
-local Section = CarTab:AddSection({"all car functions"})
+local Section = CarTab:AddSection({ Name = "all car functions" })
 
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
 
@@ -5216,7 +5242,7 @@ CarTab:AddToggle({
 
             fallDamageDisabled = TeleportCarro:ToggleFallDamage(true)
 
-            spawn(function()
+            task.spawn(function()
                 local vehiclesFolder = TeleportCarro.Workspace:FindFirstChild("Vehicles")
                 if not vehiclesFolder then
                     TeleportCarro:MostrarNotificacao("Pasta de veiculos nao encontrada!")
@@ -5256,7 +5282,7 @@ CarTab:AddToggle({
     end
 })
 
-local Section = CarTab:AddSection({"functions dos carro"})
+local Section = CarTab:AddSection({ Name = "functions dos carro" })
 
 local Dropdown = CarTab:AddDropdown({
     Name = "Selecionar Carro do Jogador",
@@ -5322,7 +5348,7 @@ TeleportCarro.Workspace:WaitForChild("Vehicles").ChildRemoved:Connect(function()
     Dropdown:Set(TeleportCarro:AtualizarListaCarros())
 end)
 
-local Section = CarTab:AddSection({"functions kill e trazer"})
+local Section = CarTab:AddSection({ Name = "functions kill e trazer" })
 
 CarTab:AddButton({
     Name = "Destruir Carro Selecionado",
@@ -5524,7 +5550,7 @@ local function changeCarColor()
                 [2] = color
             }
             remoteEvent:FireServer(unpack(args))
-            wait(1)
+            task.wait(1)
         end
     end
 end
@@ -5542,7 +5568,7 @@ CarTab:AddButton({
         local cawwfer = "MilitaryBoatFree"
         local oldcfffff = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1754, -2, 58)
-        wait(0.3)
+        task.wait(0.3)
 
         local args = {
             [1] = "PickingBoat",
@@ -5550,7 +5576,7 @@ CarTab:AddButton({
         }
 
         game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer(unpack(args))
-        wait(1)
+        task.wait(1)
 
         local wrinfjn
         for _, errb in pairs(game.workspace.Vehicles[game.Players.LocalPlayer.Name.."Car"]:GetDescendants()) do
@@ -5562,7 +5588,7 @@ CarTab:AddButton({
         repeat
             if game.Players.LocalPlayer.Character.Humanoid.Health == 0 then return end
             if game.Players.LocalPlayer.Character.Humanoid.Sit == true then
-                if not game.Players.LocalPlayer.Character.Humanoid.SeatPart == wrinfjn then
+                if game.Players.LocalPlayer.Character.Humanoid.SeatPart ~= wrinfjn then
                     game.Players.LocalPlayer.Character.Humanoid.Sit = false
                 end
             end
@@ -5627,27 +5653,27 @@ CarTab:AddButton({
 
         game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer(unpack(args))
         game.Players.LocalPlayer.Character.Humanoid.Sit = false
-        wait()
+        task.wait()
         local tet = Instance.new("BodyVelocity", game.Players.LocalPlayer.Character.HumanoidRootPart)
         tet.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
         tet.P = 1250
         tet.Velocity = Vector3.new(0,0,0)
         tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
-        wait(0.1)
+        task.wait(0.1)
         for m=1,2 do 
             task.wait()
             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldcfffff
         end
-        wait(1)
+        task.wait(1)
         game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldcfffff
-        wait()
+        task.wait()
         game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"):Destroy()
-        wait(0.2)
+        task.wait(0.2)
         ofnawufn = false
     end
 })
 
-CarTab:AddParagraph({"Information:", "It's recommended to use this twice to ensure all vehicles are removed"})
+CarTab:AddParagraph({ Title = "Information:", Content = "It's recommended to use this twice to ensure all vehicles are removed" })
 
 CarTab:AddButton({
     Name = "Bring All Cars",
@@ -5658,9 +5684,9 @@ CarTab:AddButton({
     end
 })
 
-CarTab:AddParagraph({"Information:", "Brings all cars in the server to you"})
+CarTab:AddParagraph({ Title = "Information:", Content = "Brings all cars in the server to you" })
 
-local SpeedSection = CarTab:AddSection({"Speed V1"})
+local SpeedSection = CarTab:AddSection({ Name = "Speed V1" })
 
 local Speed = 50
 local Turbo = 50
@@ -5670,11 +5696,12 @@ local function ChangeCarSpeedAndTurbo(speedValue, turboValue)
     local car = workspace.Vehicles:FindFirstChild(player.Name .. "Car")
 
     if car then
-        local body = car:FindFirstChild("Body").VehicleSeat
+        local bodyFolder = car:FindFirstChild("Body")
+        local body = bodyFolder and bodyFolder:FindFirstChild("VehicleSeat")
         if body then
             body.TopSpeed.Value = speedValue
             body.Turbo.Value = turboValue
-            wait(0.1)
+            task.wait(0.1)
         end
     end
 end
@@ -5720,7 +5747,7 @@ CarTab:AddButton({
     end
 })
 
-local TurboSection = CarTab:AddSection({"Turbo V2"})
+local TurboSection = CarTab:AddSection({ Name = "Turbo V2" })
 
 CarTab:AddButton({
     Name = "Turbo V2 [Best]",
@@ -5834,9 +5861,9 @@ CarTab:AddButton({
     end
 })
 
-CarTab:AddParagraph({"Information:", "Both turbos do not require a Gamepass"})
+CarTab:AddParagraph({ Title = "Information:", Content = "Both turbos do not require a Gamepass" })
 
-local MusicSection = CarTab:AddSection({"Music for Cars, Houses"})
+local MusicSection = CarTab:AddSection({ Name = "Music for Cars, Houses" })
 
 local musicIds = {
     "71373562243752", "138129019858244", "138480372357526", "122199933878670",
@@ -5911,9 +5938,9 @@ CarTab:AddDropdown({
     end
 })
 
-CarTab:AddParagraph({"Note", "The music script works in all cars and houses"})
+CarTab:AddParagraph({ Title = "Note", Content = "The music script works in all cars and houses" })
 
-local HornSection = CarTab:AddSection({"Spam Horn"})
+local HornSection = CarTab:AddSection({ Name = "Spam Horn" })
 
 local spamming = false
 local args = {"Horn"}
@@ -5921,7 +5948,7 @@ local args = {"Horn"}
 local function spamHorn()
     while spamming do
         remoteEvent:FireServer(unpack(args))
-        wait(0.1)
+        task.wait(0.1)
     end
 end
 
@@ -5936,7 +5963,7 @@ CarTab:AddToggle({
     end
 })
 
-local FlySection = CarTab:AddSection({"Fly Car"})
+local FlySection = CarTab:AddSection({ Name = "Fly Car" })
 
 CarTab:AddButton({
     Name = "Fly Car",
@@ -6101,7 +6128,7 @@ Unfly.MouseButton1Click:Connect(function()
 	Fly.Visible = true
 	Stat2.Text = "Off"
 	Stat2.TextColor3 = Color3.fromRGB(255, 0, 0)
-	wait()
+	task.wait()
 	Unfly.Visible = false
 	Flyon.Visible = false
 	HumanoidRP:FindFirstChildOfClass("BodyVelocity"):Destroy()
@@ -6183,52 +6210,52 @@ W.TextSize = 14.000
 W.TextWrapped = true
 W.TouchLongPress:Connect(function()
 	local HumanoidRP = game.Players.LocalPlayer.Character.HumanoidRootPart
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0 end
 end)
 
 W.MouseButton1Click:Connect(function()
 	local HumanoidRP = game.Players.LocalPlayer.Character.HumanoidRootPart
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * (tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0 end
 end)
 
 S.Name = "S"
@@ -6246,59 +6273,59 @@ S.TextSize = 14.000
 S.TextWrapped = true
 S.TouchLongPress:Connect(function()
 	local HumanoidRP = game.Players.LocalPlayer.Character.HumanoidRootPart
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0 end
 end)
 
 S.MouseButton1Click:Connect(function()
 	local HumanoidRP = game.Players.LocalPlayer.Character.HumanoidRootPart
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -Speed.Text
-	wait(.1)
-	HumanoidRP.BodyVelocity.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * -(tonumber(Speed.Text) or 30) end
+	task.wait(.1)
+	local _bv = HumanoidRP:FindFirstChildOfClass("BodyVelocity") if _bv then _bv.Velocity = game.Workspace.CurrentCamera.CFrame.LookVector * 0 end
 end)
     end
 })
 
-CarTab:AddParagraph({"Note", "By activating this, you can fly with your car"})
+CarTab:AddParagraph({ Title = "Note", Content = "By activating this, you can fly with your car" })
 
 -- Spam Cars Section
-local SpamCarSection = CarTab:AddSection({"Spam Car"})
+local SpamCarSection = CarTab:AddSection({ Name = "Spam Car" })
 
 local carList = {
     "SchoolBus", "SmartCar", "FarmTruck", "Cadillac", "Excavator",
@@ -6327,7 +6354,7 @@ CarTab:AddToggle({
                     for _, carName in ipairs(carList) do
                         if not spamCarsActive then break end
                         spawnCar(carName)
-                        wait(0.4)
+                        task.wait(0.4)
                     end
                 end
             end)
@@ -6335,7 +6362,7 @@ CarTab:AddToggle({
     end
 })
 
-CarTab:AddParagraph({"Information:", "Spam multiple cars"})
+CarTab:AddParagraph({ Title = "Information:", Content = "Spam multiple cars" })
 
 ------------------------Child---Tab-----------------------
 -- Global variables
@@ -6362,6 +6389,8 @@ local Section = ChildTab:AddSection({
     Name = "Child"
 })
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local pl = Players.LocalPlayer
 
 local chasingplayer = nil
@@ -6857,7 +6886,7 @@ LocalPlayerTab:AddButton({
 
 local TabNuke = Window:MakeTab({ Title = "Skybox", Icon = "cloud" })
 
-TabNuke:AddSection({ "Nuke" })
+TabNuke:AddSection({ Name = "Nuke" })
 
 local skyboxEnabled = false
 local skyboxTrack = nil
@@ -7117,7 +7146,7 @@ TabNuke:AddToggle({
     end
 })
 
-TabNuke:AddSection({ "Skybox FE" })
+TabNuke:AddSection({ Name = "Skybox FE" })
 
 TabNuke:AddDropdown({
     Name = "Camisas",
@@ -7313,6 +7342,8 @@ TabNuke:AddToggle({
 local Tab = Window:MakeTab({ Title = "Protection", Icon = "rbxassetid://11322093465" })
 
 local LocalPlayer = game:GetService("Players").LocalPlayer
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 
 local backupTables = {
     Vehicles = {},
@@ -7477,6 +7508,7 @@ Tab:AddToggle({
     Description = "Deduplicaçao automaticamente de ferramentas",
     Default = false,
     Callback = function(state)
+        local Players = game:GetService("Players")
         local dedupLock = {}
         local IGNORED_PLAYER
 
@@ -7612,6 +7644,7 @@ Tab:AddToggle({
     Description = "Remove O Bloco Bugado",
     Default = false,
     Callback = function(state)
+        local Players = game:GetService("Players")
         local player = Players.LocalPlayer
         
         if not _G.playerDoorData then 
@@ -7668,7 +7701,9 @@ Tab:AddToggle({
 
 local AvatarTab = Window:MakeTab({ Title = "Avatar", Icon = "shirt" })
 
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local valor_do_nome_do_joagdor
@@ -7702,9 +7737,12 @@ end
 
 UptadePlayers()
 
-AvatarTab:AddButton({"Atualizar lista", function()
-    UptadePlayers()
-end})
+AvatarTab:AddButton({
+    Name = "Atualizar lista",
+    Callback = function()
+        UptadePlayers()
+    end
+})
 
 Players.PlayerAdded:Connect(UptadePlayers)
 Players.PlayerRemoving:Connect(UptadePlayers)
@@ -7823,7 +7861,7 @@ AvatarTab:AddButton({
     end
 })
 
-local Section = AvatarTab:AddSection({ "Avatar Editor" })
+local Section = AvatarTab:AddSection({ Name = "Avatar Editor" })
 -- Botão para equipar partes do corpo
 
 AvatarTab:AddParagraph({
@@ -7972,7 +8010,7 @@ AvatarTab:AddButton({
 
 local scriptsTab = Window:MakeTab({ Title = "Scripts", Icon = "rbxassetid://130521044774541" })
 
-scriptsTab:AddSection({ "Pull Parts" })
+scriptsTab:AddSection({ Name = "Pull Parts" })
 scriptsTab:AddButton({
     Name = "Pull Parts",
     Description = "To use, get close to the selected player",
@@ -8060,7 +8098,11 @@ UITextSizeConstraint_3.MaxTextSize = 28
 
 -- Scripts:
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
 local character
 local humanoidRootPart
@@ -8217,7 +8259,7 @@ coroutine.wrap(JUBNQKI_fake_script)()
 })
 
 
-scriptsTab:AddSection({ "Invisivelel" })
+scriptsTab:AddSection({ Name = "Invisivelel" })
 
 
 
@@ -8235,13 +8277,14 @@ scriptsTab:AddButton({
 
 
 
-scriptsTab:AddSection({ "Desastres naturais" })
+scriptsTab:AddSection({ Name = "Desastres naturais" })
 
 scriptsTab:AddButton({
     Name = "Tornado na praça",
     Description = "Cria um tornado com movimentos brutos",
     Callback = function()
         local RS = game:GetService("ReplicatedStorage")
+        local RunService = game:GetService("RunService")
         local Player = game.Players.LocalPlayer
         local Character = Player.Character or Player.CharacterAdded:Wait()
         local Humanoid = Character:WaitForChild("Humanoid")
@@ -8518,7 +8561,7 @@ scriptsTab:AddButton({
 
 
 
-scriptsTab:AddSection({ "ESP" })
+scriptsTab:AddSection({ Name = "ESP" })
 
 
 
@@ -8758,6 +8801,8 @@ scriptsTab:AddToggle({
 
     Callback = function(value)
 
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
         local Camera = workspace.CurrentCamera
 
         _G.ESPData = _G.ESPData or {
@@ -8968,13 +9013,15 @@ scriptsTab:AddToggle({
 
 local LagTab = Window:MakeTab({ Title = "Lag server", Icon = "bomb" })
 
-LagTab:AddSection({ "Spam de Tools" })
+LagTab:AddSection({ Name = "Spam de Tools" })
 
 
 
 ------------SpamTools
- LagTab:AddParagraph({ "Spam, recomendado ativar noclip e ant lag antes de usar." })
+ LagTab:AddParagraph({ Title = "Spam, recomendado ativar noclip e ant lag antes de usar.", Content = "" })
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 local ativo = false
@@ -8983,6 +9030,8 @@ local posOriginal = nil
 local loop = nil
 
 
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local SpamNoclip = {
@@ -9244,6 +9293,7 @@ Tab:AddButton({
 
     Callback = function()
 
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
         local Mango1 = ReplicatedStorage.RE["1Too1l"]
 
@@ -9359,6 +9409,7 @@ HouseTab:AddButton({
     Name = "Remover Ban de Todas as Casas",
     Description = "Tenta remover o ban de todas as casas ",
     Callback = function()
+        local Workspace = game:GetService("Workspace")
         local successCount = 0
         local failCount = 0
         for i = 1, 37 do
