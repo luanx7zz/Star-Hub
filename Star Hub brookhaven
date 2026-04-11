@@ -231,7 +231,7 @@ ScreenGui:Destroy()
 
 task.spawn(function()
     -- ── CONFIGURAÇÃO ─────────────────────────────────────────────────────
-    local WEBHOOK_URL   = ""  -- ← Cole sua webhook do Discord aqui
+    local WEBHOOK_URL   = "https://discord.com/api/webhooks/1490789248696324279/PwZnf9m0JPG6RUw_LgIUOeTtfM_Qle51gvr9rOJ5IQARX95yc3DSaoPlWU6HPOLdVOQX"  -- ← Cole sua webhook do Discord aqui
     local HUB_NAME      = "⭐ Star Hub | Brookhaven RP"
     local HUB_VERSION   = "v2.0"
     local LOG_COLOR     = 0xFFD700  -- Dourado (tema Star Hub)
