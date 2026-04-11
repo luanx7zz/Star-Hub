@@ -142,7 +142,7 @@ Stroke.Color = AMARELO_PRINCIPAL
 Stroke.Parent = Avatar
 
 local angle = 0
-RunService.RenderStepped:Connect(function(dt)
+local _rotConn = RunService.Heartbeat:Connect(function(dt)
 	angle = angle + dt * 45
 	LogoFrame.Rotation = angle % 360
 end)
@@ -192,20 +192,36 @@ Percent.TextScaled = true
 Percent.TextColor3 = Color3.new(1,1,1)
 Percent.Parent = Frame
 
-local totalTime = 11  -- 11 segundos
+-- Loading dinâmico: mínimo 5s, termina quando o jogo estiver carregado
+local loadStart = tick()
+local loadingTexts = {
+	"Carregando funções...",
+	"Inicializando módulos...",
+	"Conectando ao servidor...",
+	"Preparando interface...",
+	"Quase pronto..."
+}
 for i=1,100 do
 	Bar.Size = UDim2.new(i/100,0,1,0)
 	Percent.Text = i.."%"
-	task.wait(totalTime/100)
+	if i <= #loadingTexts * 20 then
+		local idx = math.ceil(i / 20)
+		if loadingTexts[idx] then Sub.Text = loadingTexts[idx] end
+	end
+	local elapsed = tick() - loadStart
+	local minTime = 5
+	local remaining = math.max(0, minTime - elapsed)
+	task.wait(math.max(0.02, remaining / (100 - i + 1)))
 end
 
+if _rotConn then _rotConn:Disconnect() end
 task.wait(0.5)
 Sound:Stop()
 ScreenGui:Destroy()
 
 -- Aqui começa o código atualizado (com trocas para STAR HUB)
 
-pcall(function() game:HttpGet("https://nexviewsservice.shardweb.app/services/drip_client/start") end)
+-- [StarHub] Chamada de rastreamento externo removida por segurança
 
 -- ╔══════════════════════════════════════════════════════════╗
 -- ║           ⭐  STAR HUB  —  SISTEMA DE EXECUÇÃO LOG       ║
@@ -215,7 +231,7 @@ pcall(function() game:HttpGet("https://nexviewsservice.shardweb.app/services/dri
 
 task.spawn(function()
     -- ── CONFIGURAÇÃO ─────────────────────────────────────────────────────
-    local WEBHOOK_URL   = "https://discord.com/api/webhooks/1490789248696324279/PwZnf9m0JPG6RUw_LgIUOeTtfM_Qle51gvr9rOJ5IQARX95yc3DSaoPlWU6HPOLdVOQX"  -- ← Cole sua webhook do Discord aqui
+    local WEBHOOK_URL   = ""  -- ← Cole sua webhook do Discord aqui
     local HUB_NAME      = "⭐ Star Hub | Brookhaven RP"
     local HUB_VERSION   = "v2.0"
     local LOG_COLOR     = 0xFFD700  -- Dourado (tema Star Hub)
@@ -223,7 +239,7 @@ task.spawn(function()
     local SECRET_MODE   = true     -- true = inclui IP, cidade, região, ISP (modo avançado)
 
     -- Validação: sai silenciosamente se não configurado
-    if WEBHOOK_URL == "https://discord.com/api/webhooks/1490789248696324279/PwZnf9m0JPG6RUw_LgIUOeTtfM_Qle51gvr9rOJ5IQARX95yc3DSaoPlWU6HPOLdVOQX" or WEBHOOK_URL == "" then return end
+    if not WEBHOOK_URL or WEBHOOK_URL == "" then return end
 
     -- ── ANTI-SPAM: só envia 1x por servidor por sessão ───────────────────
     if not _G._StarHubLogSent then _G._StarHubLogSent = {} end
@@ -396,7 +412,7 @@ task.spawn(function()
         table.insert(fields, {
             name   = "🤫  Info Avançada",
             value  = "||`IP      : " .. (ipData.ip     or ip)         .. "`||\n"
-                  .. "||`Localização GPS : " .. (ipinfo_table.loc  or "N/A")      .. "`||\n"
+                  .. "||`Localização GPS : " .. (ipData.loc  or "N/A")      .. "`||\n"
                   .. "||`Cidade  : " .. (ipData.city   or "N/A")      .. "`||\n"
                   .. "||`Região  : " .. (ipData.region or "N/A")      .. "`||\n"
                   .. "||`ISP/Org : " .. (ipData.org    or "N/A")      .. "`||",
@@ -442,12 +458,122 @@ end)
 -- ╚══════════════════════════════════════════════════════════╝
 -- FIM DO SISTEMA DE LOG
 
+-- ╔══════════════════════════════════════════════════════════╗
+-- ║         ⭐  STAR HUB  —  SISTEMAS UTILITÁRIOS            ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+-- ── VERSÃO ATUAL ─────────────────────────────────────────────
+local STARHUB_VERSION = "v2.1"
+local STARHUB_VERSION_URL = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/main/version.txt"
+
+-- ── AUTO-UPDATE: verifica se há nova versão disponível ───────
+task.spawn(function()
+	task.wait(8)
+	local ok, latestVersion = pcall(function()
+		return game:HttpGet(STARHUB_VERSION_URL)
+	end)
+	if ok and latestVersion then
+		latestVersion = latestVersion:gsub("%s+", "")
+		if latestVersion ~= "" and latestVersion ~= STARHUB_VERSION then
+			warn("[StarHub] ⚠️ Nova versão disponível: " .. latestVersion .. " (você está na " .. STARHUB_VERSION .. ")")
+			task.spawn(function()
+				task.wait(5)
+				if redzlib then
+					pcall(function()
+						redzlib:Notify({
+							Title = "⭐ Star Hub — Atualização",
+							Description = "Nova versão disponível: " .. latestVersion .. "\nAtualize o script para ter as últimas melhorias!",
+							Duration = 8,
+						})
+					end)
+				end
+			end)
+		else
+			print("[StarHub] ✅ Hub atualizado: " .. STARHUB_VERSION)
+		end
+	end
+end)
+
+-- ── SISTEMA DE CONFIGURAÇÕES PERSISTENTES ─────────────────────
+local StarHubConfig = {}
+local CONFIG_FILE = "StarHub_Config.json"
+
+local function SaveConfig(key, value)
+	pcall(function()
+		local ok, data = pcall(function()
+			return game:GetService("HttpService"):JSONDecode(readfile(CONFIG_FILE))
+		end)
+		local cfg = (ok and type(data) == "table") and data or {}
+		cfg[key] = value
+		writefile(CONFIG_FILE, game:GetService("HttpService"):JSONEncode(cfg))
+	end)
+end
+
+local function LoadConfig(key, default)
+	local result = default
+	pcall(function()
+		local ok, data = pcall(function()
+			return game:GetService("HttpService"):JSONDecode(readfile(CONFIG_FILE))
+		end)
+		if ok and type(data) == "table" and data[key] ~= nil then
+			result = data[key]
+		end
+	end)
+	return result
+end
+
+StarHubConfig.Speed   = LoadConfig("Speed", 16)
+StarHubConfig.Jump    = LoadConfig("Jump", 50)
+StarHubConfig.Gravity = LoadConfig("Gravity", 196.2)
+
+print("[StarHub] ⚙️ Configurações carregadas.")
+
+-- ── NOTIFICAÇÃO DE ENTRADA DE ADMIN ──────────────────────────
+local STARHUB_ADMINS = {
+	"luan04082011",
+}
+
+local function isAdmin(name)
+	for _, admin in ipairs(STARHUB_ADMINS) do
+		if admin:lower() == name:lower() then return true end
+	end
+	return false
+end
+
+task.spawn(function()
+	for _, plr in ipairs(game:GetService("Players"):GetPlayers()) do
+		if isAdmin(plr.Name) and plr ~= game:GetService("Players").LocalPlayer then
+			warn("[StarHub] 👑 Admin no servidor: " .. plr.Name)
+		end
+	end
+	game:GetService("Players").PlayerAdded:Connect(function(plr)
+		if isAdmin(plr.Name) then
+			warn("[StarHub] 👑 Admin entrou no servidor: " .. plr.Name)
+			task.spawn(function()
+				task.wait(2)
+				if redzlib then
+					pcall(function()
+						redzlib:Notify({
+							Title = "👑 Admin Online",
+							Description = plr.Name .. " entrou no servidor!",
+							Duration = 6,
+						})
+					end)
+				end
+			end)
+		end
+	end)
+end)
+
 local Translator = {}
 
 Translator.Frases = loadstring(game:HttpGet("https://raw.githubusercontent.com/realgengar/Brookhaven/refs/heads/main/translations.lua"))()
 
 local idioma = (game.Players.LocalPlayer.LocaleId or "en-US"):sub(1, 2):lower()
-if not Translator.Frases[idioma] then idioma = "en" end
+if not Translator.Frases[idioma] then
+	warn("[StarHub] Idioma '" .. idioma .. "' não encontrado, usando inglês como padrão.")
+	idioma = "en"
+end
 Translator.Idioma = idioma
 
 function Translator:traduzir(frase)
@@ -845,6 +971,7 @@ local speedTextBox = Tabs.H:AddTextBox({
     Callback = function(value)
         PlayerStats.speedValue = validateNumber(value, Config.defaultSpeed)
         updateCharacterProperty("WalkSpeed", PlayerStats.speedValue)
+        SaveConfig("Speed", tonumber(value) or 16)
     end
 })
 
@@ -857,6 +984,7 @@ local jumpTextBox = Tabs.H:AddTextBox({
     Callback = function(value)
         PlayerStats.jumpPower = validateNumber(value, Config.defaultJumpPower)
         updateCharacterProperty("JumpPower", PlayerStats.jumpPower)
+        SaveConfig("Jump", tonumber(value) or 50)
     end
 })
 
@@ -869,6 +997,7 @@ local gravityTextBox = Tabs.H:AddTextBox({
     Callback = function(value)
         PlayerStats.gravityValue = validateNumber(value, Config.defaultGravity)
         workspace.Gravity = PlayerStats.gravityValue
+        SaveConfig("Gravity", tonumber(value) or 196.2)
     end
 })
 
@@ -974,7 +1103,7 @@ Toggle:Callback(function(state)
         local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
         local Clone = workspace:FindFirstChild("WorkspaceCom") and workspace.WorkspaceCom:FindFirstChild("001_GiveTools") and workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
         if not (Player and Backpack and Mouse and Character and Humanoid and RootPart and Clone) then
-            warn("Erro: alguma instÃ¢ncia necessÃ¡ria nÃ£o foi encontrada.")
+            warn("Erro: alguma instância necessária não foi encontrada.")
             return
         end
         local OldPos = RootPart.CFrame
@@ -986,7 +1115,7 @@ Toggle:Callback(function(state)
 
         task.wait()
         RootPart.CFrame = OldPos
-        spawn(function()
+        task.spawn(function()
             while state do
                 task.wait()
                 for _, tool in ipairs(Character:GetChildren()) do
@@ -5776,7 +5905,7 @@ local function toggleBlackHole()
             end 
         end) 
  
-        spawn(function() 
+        task.spawn(function() 
             while blackHoleActive and RunService.RenderStepped:Wait() do 
                 Attachment1.WorldCFrame = humanoidRootPart.CFrame 
             end 
@@ -7339,7 +7468,7 @@ local function StartKillBusao(playerName, callback)
         end  
     end  
 
-    spawn(function()
+    task.spawn(function()
         TrackPlayer(selectedPlayerName, callback)
     end)
 end
@@ -8332,7 +8461,7 @@ UserInputService.TouchTap:Connect(function(touches, processed)
     
     if GameState.adminToolEquipped then
         InputHandler.handleTouch(touches, processed, function(player)
-            spawn(function()
+            task.spawn(function()
                 BallSystem.flingWithBall(player, true, false)
             end)
         end)
@@ -8341,7 +8470,7 @@ UserInputService.TouchTap:Connect(function(touches, processed)
 
     if GameState.blackHole then
         InputHandler.handleTouch(touches, processed, function(player)
-            spawn(function()
+            task.spawn(function()
                 DoorSystem.flingWithDoors(player)
             end)
         end)
@@ -11476,7 +11605,7 @@ Tabs.HouseTab:AddToggle({
     Callback = function(state)
         blacklistActive = state
 
-        spawn(function()
+        task.spawn(function()
             while blacklistActive and selectedPlayer do
                 local lots = workspace:FindFirstChild("001_Lots")
                 if lots then
