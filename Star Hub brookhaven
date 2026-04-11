@@ -464,7 +464,7 @@ end)
 
 -- ── VERSÃO ATUAL ─────────────────────────────────────────────
 local STARHUB_VERSION = "v2.1"
-local STARHUB_VERSION_URL = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/main/version.txt"
+local STARHUB_VERSION_URL = "https://raw.githubusercontent.com/luanx7zz/Star-Hub/refs/heads/main/version.txt"
 
 -- ── AUTO-UPDATE: verifica se há nova versão disponível ───────
 task.spawn(function()
