@@ -2626,6 +2626,232 @@ end})
     }
   })
 end})
+
+-- ╔══════════════════════════════════════╗
+-- ║     🛡️ PROTEÇÕES AVANÇADAS           ║
+-- ╚══════════════════════════════════════╝
+Tabs.PR:AddSection({ "🛡️ Anti-Fling Avançado" })
+
+local _antiFlingWS = game:GetService("Workspace")
+local _antiFlingLP = game:GetService("Players").LocalPlayer
+local _antiFlingBackup = { Vehicles = {}, Canoes = {}, Jets = {}, Helis = {}, Balls = {} }
+
+local function _makeAntiFlingToggle(name, getFolderFunc)
+    local active = false
+    task.spawn(function()
+        while true do
+            if active and _antiFlingLP.Character then
+                local folder = getFolderFunc()
+                if folder then
+                    for _, item in ipairs(folder:GetChildren()) do
+                        local isMine = false
+                        if name == "Vehicles" then
+                            for _, seat in ipairs(item:GetDescendants()) do
+                                if (seat:IsA("VehicleSeat") or seat:IsA("Seat")) and seat.Occupant and seat.Occupant.Parent == _antiFlingLP.Character then
+                                    isMine = true; break
+                                end
+                            end
+                        elseif name == "Canoes" then
+                            local owner = item:FindFirstChild("Owner")
+                            isMine = owner and owner.Value == _antiFlingLP
+                        elseif name == "Jets" or name == "Helis" then
+                            isMine = item.Name == _antiFlingLP.Name
+                        end
+                        if not isMine then
+                            table.insert(_antiFlingBackup[name], item:Clone())
+                            pcall(function() item:Destroy() end)
+                        end
+                    end
+                end
+            end
+            task.wait(0.03)
+        end
+    end)
+    return function(state)
+        active = state
+        if not state then
+            for _, item in ipairs(_antiFlingBackup[name]) do
+                local parentFolder = getFolderFunc()
+                if parentFolder then pcall(function() item.Parent = parentFolder end) end
+            end
+            _antiFlingBackup[name] = {}
+        end
+    end
+end
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Veículos",
+    Description = "Remove veículos de outros jogadores automaticamente",
+    Default = false,
+    Callback = _makeAntiFlingToggle("Vehicles", function() return _antiFlingWS:FindFirstChild("Vehicles") end)
+})
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Canoas",
+    Description = "Remove canoas de outros players (reaparecem ao desativar)",
+    Default = false,
+    Callback = _makeAntiFlingToggle("Canoes", function()
+        local wsc = _antiFlingWS:FindFirstChild("WorkspaceCom")
+        return wsc and wsc:FindFirstChild("001_CanoeStorage")
+    end)
+})
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Jets",
+    Description = "Remove jets de outros jogadores automaticamente",
+    Default = false,
+    Callback = _makeAntiFlingToggle("Jets", function()
+        local folder = _antiFlingWS:FindFirstChild("WorkspaceCom")
+        if folder and folder:FindFirstChild("001_Airport") then
+            local storage = folder["001_Airport"]:FindFirstChild("AirportHanger")
+            if storage and storage:FindFirstChild("001_JetStorage") then
+                return storage["001_JetStorage"]:FindFirstChild("JetAirport")
+            end
+        end
+    end)
+})
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Helicópteros",
+    Description = "Remove helicópteros de outros jogadores automaticamente",
+    Default = false,
+    Callback = _makeAntiFlingToggle("Helis", function()
+        local folder = _antiFlingWS:FindFirstChild("WorkspaceCom")
+        return folder and folder:FindFirstChild("001_HeliStorage") and folder["001_HeliStorage"]:FindFirstChild("PoliceStationHeli")
+    end)
+})
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Bolas",
+    Description = "Remove bolas de futebol automaticamente",
+    Default = false,
+    Callback = _makeAntiFlingToggle("Balls", function()
+        local folder = _antiFlingWS:FindFirstChild("WorkspaceCom")
+        return folder and folder:FindFirstChild("001_SoccerBalls")
+    end)
+})
+
+Tabs.PR:AddSection({ "🚫 Anti Ações" })
+
+local _antiSitActive = false
+Tabs.PR:AddToggle({
+    Name = "Anti Sit",
+    Description = "Impede seu personagem de sentar",
+    Default = false,
+    Callback = function(state)
+        _antiSitActive = state
+        task.spawn(function()
+            while _antiSitActive and _antiFlingLP.Character do
+                local humanoid = _antiFlingLP.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+                    if humanoid:GetState() == Enum.HumanoidStateType.Seated then
+                        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    end
+                end
+                task.wait(0.05)
+            end
+            if not _antiSitActive then
+                local humanoid = _antiFlingLP.Character and _antiFlingLP.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true) end
+            end
+        end)
+    end
+})
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Portas",
+    Description = "Esconde todas as portas do mapa (restaura ao desativar)",
+    Default = false,
+    Callback = function(state)
+        if not _G.hiddenDoors then _G.hiddenDoors = {} end
+        if state then
+            _G.hiddenDoors = {}
+            for _, obj in ipairs(_antiFlingWS:GetDescendants()) do
+                if obj:IsA("BasePart") and obj.Name:lower():find("door") then
+                    local doorData = { door = obj, t = obj.Transparency, cc = obj.CanCollide, cs = obj.CastShadow }
+                    obj.Transparency = 1; obj.CanCollide = false; obj.CastShadow = false
+                    for _, child in ipairs(obj:GetChildren()) do
+                        if child:IsA("BasePart") then child.Transparency = 1; child.CanCollide = false
+                        elseif child:IsA("SurfaceGui") or child:IsA("BillboardGui") then child.Enabled = false end
+                    end
+                    table.insert(_G.hiddenDoors, doorData)
+                end
+            end
+        else
+            for _, d in ipairs(_G.hiddenDoors or {}) do
+                if d.door and d.door.Parent then
+                    d.door.Transparency = d.t; d.door.CanCollide = d.cc; d.door.CastShadow = d.cs
+                    for _, child in ipairs(d.door:GetChildren()) do
+                        if child:IsA("BasePart") then child.Transparency = 0; child.CanCollide = true
+                        elseif child:IsA("SurfaceGui") or child:IsA("BillboardGui") then child.Enabled = true end
+                    end
+                end
+            end
+            _G.hiddenDoors = {}
+        end
+    end
+})
+
+Tabs.PR:AddToggle({
+    Name = "Anti Fling Bloco (Porta da Casa)",
+    Description = "Remove o bloco bugado da porta da sua casa",
+    Default = false,
+    Callback = function(state)
+        if not _G.playerDoorData then _G.playerDoorData = {} end
+        local function findPlayerDoor()
+            local lotsFolder = _antiFlingWS:FindFirstChild("001_Lots")
+            if not lotsFolder then return nil end
+            for _, lot in pairs(lotsFolder:GetChildren()) do
+                if lot:FindFirstChild("HousePickedByPlayer") then
+                    local houseModel = lot.HousePickedByPlayer:FindFirstChild("HouseModel")
+                    if houseModel then
+                        local model = houseModel:FindFirstChild("Model")
+                        if model then
+                            local noLockDoor = model:FindFirstChild("NoLockHouseDoor")
+                            if noLockDoor then
+                                local door = noLockDoor:FindFirstChild("Door")
+                                if door then return door, noLockDoor end
+                            end
+                        end
+                    end
+                end
+            end
+            return nil
+        end
+        if state then
+            local door, parent = findPlayerDoor()
+            if door then
+                _G.playerDoorData = { door = door, parent = parent }
+                door.Parent = nil
+            end
+        else
+            if _G.playerDoorData and _G.playerDoorData.door and _G.playerDoorData.parent then
+                _G.playerDoorData.door.Parent = _G.playerDoorData.parent
+                _G.playerDoorData = {}
+            end
+        end
+    end
+})
+
+Tabs.PR:AddSection({ "🔧 Scripts de Proteção" })
+
+Tabs.PR:AddButton({
+    Name = "🛠️ AntiBug (Script Externo)",
+    Description = "Script anti-bug feito por cahh e Night",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/Antglitch/refs/heads/main/Main.txt"))()
+    end
+})
+
+Tabs.PR:AddButton({
+    Name = "🔇 Anti Som",
+    Description = "Remove sons indesejados do servidor",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/antaudiosdefdps/refs/heads/main/Main.txt"))()
+    end
+})
+
 -- ╔══════════════════════════════════════════════════════╗
 -- ║  TAB: SPAM / CLIENT                                   ║
 -- ╚══════════════════════════════════════════════════════╝
@@ -9366,6 +9592,40 @@ Tabs.Props:AddToggle({
         end
     end
 })
+
+-- ╔══════════════════════════════════════╗
+-- ║      🎁 ITENS ESPECIAIS              ║
+-- ╚══════════════════════════════════════╝
+Tabs.Props:AddSection({ "🎁 Itens Especiais" })
+
+local function _triggerItem(itemName)
+    pcall(function()
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(
+            "AcceptedToolToServer", itemName, game:GetService("Players").LocalPlayer
+        )
+    end)
+end
+
+Tabs.Props:AddButton({ Name = "🪂 Planador", Callback = function() _triggerItem("Glider") end })
+Tabs.Props:AddButton({ Name = "💣 Canhão", Callback = function() _triggerItem("Cannon") end })
+Tabs.Props:AddButton({ Name = "🏀 Bola de Basquete Dourada", Callback = function() _triggerItem("GoldenBasketball") end })
+Tabs.Props:AddButton({ Name = "🥚 Lançador de Ovo", Callback = function() _triggerItem("EggLauncher") end })
+Tabs.Props:AddButton({ Name = "☢️ Cristal de Urânio", Callback = function() _triggerItem("UraniumRod") end })
+Tabs.Props:AddButton({ Name = "⛓️ Serra Elétrica", Callback = function() _triggerItem("Chainsaw") end })
+Tabs.Props:AddButton({
+    Name = "💧 Balão de Água",
+    Callback = function()
+        pcall(function()
+            game:GetService("ReplicatedStorage").RE["1Too1l"]:InvokeServer("PickingTools", "Water Balloon")
+        end)
+    end
+})
+Tabs.Props:AddButton({
+    Name = "🔮 Telecinese V5",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/fe-telekinessv5/refs/heads/main/Main.txt"))()
+    end
+})
 end -- end Props do block
 
 
@@ -10819,6 +11079,100 @@ Tabs.AD:AddButton({
     Callback = function()
         playMusic("0")
         print("⏹️ Todas as músicas paradas")
+    end
+})
+
+-- ╔══════════════════════════════════════╗
+-- ║      🎵 ÁUDIOS ENGRAÇADOS            ║
+-- ╚══════════════════════════════════════╝
+Tabs.AD:AddSection({ "🎵 Áudios Engraçados (Tocar em Casa/Carro)" })
+
+local _funMusicList = {
+    ["É pra apanhar e ficar calado"] = "79520567252414",
+    ["Olha o Gassss"] = "684903565",
+    ["Que qui ele disse"] = "128524523145188",
+    ["Jumpscare ALTO"] = "6754147732",
+    ["Zé da Manga"] = "124420331692210",
+    ["Lá Ele"] = "84193217395790",
+    ["Receba"] = "84342842607926",
+    ["Cala a Boca Kenga"] = "86494561679259",
+    ["Pancada do Chaves"] = "135082533097287",
+    ["Cavalo"] = "5134648778",
+    ["Cat Laugh Meme"] = "18854692077",
+    ["Loud Jumpscare"] = "7236490488",
+    ["Risada do Sonic Exe"] = "7337298420",
+    ["Grito do Sonic Exe"] = "146563959",
+    ["Ai meu C*"] = "88347533205938",
+    ["Ez"] = "18603736229",
+    ["Vine Boom Meme"] = "18984970630",
+    ["Bruh Meme"] = "6349641063",
+    ["Explosão"] = "7405939280",
+    ["Ohhh My God Meme"] = "7836929130",
+    ["Olha a Mensagem"] = "17780313297",
+    ["Bora Bill"] = "17822597588",
+    ["Notificação do WhatsApp"] = "18808571870",
+    ["Parowwww"] = "71768583581267",
+    ["Faz o L"] = "94350012510206",
+    ["The Rake Scream 1"] = "72171849228899",
+    ["The Rake Scream 2"] = "18967004856",
+    ["Super Scream 1"] = "9043345011",
+    ["Super Scream 2"] = "9043345012",
+    ["Super Mario 64 Fall Scream"] = "1973317014",
+    ["Siren Head Call"] = "5681392704",
+    ["380 HZ"] = "6486261822",
+    ["1 HZ"] = "128118682266898",
+    ["Chupeta"] = "132235711219080",
+    ["E morreu"] = "71700111426066",
+    ["Ronaldo"] = "112094885967128",
+    ["Dança Gatinho, Dança"] = "112244173773874",
+    ["Jumpscare 1"] = "5351101493",
+    ["Jumpscare 2"] = "18925320031",
+    ["Help Me"] = "4617513181",
+    ["Demon Scream 1"] = "5832059740",
+    ["Horror Sound 1"] = "4737106301",
+}
+
+local _funMusicNames = {}
+for name, _ in pairs(_funMusicList) do table.insert(_funMusicNames, name) end
+table.sort(_funMusicNames)
+
+local _selectedFunMusic = _funMusicNames[1]
+local _funAudioDropdown = Tabs.AD:AddDropdown({
+    Name = "Selecionar Áudio Engraçado",
+    Options = _funMusicNames,
+    Default = _funMusicNames[1],
+    Callback = function(value) _selectedFunMusic = value end
+})
+
+Tabs.AD:AddButton({
+    Name = "▶ Tocar em Casa",
+    Description = "Toca o áudio selecionado na sua casa",
+    Callback = function()
+        if not _selectedFunMusic then return end
+        local id = _funMusicList[_selectedFunMusic]
+        pcall(function()
+            game:GetService("ReplicatedStorage").RE["1Hom1eAudi1o"]:FireServer("PlayHomeAudio", id)
+        end)
+    end
+})
+
+Tabs.AD:AddButton({
+    Name = "▶ Tocar no Carro",
+    Description = "Toca o áudio selecionado no seu carro",
+    Callback = function()
+        if not _selectedFunMusic then return end
+        local id = _funMusicList[_selectedFunMusic]
+        pcall(function()
+            game:GetService("ReplicatedStorage").RE["1Player1sCa1r"]:FireServer("PlayCarAudio", id)
+        end)
+    end
+})
+
+Tabs.AD:AddButton({
+    Name = "⏹ Parar Áudio",
+    Callback = function()
+        pcall(function() game:GetService("ReplicatedStorage").RE["1Hom1eAudi1o"]:FireServer("StopHomeAudio") end)
+        pcall(function() game:GetService("ReplicatedStorage").RE["1Player1sCa1r"]:FireServer("StopCarAudio") end)
     end
 })
 
@@ -12458,6 +12812,31 @@ local Button = Tabs.Carros:AddButton({Translator:traduzir("Inícia Fling"), func
         FlingPlayer()
     end
 end})
+
+-- ╔══════════════════════════════════════╗
+-- ║        📯 SPAM BUZINA                ║
+-- ╚══════════════════════════════════════╝
+Tabs.Carros:AddSection({ "📯 Spam Buzina" })
+
+local _hornSpamming = false
+local _hornRemote = game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Player1sCa1r")
+
+local function _spamHornLoop()
+    while _hornSpamming do
+        pcall(function() _hornRemote:FireServer("Horn") end)
+        task.wait(0.1)
+    end
+end
+
+Tabs.Carros:AddToggle({
+    Name = "Spam Buzina",
+    Description = "Fica latindo a buzina do carro",
+    Default = false,
+    Callback = function(value)
+        _hornSpamming = value
+        if value then task.spawn(_spamHornLoop) end
+    end
+})
 end
 
 --[[Tabs.PR:AddSection({"Mudanças de Tempos"})
@@ -13888,6 +14267,243 @@ local function executeRequests()
 end
 executeRequests()
 end
+
+-- ╔══════════════════════════════════════╗
+-- ║         👶  ABA CHILD                ║
+-- ╚══════════════════════════════════════╝
+local ChildTab = Window:MakeTab({ Title = "Child", Icon = "baby" })
+ChildTab:AddSection({ "👶 Child / Seguir Jogador" })
+
+local _childPlayers = game:GetService("Players")
+local _childRunService = game:GetService("RunService")
+local _childLp = _childPlayers.LocalPlayer
+local _chasingplayer = nil
+
+local function _updateChildPlayerList()
+    local list = {}
+    for _, v in pairs(_childPlayers:GetPlayers()) do
+        if v ~= _childLp then table.insert(list, v.Name) end
+    end
+    return list
+end
+
+local _playerChildDropdown = ChildTab:AddDropdown({
+    Name = "Selecionar Jogador",
+    Options = _updateChildPlayerList(),
+    Default = "",
+    Callback = function(selected)
+        if _childPlayers:FindFirstChild(selected) then
+            _chasingplayer = selected
+        else
+            _chasingplayer = nil
+        end
+    end
+})
+
+ChildTab:AddButton({
+    Name = "Atualizar Lista",
+    Callback = function()
+        local updated = _updateChildPlayerList()
+        pcall(function() _playerChildDropdown:Refresh(updated) end)
+        if _chasingplayer and not _childPlayers:FindFirstChild(_chasingplayer) then
+            _chasingplayer = nil
+            pcall(function() _playerChildDropdown:Set("") end)
+        end
+    end
+})
+
+_childPlayers.PlayerAdded:Connect(function()
+    task.wait(0.1)
+    pcall(function() _playerChildDropdown:Refresh(_updateChildPlayerList()) end)
+end)
+_childPlayers.PlayerRemoving:Connect(function(player)
+    task.wait(0.1)
+    pcall(function() _playerChildDropdown:Refresh(_updateChildPlayerList()) end)
+    if _chasingplayer == player.Name then
+        _chasingplayer = nil
+        pcall(function() _playerChildDropdown:Set("") end)
+    end
+end)
+
+ChildTab:AddButton({
+    Name = "Enviar Child",
+    Callback = function()
+        if not _chasingplayer then return end
+        if not workspace:FindFirstChild(_childLp.Name)
+        or not workspace[_childLp.Name]:FindFirstChild("FollowCharacter") then
+            game:GetService("ReplicatedStorage").RE["1Bab1yFollo1w"]:FireServer(
+                "CharacterFollowSpawnPlayer", "BabyBoy"
+            )
+        end
+        task.wait(0.2)
+        if workspace:FindFirstChild(_childLp.Name) then
+            for _, v in pairs(workspace[_childLp.Name]:GetChildren()) do
+                if v:IsA("BasePart") then v.CanCollide = true end
+            end
+        end
+        if rawget(getgenv(), "FollowConn") then return end
+        getgenv().FollowConn = _childRunService.Heartbeat:Connect(function()
+            local target = workspace:FindFirstChild(_chasingplayer)
+            local own = workspace:FindFirstChild(_childLp.Name)
+            if target and own and own:FindFirstChild("FollowCharacter") then
+                local follow = own.FollowCharacter
+                follow.Parent = target
+                local hrp = target:FindFirstChild("HumanoidRootPart")
+                local torso = follow:FindFirstChild("Torso")
+                if hrp and torso and torso:FindFirstChild("BodyPosition") then
+                    torso.BodyPosition.Position = hrp.Position - (hrp.CFrame.LookVector * 3)
+                    torso.BodyGyro.CFrame = hrp.CFrame
+                end
+            end
+        end)
+    end
+})
+
+ChildTab:AddButton({
+    Name = "Remover Child",
+    Callback = function()
+        if rawget(getgenv(), "FollowConn") then
+            getgenv().FollowConn:Disconnect()
+            getgenv().FollowConn = nil
+        end
+        if rawget(getgenv(), "WaistLoopConn") then
+            getgenv().WaistLoopConn:Disconnect()
+            getgenv().WaistLoopConn = nil
+        end
+        if rawget(getgenv(), "FaceLoopConn") then
+            getgenv().FaceLoopConn:Disconnect()
+            getgenv().FaceLoopConn = nil
+        end
+        game:GetService("ReplicatedStorage").RE["1Bab1yFollo1w"]:FireServer("DeleteFollowCharacter")
+        task.wait(0.1)
+        game:GetService("ReplicatedStorage").RE["1Bab1yFollo1w"]:FireServer("CharacterFollowSpawnPlayer", "BabyBoy")
+    end
+})
+
+ChildTab:AddToggle({
+    Name = "Spectate Jogador",
+    Default = false,
+    Callback = function(Value)
+        local Camera = workspace.CurrentCamera
+        if Value then
+            if not _chasingplayer then return end
+            if not rawget(getgenv(), "CameraConnection") then
+                getgenv().CameraConnection = _childRunService.Heartbeat:Connect(function()
+                    local t = _childPlayers:FindFirstChild(_chasingplayer)
+                    if t and t.Character and t.Character:FindFirstChild("Humanoid") then
+                        Camera.CameraSubject = t.Character.Humanoid
+                    end
+                end)
+            end
+        else
+            if rawget(getgenv(), "CameraConnection") then
+                getgenv().CameraConnection:Disconnect()
+                getgenv().CameraConnection = nil
+            end
+            if _childLp.Character then
+                Camera.CameraSubject = _childLp.Character:FindFirstChild("Humanoid")
+            end
+        end
+    end
+})
+
+ChildTab:AddToggle({
+    Name = "Waist Loop (Frente/Trás)",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if not _chasingplayer then return end
+            if rawget(getgenv(), "WaistLoopConn") then
+                getgenv().WaistLoopConn:Disconnect()
+            end
+            local t = 0
+            getgenv().WaistLoopConn = _childRunService.Heartbeat:Connect(function(dt)
+                if not Value or not _chasingplayer then
+                    if rawget(getgenv(), "WaistLoopConn") then
+                        getgenv().WaistLoopConn:Disconnect()
+                        getgenv().WaistLoopConn = nil
+                    end
+                    return
+                end
+                local target = workspace:FindFirstChild(_chasingplayer)
+                if not target then return end
+                local hrp = target:FindFirstChild("HumanoidRootPart")
+                local follow = target:FindFirstChild("FollowCharacter")
+                if hrp and follow and follow:FindFirstChild("Torso") then
+                    local torso = follow.Torso
+                    local bp = torso:FindFirstChild("BodyPosition")
+                    local bg = torso:FindFirstChild("BodyGyro")
+                    if not bp or not bg then return end
+                    t += dt * 7
+                    local oscillation = math.sin(t)
+                    local currentDistance = 0.1 + (3.5 - 0.1) * ((oscillation + 1) / 2)
+                    bp.Position = hrp.Position - (hrp.CFrame.LookVector * currentDistance) - Vector3.new(0, 0.6, 0)
+                    bg.CFrame = hrp.CFrame
+                end
+            end)
+        else
+            if rawget(getgenv(), "WaistLoopConn") then
+                getgenv().WaistLoopConn:Disconnect()
+                getgenv().WaistLoopConn = nil
+            end
+        end
+    end
+})
+
+ChildTab:AddSection({ "🎒 Head Sit (Piggyback)" })
+
+local _headSitSelected = nil
+local _headSitConnection = nil
+
+local _headSitDropdown = ChildTab:AddDropdown({
+    Name = "Selecionar Jogador (Head Sit)",
+    Default = "",
+    Options = _updateChildPlayerList(),
+    Callback = function(Value) _headSitSelected = Value end
+})
+
+ChildTab:AddToggle({
+    Name = "Head Sit (Carregue no colo)",
+    Default = false,
+    Callback = function(bool)
+        local character = _childLp.Character or _childLp.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local humanoid = character:WaitForChild("Humanoid")
+        if not _headSitSelected or _headSitSelected == "" then return end
+        local selectedPlayer = _childPlayers:FindFirstChild(_headSitSelected)
+        if bool then
+            if selectedPlayer and selectedPlayer.Character then
+                humanoid.Sit = true
+                if _headSitConnection then _headSitConnection:Disconnect() end
+                _headSitConnection = _childRunService.Heartbeat:Connect(function()
+                    if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("Head") and humanoid.Sit then
+                        humanoidRootPart.CFrame = selectedPlayer.Character.Head.CFrame * CFrame.new(0, 1.6, 0.4)
+                    else
+                        if _headSitConnection then
+                            _headSitConnection:Disconnect()
+                            _headSitConnection = nil
+                            humanoid.Sit = false
+                        end
+                    end
+                end)
+            end
+        else
+            if _headSitConnection then
+                _headSitConnection:Disconnect()
+                _headSitConnection = nil
+            end
+            humanoid.Sit = false
+        end
+    end
+})
+
+ChildTab:AddButton({
+    Name = "Atualizar Lista (Head Sit)",
+    Callback = function()
+        local updated = _updateChildPlayerList()
+        pcall(function() _headSitDropdown:Refresh(updated) end)
+    end
+})
 
 --673.678162, 18.1641273, 478.667908, 0, 0, -1, 0, 1, 0, 1, 0, 0
 --669.947021484375, 15.864216804504395, 477.9688720703125
