@@ -2291,12 +2291,21 @@ Tabs.SB:AddScriptBlox()
 -- ╚══════════════════════════════════════════════════════╝
 
 -----------------///////TABS - PR///////-----------------
-Tabs.PR:AddSection({Translator:traduzir("🛡️ Proteções & Anti-Lag")})
+--=============================================================
+--  ABA PROTEÇÃO (PR) — reorganizada
+--  Ordem:
+--  1) 🛑 Anti-Sentar (Tool / Carro / Objetos)  — consolidado
+--  2) 🛡️ Proteções Gerais (Bug / ChatSpy)
+--  3) 🚗 Anti-Fling (Veículos / Canoas / Jets / Helis / Bolas)
+--  4) 🚪 Anti-Porta (Mapa / Casa)
+--  5) 🔧 Scripts Externos (AntiBug / Anti Som / Anti Lag / Shaders)
+--=============================================================
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
+-- Estado compartilhado Anti-Sit (unificado)
 local antiToolSit, antiCarSit, antiVehicleCollision = false, false, false
 local conns = {}
 local dripsActive = false
@@ -2318,13 +2327,10 @@ end
 
 local function applyCollisionLogic(obj)
     if not obj:IsA("BasePart") then return end
-
     local name = obj.Name:lower()
     if name:find(wheelKeyword) then return end
-
     local isKeyword = containsKeyword(name, keywords)
     local isCar = false
-
     local parent = obj
     while parent do
         local pname = parent.Name:lower()
@@ -2335,7 +2341,6 @@ local function applyCollisionLogic(obj)
         end
         parent = parent.Parent
     end
-
     if isCar then
         obj.CanCollide = not antiCarSit
     elseif isKeyword then
@@ -2386,9 +2391,14 @@ local function handleToggle()
     fullScan()
 end
 
+-- ═══════════════════════════════════════════
+-- 1) 🛑 ANTI-SENTAR (UNIFICADO)
+-- ═══════════════════════════════════════════
+Tabs.PR:AddSection({Translator:traduzir("🛑 Anti-Sentar")})
+
 local Toggle1 = Tabs.PR:AddToggle({
-    Name = Translator:traduzir("Anti Tool"),
-    Description = Translator:traduzir("Impede sentar via Tool"),
+    Name = Translator:traduzir("Anti Sit (Tool)"),
+    Description = Translator:traduzir("Impede sentar quando te aplicam tool (sofá, cadeira, etc)"),
     Default = false
 })
 Toggle1:Callback(function(Value)
@@ -2397,8 +2407,8 @@ Toggle1:Callback(function(Value)
 end)
 
 local Toggle2 = Tabs.PR:AddToggle({
-    Name = Translator:traduzir("Anti Car (Bugado)"),
-    Description = Translator:traduzir("Impede sentar em Carro"),
+    Name = Translator:traduzir("Anti Sit (Carro)"),
+    Description = Translator:traduzir("Impede que te forcem a sentar em carros"),
     Default = false
 })
 Toggle2:Callback(function(Value)
@@ -2407,29 +2417,31 @@ Toggle2:Callback(function(Value)
 end)
 
 local Toggle3 = Tabs.PR:AddToggle({
-    Name = Translator:traduzir("Anti Script"),
-    Description = Translator:traduzir("Proteção contra colisões de veículos/objetos"),
+    Name = Translator:traduzir("Anti Sit (Objetos)"),
+    Description = Translator:traduzir("Proteção contra colisões de objetos de fling (bomba, bola, barco)"),
     Default = false
 })
 Toggle3:Callback(function(Value)
     antiVehicleCollision = Value
     handleToggle()
 end)
-local RunService = game:GetService("RunService")
-local AntiWeaponConn
 
+-- ═══════════════════════════════════════════
+-- 2) 🛡️ PROTEÇÕES GERAIS
+-- ═══════════════════════════════════════════
+Tabs.PR:AddSection({Translator:traduzir("🛡️ Proteções Gerais")})
+
+local AntiWeaponConn
 local AntiWeapon_Toggle = Tabs.PR:AddToggle({
     Name = Translator:traduzir("Anti Bug"),
     Description = Translator:traduzir("Bug players/Bug Weapon/Protection rapidez"),
     Default = false
 })
-
 AntiWeapon_Toggle:Callback(function(enabled)
     if AntiWeaponConn then
         AntiWeaponConn:Disconnect()
         AntiWeaponConn = nil
     end
-
     if enabled then
         AntiWeaponConn = RunService.Stepped:Connect(function()
             local cam = workspace.CurrentCamera or workspace:FindFirstChild("Camera")
@@ -2442,128 +2454,21 @@ AntiWeapon_Toggle:Callback(function(enabled)
         end)
     end
 end)
+
 local AntiChatSpy_Toggle = Tabs.PR:AddToggle({
     Name = Translator:traduzir("Anti ChatSpy"),
     Description = Translator:traduzir("Impede que outros vejam seus chats <Creator>"),
     Default = false
 })
-
 AntiChatSpy_Toggle:Callback(function(Value)
-    if Value then
-        local ChatSpy = game:GetService("Players").LocalPlayer.PlayerScripts:FindFirstChild("ChatSpy")
-        if ChatSpy then
-            ChatSpy.Disabled = true
-        end
-    else
-        local ChatSpy = game:GetService("Players").LocalPlayer.PlayerScripts:FindFirstChild("ChatSpy")
-        if ChatSpy then
-            ChatSpy.Disabled = false
-        end
+    local ChatSpy = game:GetService("Players").LocalPlayer.PlayerScripts:FindFirstChild("ChatSpy")
+    if ChatSpy then
+        ChatSpy.Disabled = Value
     end
 end)
---[[
-local Players = game:GetService("Players")
-local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-
-local player = Players.LocalPlayer
-
-local antiToolSit, antiCarSit, antiVehicleCollision = false, false, false
-local conns = {}
-
-local keywords = { "bomb", "soccer", "boat" }
-local carKeyword = "car"
-local wheelKeyword = "wheel"
-
-local function containsKeyword(name, list)
-    if typeof(name) ~= "string" then return false end
-    local lower = name:lower()
-    for _, word in ipairs(list) do
-        if lower:find(word) then
-            return true
-        end
-    end
-    return false
-end
-
-local function applyCollisionLogic(obj)
-    if not obj:IsA("BasePart") then return end
-
-    local name = obj.Name:lower()
-    if name:find(wheelKeyword) then return end
-
-    local isKeyword = containsKeyword(name, keywords)
-    local isCar = false
-
-    local parent = obj
-    while parent do
-        local pname = parent.Name:lower()
-        if pname:find(wheelKeyword) then return end
-        if pname:find(carKeyword) then
-            isCar = true
-            break
-        end
-        parent = parent.Parent
-    end
-
-    if isCar then
-        obj.CanCollide = not antiCarSit
-    elseif isKeyword then
-        obj.CanCollide = not antiVehicleCollision
-    end
-end
-
-local function fullScan()
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        applyCollisionLogic(obj)
-    end
-end
-
-local function dripsolutions()
-    fullScan()
-    table.insert(conns, Workspace.DescendantAdded:Connect(applyCollisionLogic))
-end
-
-local function updateSitState()
-    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-    if hum then
-        hum:SetStateEnabled(Enum.HumanoidStateType.Seated, not (antiToolSit or antiCarSit))
-    end
-end
-
-local function onCharacterAdded(char)
-    local hum = char:WaitForChild("Humanoid")
-    updateSitState()
-    table.insert(conns, hum.StateChanged:Connect(function(_, new)
-        if (antiToolSit or antiCarSit) and new == Enum.HumanoidStateType.Seated then
-            hum:ChangeState(Enum.HumanoidStateType.GettingUp)
-        end
-    end))
-end
-
-player.CharacterAdded:Connect(onCharacterAdded)
-if player.Character then
-    onCharacterAdded(player.Character)
-end
-
-dripsolutions()
-
-local Toggle1 = Tabs.PR:AddToggle({Name = Translator:traduzir("Anti Tool"), Description = Translator:traduzir("Impede sentar via Tool"), Default = false})
-Toggle1:Callback(function(Value)
-    antiToolSit = Value
-    updateSitState()
-    fullScan()
-end)
-
-
-
-local Toggle3 = Tabs.PR:AddToggle({Name = Translator:traduzir("Anti Script"), Description = Translator:traduzir("Proteção contra colisões de veículos/objetos"), Default = false})
-Toggle3:Callback(function(Value)
-    antiVehicleCollision = Value
-    updateSitState()
-    fullScan()
-end)]]
-
+-- ═══════════════════════════════════════════
+-- 3) ✨ EFEITOS LOCAIS (Anti Lag / Shaders)
+-- ═══════════════════════════════════════════
 Tabs.PR:AddSection({Translator:traduzir("✨ Efeitos Locais")})
 local Button = Tabs.PR:AddButton({Translator:traduzir("Anti Lag"), function()
       local itemsToRemove = {
@@ -2630,7 +2535,10 @@ end})
 -- ╔══════════════════════════════════════╗
 -- ║     🛡️ PROTEÇÕES AVANÇADAS           ║
 -- ╚══════════════════════════════════════╝
-Tabs.PR:AddSection({ "🛡️ Anti-Fling Avançado" })
+-- ═══════════════════════════════════════════
+-- 4) 🚗 ANTI-FLING AVANÇADO (Veículos / Canoas / Jets / Helis / Bolas)
+-- ═══════════════════════════════════════════
+Tabs.PR:AddSection({ Translator:traduzir("🚗 Anti-Fling Avançado") })
 
 local _antiFlingWS = game:GetService("Workspace")
 local _antiFlingLP = game:GetService("Players").LocalPlayer
@@ -2731,37 +2639,14 @@ Tabs.PR:AddToggle({
     end)
 })
 
-Tabs.PR:AddSection({ "🚫 Anti Ações" })
-
-local _antiSitActive = false
-Tabs.PR:AddToggle({
-    Name = "Anti Sit",
-    Description = "Impede seu personagem de sentar",
-    Default = false,
-    Callback = function(state)
-        _antiSitActive = state
-        task.spawn(function()
-            while _antiSitActive and _antiFlingLP.Character do
-                local humanoid = _antiFlingLP.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-                    if humanoid:GetState() == Enum.HumanoidStateType.Seated then
-                        humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-                    end
-                end
-                task.wait(0.05)
-            end
-            if not _antiSitActive then
-                local humanoid = _antiFlingLP.Character and _antiFlingLP.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true) end
-            end
-        end)
-    end
-})
+-- ═══════════════════════════════════════════
+-- 4) 🚪 ANTI-PORTA (Mapa / Casa)
+-- ═══════════════════════════════════════════
+Tabs.PR:AddSection({ Translator:traduzir("🚪 Anti-Porta") })
 
 Tabs.PR:AddToggle({
-    Name = "Anti Fling Portas",
-    Description = "Esconde todas as portas do mapa (restaura ao desativar)",
+    Name = Translator:traduzir("Anti Fling Portas"),
+    Description = Translator:traduzir("Esconde todas as portas do mapa (restaura ao desativar)"),
     Default = false,
     Callback = function(state)
         if not _G.hiddenDoors then _G.hiddenDoors = {} end
@@ -2794,8 +2679,8 @@ Tabs.PR:AddToggle({
 })
 
 Tabs.PR:AddToggle({
-    Name = "Anti Fling Bloco (Porta da Casa)",
-    Description = "Remove o bloco bugado da porta da sua casa",
+    Name = Translator:traduzir("Anti Bloco (Porta da Casa)"),
+    Description = Translator:traduzir("Remove o bloco bugado da porta da sua casa"),
     Default = false,
     Callback = function(state)
         if not _G.playerDoorData then _G.playerDoorData = {} end
@@ -2834,19 +2719,22 @@ Tabs.PR:AddToggle({
     end
 })
 
-Tabs.PR:AddSection({ "🔧 Scripts de Proteção" })
+-- ═══════════════════════════════════════════
+-- 6) 🛠️ SCRIPTS EXTERNOS DE PROTEÇÃO
+-- ═══════════════════════════════════════════
+Tabs.PR:AddSection({ Translator:traduzir("🛠️ Scripts Externos de Proteção") })
 
 Tabs.PR:AddButton({
-    Name = "🛠️ AntiBug (Script Externo)",
-    Description = "Script anti-bug feito por cahh e Night",
+    Name = Translator:traduzir("🛠️ AntiBug (Script Externo)"),
+    Description = Translator:traduzir("Script anti-bug feito por cahh e Night"),
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/Antglitch/refs/heads/main/Main.txt"))()
     end
 })
 
 Tabs.PR:AddButton({
-    Name = "🔇 Anti Som",
-    Description = "Remove sons indesejados do servidor",
+    Name = Translator:traduzir("🔇 Anti Som"),
+    Description = Translator:traduzir("Remove sons indesejados do servidor"),
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/antaudiosdefdps/refs/heads/main/Main.txt"))()
     end
@@ -5392,15 +5280,15 @@ Tabs.TT:AddButton({
 Tabs.TT:AddButton({
     Name = Translator:traduzir("Enviar Pirralho"),
     Callback = function()
-        if not chasingplayer then 
-            warn("Nenhum jogador selecionado!") 
-            return 
+        if not chasingplayer then
+            warn("Nenhum jogador selecionado!")
+            return
         end
-        
+
         local targetChar = workspace:FindFirstChild(chasingplayer)
-        if not targetChar then 
-            warn("Jogador alvo não encontrado no workspace.") 
-            return 
+        if not targetChar then
+            warn("Jogador alvo não encontrado no workspace.")
+            return
         end
 
         local pl = LocalPlayer
@@ -5424,6 +5312,114 @@ Tabs.TT:AddButton({
             end)
         else
             warn("A parte '" .. parteSelecionada .. "' não existe no jogador alvo.")
+        end
+    end
+})
+
+-- Oscilação frente/trás na cintura do alvo (humping / vai-e-vem)
+Tabs.TT:AddToggle({
+    Name = Translator:traduzir("Oscilar Cintura (Frente/Trás)"),
+    Description = Translator:traduzir("Faz o pirralho oscilar frente e trás na cintura do alvo"),
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            if not chasingplayer then
+                warn("Nenhum jogador selecionado para oscilação!")
+                return
+            end
+            if rawget(getgenv(), "WaistOscConn") then
+                getgenv().WaistOscConn:Disconnect()
+                getgenv().WaistOscConn = nil
+            end
+            -- desliga o loop padrão para não brigar com o novo
+            if getgenv().RunService then
+                pcall(function() getgenv().RunService:Disconnect() end)
+                getgenv().RunService = nil
+            end
+
+            local pl = LocalPlayer
+            if not workspace:FindFirstChild(pl.Name) or not workspace[pl.Name]:FindFirstChild("FollowCharacter") then
+                pcall(function() ReplicatedStorage.RE:FindFirstChild("1Bab1yFollo1w"):FireServer("CharacterFollowSpawnPlayer", "BabyBoy") end)
+                task.wait(0.3)
+            end
+
+            local t = 0
+            getgenv().WaistOscConn = RunService.Heartbeat:Connect(function(dt)
+                if not chasingplayer then return end
+                local target = workspace:FindFirstChild(chasingplayer)
+                local own = workspace:FindFirstChild(pl.Name)
+                if not target or not own then return end
+                local follow = own:FindFirstChild("FollowCharacter")
+                if not follow then return end
+                follow.Parent = target
+                local hrp = target:FindFirstChild("HumanoidRootPart")
+                local torso = follow:FindFirstChild("Torso")
+                if hrp and torso and torso:FindFirstChild("BodyPosition") and torso:FindFirstChild("BodyGyro") then
+                    t += dt * 7
+                    local oscillation = math.sin(t)
+                    local currentDistance = 0.1 + (3.5 - 0.1) * ((oscillation + 1) / 2)
+                    torso.BodyPosition.Position = hrp.Position - (hrp.CFrame.LookVector * currentDistance) - Vector3.new(0, 0.6, 0)
+                    torso.BodyGyro.CFrame = hrp.CFrame
+                end
+            end)
+        else
+            if rawget(getgenv(), "WaistOscConn") then
+                getgenv().WaistOscConn:Disconnect()
+                getgenv().WaistOscConn = nil
+            end
+        end
+    end
+})
+
+Tabs.TT:AddButton({
+    Name = Translator:traduzir("Remover Pirralho"),
+    Callback = function()
+        if rawget(getgenv(), "WaistOscConn") then
+            getgenv().WaistOscConn:Disconnect()
+            getgenv().WaistOscConn = nil
+        end
+        if getgenv().RunService then
+            pcall(function() getgenv().RunService:Disconnect() end)
+            getgenv().RunService = nil
+        end
+        pcall(function() ReplicatedStorage.RE:FindFirstChild("1Bab1yFollo1w"):FireServer("DeleteFollowCharacter") end)
+        task.wait(0.1)
+        pcall(function() ReplicatedStorage.RE:FindFirstChild("1Bab1yFollo1w"):FireServer("CharacterFollowSpawnPlayer", "BabyBoy") end)
+    end
+})
+
+Tabs.TT:AddToggle({
+    Name = Translator:traduzir("Carregar no Pescoço (Head Sit)"),
+    Description = Translator:traduzir("Seu personagem senta na cabeça do jogador selecionado"),
+    Default = false,
+    Callback = function(bool)
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+        local humanoid = character:WaitForChild("Humanoid")
+        if bool then
+            if not chasingplayer then warn("Selecione um jogador primeiro") return end
+            local selectedPlayer = Players:FindFirstChild(chasingplayer)
+            if selectedPlayer and selectedPlayer.Character then
+                humanoid.Sit = true
+                if getgenv().HeadSitConnection then getgenv().HeadSitConnection:Disconnect() end
+                getgenv().HeadSitConnection = RunService.Heartbeat:Connect(function()
+                    if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("Head") and humanoid.Sit then
+                        humanoidRootPart.CFrame = selectedPlayer.Character.Head.CFrame * CFrame.new(0, 1.6, 0.4)
+                    else
+                        if getgenv().HeadSitConnection then
+                            getgenv().HeadSitConnection:Disconnect()
+                            getgenv().HeadSitConnection = nil
+                            humanoid.Sit = false
+                        end
+                    end
+                end)
+            end
+        else
+            if getgenv().HeadSitConnection then
+                getgenv().HeadSitConnection:Disconnect()
+                getgenv().HeadSitConnection = nil
+            end
+            humanoid.Sit = false
         end
     end
 })
@@ -9026,6 +9022,464 @@ Tabs.TT:AddToggle({
         end
     end
 })
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  🌪️ FLING CAR OP (BETA) — importado do Zyronis       ║
+-- ╚══════════════════════════════════════════════════════╝
+Tabs.TT:AddSection({ Translator:traduzir("🌪️ Fling Car OP (Beta)") })
+
+do
+    local FC_Players        = game:GetService("Players")
+    local FC_RS             = game:GetService("ReplicatedStorage")
+    local FC_RunService     = game:GetService("RunService")
+    local FC_Workspace      = game:GetService("Workspace")
+    local FC_LP             = FC_Players.LocalPlayer
+
+    local FC_Selected       = nil
+    local FC_Enabled        = false
+    local FC_NoclipConn     = nil
+    local FC_CurrentCar     = nil
+    local FC_TogglePos      = nil
+
+    local SpawnCFrame_FC = CFrame.new(1059.00891, 74.4623184, -1162.02551)
+
+    local function FC_StartNoclip()
+        if FC_NoclipConn then return end
+        FC_NoclipConn = FC_RunService.Stepped:Connect(function()
+            pcall(function()
+                if FC_LP.Character then
+                    for _, part in ipairs(FC_LP.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then part.CanCollide = false end
+                    end
+                end
+                if FC_CurrentCar then
+                    for _, part in ipairs(FC_CurrentCar:GetDescendants()) do
+                        if part:IsA("BasePart") then part.CanCollide = false end
+                    end
+                end
+            end)
+        end)
+    end
+
+    local function FC_StopNoclip()
+        if FC_NoclipConn then
+            FC_NoclipConn:Disconnect()
+            FC_NoclipConn = nil
+        end
+    end
+
+    local function FC_MakeCarInvisible(car)
+        pcall(function()
+            for _, part in ipairs(car:GetDescendants()) do
+                if part:IsA("BasePart") or part:IsA("Decal") then
+                    part.Transparency = 1
+                end
+            end
+        end)
+    end
+
+    local function FC_SpawnCar()
+        local RE_Folder = FC_RS:FindFirstChild("RE")
+        if RE_Folder and RE_Folder:FindFirstChild("1Ca1r") then
+            RE_Folder["1Ca1r"]:FireServer("PickingCar", "KeiTruck")
+            local CarName = FC_LP.Name .. "Car"
+            local car, timeout = nil, 0
+            repeat
+                task.wait(0.1)
+                car = FC_Workspace:FindFirstChild("Vehicles") and FC_Workspace.Vehicles:FindFirstChild(CarName)
+                timeout = timeout + 1
+            until (car and car:FindFirstChild("Seats")) or timeout > 40
+            return car
+        end
+        return nil
+    end
+
+    local function FC_StopFling()
+        FC_Enabled = false
+        FC_StopNoclip()
+        pcall(function()
+            FC_RS.RE:FindFirstChild("1Ca1r"):FireServer("DeleteAllVehicles")
+        end)
+        pcall(function()
+            local character = FC_LP.Character
+            local humanoid = character and character:FindFirstChild("Humanoid")
+            local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+            if humanoid then humanoid.Sit = false end
+            if FC_CurrentCar then
+                FC_CurrentCar:Destroy()
+                FC_CurrentCar = nil
+            end
+            if FC_TogglePos and character and rootPart then
+                rootPart.Velocity = Vector3.new(0, 0, 0)
+                rootPart.RotVelocity = Vector3.new(0, 0, 0)
+                character:PivotTo(FC_TogglePos)
+                rootPart.Anchored = true
+                task.wait(0.5)
+                rootPart.Anchored = false
+            end
+        end)
+    end
+
+    local function FC_StartFling()
+        if not FC_Selected then return end
+        local Target = FC_Players:FindFirstChild(FC_Selected)
+        if not Target or not Target.Character then return end
+
+        FC_StartNoclip()
+        if FC_LP.Character then
+            FC_LP.Character:PivotTo(SpawnCFrame_FC)
+        end
+        task.wait(0.4)
+        FC_CurrentCar = FC_SpawnCar()
+
+        if not FC_CurrentCar then return FC_StopFling() end
+        FC_MakeCarInvisible(FC_CurrentCar)
+
+        local angle = 0
+        while FC_Enabled do
+            local success = pcall(function()
+                if not FC_CurrentCar or not FC_CurrentCar.Parent then
+                    FC_CurrentCar = FC_SpawnCar()
+                    if FC_CurrentCar then FC_MakeCarInvisible(FC_CurrentCar) end
+                end
+                local TargetChar = Target.Character
+                local MyChar = FC_LP.Character
+                if TargetChar and TargetChar:FindFirstChild("HumanoidRootPart") and MyChar and MyChar:FindFirstChild("Humanoid") then
+                    local root = TargetChar.HumanoidRootPart
+                    local hum = MyChar.Humanoid
+                    local seat = FC_CurrentCar:FindFirstChildWhichIsA("VehicleSeat", true) or FC_CurrentCar:FindFirstChildWhichIsA("Seat", true)
+                    if seat and hum.SeatPart ~= seat then
+                        seat:Sit(hum)
+                    end
+                    for _, part in ipairs(FC_CurrentCar:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            pcall(function() part:SetNetworkOwner(FC_LP) end)
+                            if not part:FindFirstChild("TornadoForce") then
+                                local bv = Instance.new("BodyVelocity", part)
+                                bv.Name = "TornadoForce"
+                                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                bv.P = 9000
+                                local bav = Instance.new("BodyAngularVelocity", part)
+                                bav.Name = "UltraSpin"
+                                bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                                bav.P = 9000
+                            end
+                            part.TornadoForce.Velocity = Vector3.new(5000, 5000, 5000)
+                            part.UltraSpin.AngularVelocity = Vector3.new(0, 6000, 0)
+                        end
+                    end
+                    angle = angle + 90
+                    local offset = CFrame.Angles(0, math.rad(angle), 0) * CFrame.new(0.1, -0.1, 0)
+                    FC_CurrentCar:PivotTo(root.CFrame * offset)
+                end
+            end)
+            if not success then task.wait(0.1) end
+            FC_RunService.Heartbeat:Wait()
+        end
+        FC_StopFling()
+    end
+
+    local function FC_GetPlayers()
+        local t = {}
+        for _, p in ipairs(FC_Players:GetPlayers()) do
+            if p ~= FC_LP then table.insert(t, p.Name) end
+        end
+        return t
+    end
+
+    local FC_Dropdown = Tabs.TT:AddDropdown({
+        Name = Translator:traduzir("Selecionar Player (Fling OP)"),
+        Options = FC_GetPlayers(),
+        Default = "",
+        Callback = function(v) FC_Selected = v end
+    })
+
+    Tabs.TT:AddButton({
+        Name = Translator:traduzir("Atualizar Lista (Fling OP)"),
+        Callback = function()
+            pcall(function() FC_Dropdown:Set(FC_GetPlayers()) end)
+        end
+    })
+
+    Tabs.TT:AddToggle({
+        Name = Translator:traduzir("Ativar Fling Car OP"),
+        Description = Translator:traduzir("Modo Tornado: spawn KeiTruck invisível, gira alvo. Auto-Delete ao parar"),
+        Default = false,
+        Callback = function(v)
+            FC_Enabled = v
+            if v then
+                if FC_LP.Character then FC_TogglePos = FC_LP.Character:GetPivot() end
+                task.spawn(FC_StartFling)
+            else
+                FC_StopFling()
+            end
+        end
+    })
+end
+
+-- ╔══════════════════════════════════════════════════════╗
+-- ║  ☠️ KILL PRAÇA + KILL MANDRAKI (Couch) — do Zyronis  ║
+-- ╚══════════════════════════════════════════════════════╝
+Tabs.TT:AddSection({ Translator:traduzir("☠️ Kill Praça & Mandraki") })
+
+do
+    local KP_Players = game:GetService("Players")
+    local KP_RS      = game:GetService("ReplicatedStorage")
+    local KP_VIM     = game:GetService("VirtualInputManager")
+    local KP_LP      = KP_Players.LocalPlayer
+    local KP_Cam     = workspace.CurrentCamera
+
+    local KP_Selected = nil
+
+    local KP_Dropdown = Tabs.TT:AddDropdown({
+        Name = Translator:traduzir("Selecionar Player (Kill Couch)"),
+        Options = {},
+        Default = "",
+        Callback = function(v) KP_Selected = v end
+    })
+
+    Tabs.TT:AddButton({
+        Name = Translator:traduzir("Atualizar Lista (Kill Couch)"),
+        Callback = function()
+            local lista = {}
+            for _, p in ipairs(KP_Players:GetPlayers()) do
+                if p ~= KP_LP then table.insert(lista, p.Name) end
+            end
+            pcall(function() KP_Dropdown:Set(lista) end)
+        end
+    })
+
+    -- Kill Praça: teleporta o alvo para a posição do void (sitPos)
+    Tabs.TT:AddButton({
+        Name = Translator:traduzir("💀 Kill Praça (Couch)"),
+        Description = Translator:traduzir("Mata o alvo teleportando ele para o void da praça"),
+        Callback = function()
+            if not KP_Selected then warn("Selecione um jogador") return end
+            local target = KP_Players:FindFirstChild(KP_Selected)
+            if not target or not target.Character then return end
+            local char = KP_LP.Character
+            if not char then return end
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local root = char:FindFirstChild("HumanoidRootPart")
+            local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+            if not hum or not root or not tRoot then return end
+
+            local originalPos = root.Position
+            local sitPos = Vector3.new(145.51, -350.09, 21.58)
+
+            pcall(function() KP_RS:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools") end)
+            task.wait(0.2)
+            pcall(function() KP_RS.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch") end)
+            task.wait(0.3)
+
+            local tool = KP_LP.Backpack:FindFirstChild("Couch")
+            if tool then tool.Parent = char end
+            task.wait(0.1)
+            KP_VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+            task.wait(0.1)
+
+            hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+            hum.PlatformStand = false
+            KP_Cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
+
+            local align = Instance.new("BodyPosition")
+            align.Name = "BringPosition"
+            align.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            align.D = 10
+            align.P = 30000
+            align.Position = root.Position
+            align.Parent = tRoot
+
+            task.spawn(function()
+                local angle = 0
+                local startTime = tick()
+                while tick() - startTime < 5 and target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") do
+                    local tHum = target.Character:FindFirstChildOfClass("Humanoid")
+                    if not tHum or tHum.Sit then break end
+                    local hrp = target.Character.HumanoidRootPart
+                    local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
+                    angle += 50
+                    root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
+                    align.Position = root.Position + Vector3.new(2, 0, 0)
+                    task.wait()
+                end
+                align:Destroy()
+                hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+                hum.PlatformStand = false
+                KP_Cam.CameraSubject = hum
+                for _, p in pairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then
+                        p.Velocity = Vector3.zero
+                        p.RotVelocity = Vector3.zero
+                    end
+                end
+                task.wait(0.1)
+                root.CFrame = CFrame.new(sitPos)
+                task.wait(0.3)
+                local toolInChar = char:FindFirstChild("Couch")
+                if toolInChar then toolInChar.Parent = KP_LP.Backpack end
+                task.wait(0.01)
+                pcall(function() KP_RS.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch") end)
+                task.wait(0.2)
+                root.CFrame = CFrame.new(originalPos)
+            end)
+        end
+    })
+
+    -- Kill Mandraki: sofá gruda no alvo até sentar, depois teleporta seat para (9999, -450, 9999)
+    Tabs.TT:AddButton({
+        Name = Translator:traduzir("☠️ Kill Mandraki (Couch Void)"),
+        Description = Translator:traduzir("Kill estilo Mandraki: sofá gruda, e manda o alvo pro void (9999,-450,9999)"),
+        Callback = function()
+            if not KP_Selected then warn("Selecione um jogador") return end
+            local targetPlayer = KP_Players:FindFirstChild(KP_Selected)
+            if not targetPlayer then return end
+            if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+
+            pcall(function() KP_RS.RE["1Clea1rTool1s"]:FireServer("ClearAllTools") end)
+            pcall(function() KP_RS.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch") end)
+
+            local couch = KP_LP.Backpack:WaitForChild("Couch", 2)
+            if not couch then warn("Couch não encontrado") return end
+
+            couch.Name = "Chaos.Couch"
+            local seat1 = couch:FindFirstChild("Seat1")
+            local seat2 = couch:FindFirstChild("Seat2")
+            local handle = couch:FindFirstChild("Handle")
+            if not (seat1 and seat2 and handle) then warn("Componentes do sofá faltando") return end
+
+            seat1.Disabled = true
+            seat2.Disabled = true
+            handle.Name = "Handle "
+            couch.Parent = KP_LP.Character
+
+            local tet = Instance.new("BodyVelocity", seat1)
+            tet.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            tet.P = 1250
+            tet.Velocity = Vector3.new(0, 0, 0)
+            tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
+
+            task.spawn(function()
+                repeat
+                    for _ = 1, 35 do
+                        local tRoot = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if not tRoot then break end
+                        local px = tRoot.Position.X + (tRoot.Velocity.X / 2)
+                        local py = tRoot.Position.Y + (tRoot.Velocity.Y / 2)
+                        local pz = tRoot.Position.Z + (tRoot.Velocity.Z / 2)
+                        seat1.CFrame = CFrame.new(Vector3.new(px, py, pz)) * CFrame.new(-2, 2, 0)
+                        task.wait()
+                    end
+                    tet:Destroy()
+                    couch.Parent = KP_LP.Backpack
+                    task.wait()
+                    local hx = couch:FindFirstChild("Handle ")
+                    if hx then hx.Name = "Handle" end
+                    task.wait(0.2)
+                    couch.Parent = KP_LP.Character
+                    task.wait()
+                    couch.Parent = KP_LP.Backpack
+                    if couch:FindFirstChild("Handle") then couch.Handle.Name = "Handle " end
+                    task.wait(0.2)
+                    couch.Parent = KP_LP.Character
+                    tet = Instance.new("BodyVelocity", seat1)
+                    tet.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                    tet.P = 1250
+                    tet.Velocity = Vector3.new(0, 0, 0)
+                    tet.Name = "#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W"
+                until targetPlayer.Character
+                    and targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+                    and targetPlayer.Character:FindFirstChildOfClass("Humanoid").Sit == true
+
+                task.wait()
+                couch.Parent = KP_LP.Backpack
+                seat1.CFrame = CFrame.new(9999, -450, 9999)
+                seat2.CFrame = CFrame.new(9999, -450, 9999)
+                couch.Parent = KP_LP.Character
+                task.wait(0.1)
+                couch.Parent = KP_LP.Backpack
+                task.wait(2)
+                local bv = seat1:FindFirstChild("#mOVOOEPF$#@F$#GERE..>V<<<<EW<V<<W")
+                if bv then bv:Destroy() end
+                pcall(function() KP_RS.RE["1Clea1rTool1s"]:FireServer("ClearAllTools") end)
+            end)
+        end
+    })
+
+    -- Bring com Couch: traz o alvo até você sem matar
+    Tabs.TT:AddButton({
+        Name = Translator:traduzir("🧲 Bring com Couch"),
+        Description = Translator:traduzir("Traz o alvo sem matá-lo usando o sofá"),
+        Callback = function()
+            if not KP_Selected then warn("Selecione um jogador") return end
+            local target = KP_Players:FindFirstChild(KP_Selected)
+            if not target or not target.Character then return end
+            local char = KP_LP.Character
+            if not char then return end
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local root = char:FindFirstChild("HumanoidRootPart")
+            local tRoot = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+            if not hum or not root or not tRoot then return end
+
+            local originalPos = root.Position
+            pcall(function() KP_RS:WaitForChild("RE"):WaitForChild("1Clea1rTool1s"):FireServer("ClearAllTools") end)
+            task.wait(0.2)
+            pcall(function() KP_RS.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch") end)
+            task.wait(0.3)
+            local tool = KP_LP.Backpack:FindFirstChild("Couch")
+            if tool then tool.Parent = char end
+            task.wait(0.1)
+            KP_VIM:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+            task.wait(0.1)
+            hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+            hum.PlatformStand = false
+            KP_Cam.CameraSubject = target.Character:FindFirstChild("Head") or tRoot or hum
+
+            local align = Instance.new("BodyPosition")
+            align.Name = "BringPosition"
+            align.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            align.D = 10
+            align.P = 30000
+            align.Position = root.Position
+            align.Parent = tRoot
+
+            task.spawn(function()
+                local angle = 0
+                local startTime = tick()
+                while tick() - startTime < 5 and target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") do
+                    local tHum = target.Character:FindFirstChildOfClass("Humanoid")
+                    if not tHum or tHum.Sit then break end
+                    local hrp = target.Character.HumanoidRootPart
+                    local adjustedPos = hrp.Position + (hrp.Velocity / 1.5)
+                    angle += 50
+                    root.CFrame = CFrame.new(adjustedPos + Vector3.new(0, 2, 0)) * CFrame.Angles(math.rad(angle), 0, 0)
+                    align.Position = root.Position + Vector3.new(2, 0, 0)
+                    task.wait()
+                end
+                align:Destroy()
+                hum:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+                hum.PlatformStand = false
+                KP_Cam.CameraSubject = hum
+                for _, p in pairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then
+                        p.Velocity = Vector3.zero
+                        p.RotVelocity = Vector3.zero
+                    end
+                end
+                task.wait(0.1)
+                root.Anchored = true
+                root.CFrame = CFrame.new(originalPos)
+                task.wait(0.001)
+                root.Anchored = false
+                task.wait(0.7)
+                local toolBack = char:FindFirstChild("Couch")
+                if toolBack then toolBack.Parent = KP_LP.Backpack end
+                task.wait(0.001)
+                pcall(function() KP_RS.RE:FindFirstChild("1Too1l"):InvokeServer("PickingTools", "Couch") end)
+            end)
+        end
+    })
+end
 end
 
 
@@ -9593,39 +10047,7 @@ Tabs.Props:AddToggle({
     end
 })
 
--- ╔══════════════════════════════════════╗
--- ║      🎁 ITENS ESPECIAIS              ║
--- ╚══════════════════════════════════════╝
-Tabs.Props:AddSection({ "🎁 Itens Especiais" })
-
-local function _triggerItem(itemName)
-    pcall(function()
-        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Playe1rTrigge1rEven1t"):FireServer(
-            "AcceptedToolToServer", itemName, game:GetService("Players").LocalPlayer
-        )
-    end)
-end
-
-Tabs.Props:AddButton({ Name = "🪂 Planador", Callback = function() _triggerItem("Glider") end })
-Tabs.Props:AddButton({ Name = "💣 Canhão", Callback = function() _triggerItem("Cannon") end })
-Tabs.Props:AddButton({ Name = "🏀 Bola de Basquete Dourada", Callback = function() _triggerItem("GoldenBasketball") end })
-Tabs.Props:AddButton({ Name = "🥚 Lançador de Ovo", Callback = function() _triggerItem("EggLauncher") end })
-Tabs.Props:AddButton({ Name = "☢️ Cristal de Urânio", Callback = function() _triggerItem("UraniumRod") end })
-Tabs.Props:AddButton({ Name = "⛓️ Serra Elétrica", Callback = function() _triggerItem("Chainsaw") end })
-Tabs.Props:AddButton({
-    Name = "💧 Balão de Água",
-    Callback = function()
-        pcall(function()
-            game:GetService("ReplicatedStorage").RE["1Too1l"]:InvokeServer("PickingTools", "Water Balloon")
-        end)
-    end
-})
-Tabs.Props:AddButton({
-    Name = "🔮 Telecinese V5",
-    Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/BRENOPOOF/fe-telekinessv5/refs/heads/main/Main.txt"))()
-    end
-})
+-- (Seção "Itens Especiais" removida: itens já existem na aba Personagem)
 end -- end Props do block
 
 
@@ -12819,25 +13241,27 @@ end})
 Tabs.Carros:AddSection({ "📯 Spam Buzina" })
 
 local _hornSpamming = false
-local _hornRemote = game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Player1sCa1r")
+local _hornArgs = {"Horn"}
 
 local function _spamHornLoop()
+    local hornRemote = game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Player1sCa1r")
     while _hornSpamming do
-        pcall(function() _hornRemote:FireServer("Horn") end)
+        pcall(function() hornRemote:FireServer(unpack(_hornArgs)) end)
         task.wait(0.1)
     end
 end
 
 Tabs.Carros:AddToggle({
-    Name = "Spam Buzina",
-    Description = "Fica latindo a buzina do carro",
+    Name = Translator:traduzir("Spam Buzina"),
+    Description = Translator:traduzir("Toca a buzina do carro sem parar"),
     Default = false,
     Callback = function(value)
         _hornSpamming = value
         if value then task.spawn(_spamHornLoop) end
     end
 })
-end
+
+end -- close do block opened for Carros extras at line 12883
 
 --[[Tabs.PR:AddSection({"Mudanças de Tempos"})
 
@@ -13088,75 +13512,8 @@ end
 
 -----------------///////TABS - CFG///////----------------
 Tabs.CFG:AddSection({Translator:traduzir("⚙️ Variações")})
-local antiSitConnections = {}
-local isAntiSitActive = false
 
-Tabs.CFG:AddToggle({
-    Name = Translator:traduzir("Anti Sit"),
-    Description = Translator:traduzir("Não Sentar"),
-    Default = false,
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local runService = game:GetService("RunService")
-
-        local function resetSitting()
-            for _, connection in ipairs(antiSitConnections) do
-                if connection and connection.Connected then
-                    connection:Disconnect()
-                end
-            end
-            antiSitConnections = {}
-
-            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-            end
-            isAntiSitActive = false
-        end
-
-        if Value then
-            resetSitting()
-            isAntiSitActive = true
-
-            local function preventSitting(humanoid)
-                if humanoid then
-                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-
-                    local sitConnection = humanoid.StateChanged:Connect(function(_, newState)
-                        if newState == Enum.HumanoidStateType.Seated then
-                            humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-                        end
-                    end)
-                    table.insert(antiSitConnections, sitConnection)
-                end
-            end
-
-            local function onCharacterAdded(character)
-                local humanoid = character:WaitForChild("Humanoid")
-                preventSitting(humanoid)
-            end
-
-            local characterAddedConnection = player.CharacterAdded:Connect(onCharacterAdded)
-            table.insert(antiSitConnections, characterAddedConnection)
-
-            if player.Character then
-                onCharacterAdded(player.Character)
-            end
-
-            local heartbeatConnection = runService.Heartbeat:Connect(function()
-                if isAntiSitActive then
-                    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-                    end
-                end
-            end)
-            table.insert(antiSitConnections, heartbeatConnection)
-        else
-            resetSitting()
-        end
-    end
-})
+-- (Toggle Anti Sit removido — agora consolidado na aba Proteção)
 
 Tabs.CFG:AddToggle({Name = Translator:traduzir("Clube Brooks"), Description = Translator:traduzir("Sistema de webhook do clube!"), Default = true})
 Tabs.CFG:AddToggle({Name = Translator:traduzir("Anti Skidder"), Description = Translator:traduzir("Anti Skid > Open Source [ Discord ]"), Default = true})
@@ -14268,242 +14625,7 @@ end
 executeRequests()
 end
 
--- ╔══════════════════════════════════════╗
--- ║         👶  ABA CHILD                ║
--- ╚══════════════════════════════════════╝
-local ChildTab = Window:MakeTab({ Title = "Child", Icon = "baby" })
-ChildTab:AddSection({ "👶 Child / Seguir Jogador" })
-
-local _childPlayers = game:GetService("Players")
-local _childRunService = game:GetService("RunService")
-local _childLp = _childPlayers.LocalPlayer
-local _chasingplayer = nil
-
-local function _updateChildPlayerList()
-    local list = {}
-    for _, v in pairs(_childPlayers:GetPlayers()) do
-        if v ~= _childLp then table.insert(list, v.Name) end
-    end
-    return list
-end
-
-local _playerChildDropdown = ChildTab:AddDropdown({
-    Name = "Selecionar Jogador",
-    Options = _updateChildPlayerList(),
-    Default = "",
-    Callback = function(selected)
-        if _childPlayers:FindFirstChild(selected) then
-            _chasingplayer = selected
-        else
-            _chasingplayer = nil
-        end
-    end
-})
-
-ChildTab:AddButton({
-    Name = "Atualizar Lista",
-    Callback = function()
-        local updated = _updateChildPlayerList()
-        pcall(function() _playerChildDropdown:Refresh(updated) end)
-        if _chasingplayer and not _childPlayers:FindFirstChild(_chasingplayer) then
-            _chasingplayer = nil
-            pcall(function() _playerChildDropdown:Set("") end)
-        end
-    end
-})
-
-_childPlayers.PlayerAdded:Connect(function()
-    task.wait(0.1)
-    pcall(function() _playerChildDropdown:Refresh(_updateChildPlayerList()) end)
-end)
-_childPlayers.PlayerRemoving:Connect(function(player)
-    task.wait(0.1)
-    pcall(function() _playerChildDropdown:Refresh(_updateChildPlayerList()) end)
-    if _chasingplayer == player.Name then
-        _chasingplayer = nil
-        pcall(function() _playerChildDropdown:Set("") end)
-    end
-end)
-
-ChildTab:AddButton({
-    Name = "Enviar Child",
-    Callback = function()
-        if not _chasingplayer then return end
-        if not workspace:FindFirstChild(_childLp.Name)
-        or not workspace[_childLp.Name]:FindFirstChild("FollowCharacter") then
-            game:GetService("ReplicatedStorage").RE["1Bab1yFollo1w"]:FireServer(
-                "CharacterFollowSpawnPlayer", "BabyBoy"
-            )
-        end
-        task.wait(0.2)
-        if workspace:FindFirstChild(_childLp.Name) then
-            for _, v in pairs(workspace[_childLp.Name]:GetChildren()) do
-                if v:IsA("BasePart") then v.CanCollide = true end
-            end
-        end
-        if rawget(getgenv(), "FollowConn") then return end
-        getgenv().FollowConn = _childRunService.Heartbeat:Connect(function()
-            local target = workspace:FindFirstChild(_chasingplayer)
-            local own = workspace:FindFirstChild(_childLp.Name)
-            if target and own and own:FindFirstChild("FollowCharacter") then
-                local follow = own.FollowCharacter
-                follow.Parent = target
-                local hrp = target:FindFirstChild("HumanoidRootPart")
-                local torso = follow:FindFirstChild("Torso")
-                if hrp and torso and torso:FindFirstChild("BodyPosition") then
-                    torso.BodyPosition.Position = hrp.Position - (hrp.CFrame.LookVector * 3)
-                    torso.BodyGyro.CFrame = hrp.CFrame
-                end
-            end
-        end)
-    end
-})
-
-ChildTab:AddButton({
-    Name = "Remover Child",
-    Callback = function()
-        if rawget(getgenv(), "FollowConn") then
-            getgenv().FollowConn:Disconnect()
-            getgenv().FollowConn = nil
-        end
-        if rawget(getgenv(), "WaistLoopConn") then
-            getgenv().WaistLoopConn:Disconnect()
-            getgenv().WaistLoopConn = nil
-        end
-        if rawget(getgenv(), "FaceLoopConn") then
-            getgenv().FaceLoopConn:Disconnect()
-            getgenv().FaceLoopConn = nil
-        end
-        game:GetService("ReplicatedStorage").RE["1Bab1yFollo1w"]:FireServer("DeleteFollowCharacter")
-        task.wait(0.1)
-        game:GetService("ReplicatedStorage").RE["1Bab1yFollo1w"]:FireServer("CharacterFollowSpawnPlayer", "BabyBoy")
-    end
-})
-
-ChildTab:AddToggle({
-    Name = "Spectate Jogador",
-    Default = false,
-    Callback = function(Value)
-        local Camera = workspace.CurrentCamera
-        if Value then
-            if not _chasingplayer then return end
-            if not rawget(getgenv(), "CameraConnection") then
-                getgenv().CameraConnection = _childRunService.Heartbeat:Connect(function()
-                    local t = _childPlayers:FindFirstChild(_chasingplayer)
-                    if t and t.Character and t.Character:FindFirstChild("Humanoid") then
-                        Camera.CameraSubject = t.Character.Humanoid
-                    end
-                end)
-            end
-        else
-            if rawget(getgenv(), "CameraConnection") then
-                getgenv().CameraConnection:Disconnect()
-                getgenv().CameraConnection = nil
-            end
-            if _childLp.Character then
-                Camera.CameraSubject = _childLp.Character:FindFirstChild("Humanoid")
-            end
-        end
-    end
-})
-
-ChildTab:AddToggle({
-    Name = "Waist Loop (Frente/Trás)",
-    Default = false,
-    Callback = function(Value)
-        if Value then
-            if not _chasingplayer then return end
-            if rawget(getgenv(), "WaistLoopConn") then
-                getgenv().WaistLoopConn:Disconnect()
-            end
-            local t = 0
-            getgenv().WaistLoopConn = _childRunService.Heartbeat:Connect(function(dt)
-                if not Value or not _chasingplayer then
-                    if rawget(getgenv(), "WaistLoopConn") then
-                        getgenv().WaistLoopConn:Disconnect()
-                        getgenv().WaistLoopConn = nil
-                    end
-                    return
-                end
-                local target = workspace:FindFirstChild(_chasingplayer)
-                if not target then return end
-                local hrp = target:FindFirstChild("HumanoidRootPart")
-                local follow = target:FindFirstChild("FollowCharacter")
-                if hrp and follow and follow:FindFirstChild("Torso") then
-                    local torso = follow.Torso
-                    local bp = torso:FindFirstChild("BodyPosition")
-                    local bg = torso:FindFirstChild("BodyGyro")
-                    if not bp or not bg then return end
-                    t += dt * 7
-                    local oscillation = math.sin(t)
-                    local currentDistance = 0.1 + (3.5 - 0.1) * ((oscillation + 1) / 2)
-                    bp.Position = hrp.Position - (hrp.CFrame.LookVector * currentDistance) - Vector3.new(0, 0.6, 0)
-                    bg.CFrame = hrp.CFrame
-                end
-            end)
-        else
-            if rawget(getgenv(), "WaistLoopConn") then
-                getgenv().WaistLoopConn:Disconnect()
-                getgenv().WaistLoopConn = nil
-            end
-        end
-    end
-})
-
-ChildTab:AddSection({ "🎒 Head Sit (Piggyback)" })
-
-local _headSitSelected = nil
-local _headSitConnection = nil
-
-local _headSitDropdown = ChildTab:AddDropdown({
-    Name = "Selecionar Jogador (Head Sit)",
-    Default = "",
-    Options = _updateChildPlayerList(),
-    Callback = function(Value) _headSitSelected = Value end
-})
-
-ChildTab:AddToggle({
-    Name = "Head Sit (Carregue no colo)",
-    Default = false,
-    Callback = function(bool)
-        local character = _childLp.Character or _childLp.CharacterAdded:Wait()
-        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-        local humanoid = character:WaitForChild("Humanoid")
-        if not _headSitSelected or _headSitSelected == "" then return end
-        local selectedPlayer = _childPlayers:FindFirstChild(_headSitSelected)
-        if bool then
-            if selectedPlayer and selectedPlayer.Character then
-                humanoid.Sit = true
-                if _headSitConnection then _headSitConnection:Disconnect() end
-                _headSitConnection = _childRunService.Heartbeat:Connect(function()
-                    if selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("Head") and humanoid.Sit then
-                        humanoidRootPart.CFrame = selectedPlayer.Character.Head.CFrame * CFrame.new(0, 1.6, 0.4)
-                    else
-                        if _headSitConnection then
-                            _headSitConnection:Disconnect()
-                            _headSitConnection = nil
-                            humanoid.Sit = false
-                        end
-                    end
-                end)
-            end
-        else
-            if _headSitConnection then
-                _headSitConnection:Disconnect()
-                _headSitConnection = nil
-            end
-            humanoid.Sit = false
-        end
-    end
-})
-
-ChildTab:AddButton({
-    Name = "Atualizar Lista (Head Sit)",
-    Callback = function()
-        local updated = _updateChildPlayerList()
-        pcall(function() _headSitDropdown:Refresh(updated) end)
-    end
-})
+-- (aba Child removida, funcionalidade movida para a Troll)
 
 --673.678162, 18.1641273, 478.667908, 0, 0, -1, 0, 1, 0, 1, 0, 0
 --669.947021484375, 15.864216804504395, 477.9688720703125
