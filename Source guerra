@@ -1,0 +1,1331 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+t2.value1 = game:GetService("TweenService")
+t2.value2 = game:GetService("SoundService")
+t2.value3 = game:GetService("StarterGui")
+t2.value4 = Players.LocalPlayer
+if CoreGui:FindFirstChild("VR7MercyScript") then
+    CoreGui.VR7MercyScript:Destroy()
+end
+t2.value5 = Instance.new("ScreenGui")
+t2.value5.Name = "VR7MercyScript"
+t2.value5.Parent = CoreGui
+t2.value5.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+function t2.value6()
+    local Sound = Instance.new("Sound")
+
+    Sound.SoundId = "rbxassetid://18180833536"
+    Sound.Volume = 5
+    Sound.Parent = t2.value2
+    Sound:Play()
+    Sound.Ended:Connect(function()
+        Sound:Destroy()
+    end)
+end
+function t2.value7()
+    pcall(t2.value6)
+end
+local tweenInfo = TweenInfo.new(0.7, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+
+t2.value8 = "English"
+t2.value9 = {
+	{
+		Name = "English",
+		NativeName = "English"
+	},
+	{
+		Name = "Arabic",
+		NativeName = "العربية"
+	},
+	{
+		Name = "Spanish",
+		NativeName = "Español"
+	},
+	{
+		Name = "Russian",
+		NativeName = "Русский"
+	},
+	{
+		Name = "Portuguese",
+		NativeName = "Português"
+	},
+	{
+		Name = "French",
+		NativeName = "Français"
+	},
+	{
+		Name = "Chinese",
+		NativeName = "中文"
+	}
+}
+local t3 = {
+	LoadingMessage = "If you want a key valid for a week, you should visit us on\nTikTok: jazwan27",
+	TikTokCopied = "TikTok username (jazwan27) copied to clipboard successfully!",
+	MessagePopup = "Goodness be with you all, I am Ghazwan\n\nI want to tell you that the script is 100% safe, and don't worry about being banned...",
+	Welcome = "Welcome @%s\nSubscription status: Free week\nTo get a key valid for one week, please visit TikTok. jazwan27",
+	ReleaseNotes = "Release Information [v2.0]\n\n1. Improved user interface\n2. Adding other features\n3. Added quality improvement\n4. Improve the aimbot",
+	InfoBox = "Hello %s 👋\n\nThese scripts were specifically designed for the Underground War 2.0 map; they are secure and undetectable. 🛡\239\184\143",
+	MainMenu = "Main menu",
+	UndergroundWar = "Underground War 2.0",
+	Move = "Move",
+	ImprovingQuality = "Improving quality",
+	IncreaseSwordRange = "Increase sword range",
+	OrbitAttack = "Orbit Attack",
+	Aimbot = "Aimbot",
+	Speed = "Speed",
+	ESP = "ESP",
+	Noclip = "Noclip",
+	Xray = "Xray",
+	HideDirt = "Hide Dirt",
+	ClickToTeleport = "Click to Teleport",
+	TheftFlag = "theft Flag",
+	SafePlace = "safe place",
+	HeartTheBattle = "Heart the battle",
+	RedTower = "Red Tower",
+	BlueTower = "Blue Tower",
+	MerryChristmas = "Merry Christmas",
+	ComingSoon = "Coming soon\n\nMore quality and graphic improvements will be added in upcoming updates! Stay tuned.",
+	Executed = "Executed"
+}
+local t4 = {
+	LoadingMessage = "إذا كنت تريد مفتاحًا صالحًا لمدة أسبوع، قم بزيارتنا على\nتيك توك: jazwan27",
+	TikTokCopied = "تم نسخ اسم مستخدم تيك توك (jazwan27) إلى الحافظة بنجاح!",
+	MessagePopup = "أتمنى لكم الخير جميعًا، أنا غزوان\n\nأريد أن أخبركم أن السكربت آمن بنسبة 100%، فلا تقلقوا بشأن الحظر...",
+	Welcome = "مرحبًا @%s\nحالة الاشتراك: أسبوع مجاني\nللحصول على مفتاح صالح لمدة أسبوع، يرجى زيارة تيك توك. jazwan27",
+	ReleaseNotes = "معلومات الإصدار [v2.0]\n\n1. تحسين واجهة المستخدم\n2. إضافة ميزات أخرى\n3. تحسين الجودة\n4. تحسين الـ Aimbot",
+	InfoBox = "مرحبًا %s 👋\n\nتم تصميم هذه السكربتات خصيصًا لخريطة Underground War 2.0؛ وهي آمنة وغير قابلة للكشف. 🛡\239\184\143",
+	MainMenu = "القائمة الرئيسية",
+	UndergroundWar = "Underground War 2.0",
+	Move = "الحركة",
+	ImprovingQuality = "تحسين الجودة",
+	IncreaseSwordRange = "زيادة مدى السيف",
+	OrbitAttack = "هجوم دائري",
+	Aimbot = "إيمبوت",
+	Speed = "السرعة",
+	ESP = "إظهار اللاعبين ESP",
+	Noclip = "اختراق الجدران",
+	Xray = "الأشعة السينية",
+	HideDirt = "إخفاء التراب",
+	ClickToTeleport = "اضغط للانتقال",
+	TheftFlag = "علم السرقة",
+	SafePlace = "مكان آمن",
+	HeartTheBattle = "وسط المعركة",
+	RedTower = "البرج الأحمر",
+	BlueTower = "البرج الأزرق",
+	MerryChristmas = "عيد ميلاد مجيد",
+	ComingSoon = "قريبًا\n\nستتم إضافة المزيد من تحسينات الجودة والرسومات في التحديثات القادمة! ترقبوا.",
+	Executed = "تم التنفيذ"
+}
+local t5 = {
+	LoadingMessage = "Si quieres una clave válida durante una semana, visítanos en\nTikTok: jazwan27",
+	TikTokCopied = "¡El nombre de usuario de TikTok (jazwan27) se copió correctamente!",
+	MessagePopup = "Que el bien esté con todos ustedes, soy Ghazwan\n\nQuiero decirles que el script es 100% seguro, no se preocupen por ser baneados...",
+	Welcome = "Bienvenido @%s\nEstado de suscripción: semana gratis\nPara obtener una clave válida durante una semana, visita TikTok. jazwan27",
+	ReleaseNotes = "Información de lanzamiento [v2.0]\n\n1. Interfaz de usuario mejorada\n2. Se añadieron otras funciones\n3. Mejora de calidad añadida\n4. Mejora del aimbot",
+	InfoBox = "Hola %s 👋\n\nEstos scripts fueron diseñados específicamente para el mapa Underground War 2.0; son seguros e indetectables. 🛡\239\184\143",
+	MainMenu = "Menú principal",
+	UndergroundWar = "Underground War 2.0",
+	Move = "Movimiento",
+	ImprovingQuality = "Mejorar calidad",
+	IncreaseSwordRange = "Aumentar alcance de espada",
+	OrbitAttack = "Ataque orbital",
+	Aimbot = "Aimbot",
+	Speed = "Velocidad",
+	ESP = "ESP",
+	Noclip = "Noclip",
+	Xray = "Rayos X",
+	HideDirt = "Ocultar tierra",
+	ClickToTeleport = "Haz clic para teletransportarte",
+	TheftFlag = "Bandera de robo",
+	SafePlace = "Lugar seguro",
+	HeartTheBattle = "Centro de la batalla",
+	RedTower = "Torre roja",
+	BlueTower = "Torre azul",
+	MerryChristmas = "Feliz Navidad",
+	ComingSoon = "Próximamente\n\nSe añadirán más mejoras de calidad y gráficos en próximas actualizaciones. ¡Mantente atento!",
+	Executed = "Ejecutado"
+}
+local t6 = {
+	LoadingMessage = "Если вы хотите получить ключ на одну неделю, посетите нас в\nTikTok: jazwan27",
+	TikTokCopied = "Имя пользователя TikTok (jazwan27) успешно скопировано!",
+	MessagePopup = "Добра вам всем, я Газван\n\nХочу сообщить вам, что скрипт на 100% безопасен, не беспокойтесь о блокировке...",
+	Welcome = "Добро пожаловать @%s\nСтатус подписки: бесплатная неделя\nЧтобы получить ключ на одну неделю, посетите TikTok. jazwan27",
+	ReleaseNotes = "Информация о выпуске [v2.0]\n\n1. Улучшен пользовательский интерфейс\n2. Добавлены другие функции\n3. Улучшено качество\n4. Улучшен аимбот",
+	InfoBox = "Привет, %s 👋\n\nЭти скрипты были специально созданы для карты Underground War 2.0; они безопасны и незаметны. 🛡\239\184\143",
+	MainMenu = "Главное меню",
+	UndergroundWar = "Underground War 2.0",
+	Move = "Перемещение",
+	ImprovingQuality = "Улучшение качества",
+	IncreaseSwordRange = "Увеличить дальность меча",
+	OrbitAttack = "Орбитальная атака",
+	Aimbot = "Аимбот",
+	Speed = "Скорость",
+	ESP = "ESP",
+	Noclip = "Ноклип",
+	Xray = "Рентген",
+	HideDirt = "Скрыть землю",
+	ClickToTeleport = "Нажмите для телепортации",
+	TheftFlag = "Флаг кражи",
+	SafePlace = "Безопасное место",
+	HeartTheBattle = "Центр битвы",
+	RedTower = "Красная башня",
+	BlueTower = "Синяя башня",
+	MerryChristmas = "С Рождеством",
+	ComingSoon = "Скоро\n\nВ следующих обновлениях будут добавлены дополнительные улучшения качества и графики! Следите за обновлениями.",
+	Executed = "Выполнено"
+}
+local t7 = {
+	LoadingMessage = "Se quiser uma chave válida por uma semana, visite-nos no\nTikTok: jazwan27",
+	TikTokCopied = "O nome de usuário do TikTok (jazwan27) foi copiado com sucesso!",
+	MessagePopup = "Que o bem esteja com todos vocês, eu sou Ghazwan\n\nQuero dizer que o script é 100% seguro, não se preocupe com banimento...",
+	Welcome = "Bem-vindo @%s\nStatus da assinatura: semana grátis\nPara obter uma chave válida por uma semana, visite o TikTok. jazwan27",
+	ReleaseNotes = "Informações da versão [v2.0]\n\n1. Interface do usuário aprimorada\n2. Novos recursos adicionados\n3. Melhoria de qualidade adicionada\n4. Aimbot aprimorado",
+	InfoBox = "Olá %s 👋\n\nEsses scripts foram criados especificamente para o mapa Underground War 2.0; são seguros e indetectáveis. 🛡\239\184\143",
+	MainMenu = "Menu principal",
+	UndergroundWar = "Underground War 2.0",
+	Move = "Movimento",
+	ImprovingQuality = "Melhorar qualidade",
+	IncreaseSwordRange = "Aumentar alcance da espada",
+	OrbitAttack = "Ataque orbital",
+	Aimbot = "Aimbot",
+	Speed = "Velocidade",
+	ESP = "ESP",
+	Noclip = "Noclip",
+	Xray = "Raio-X",
+	HideDirt = "Esconder terra",
+	ClickToTeleport = "Clique para teleportar",
+	TheftFlag = "Bandeira de roubo",
+	SafePlace = "Lugar seguro",
+	HeartTheBattle = "Centro da batalha",
+	RedTower = "Torre vermelha",
+	BlueTower = "Torre azul",
+	MerryChristmas = "Feliz Natal",
+	ComingSoon = "Em breve\n\nMais melhorias de qualidade e gráficos serão adicionadas nas próximas atualizações! Fique ligado.",
+	Executed = "Executado"
+}
+local t8 = {
+	LoadingMessage = "Si vous voulez une clé valide pendant une semaine, rendez-nous visite sur\nTikTok : jazwan27",
+	TikTokCopied = "Le nom d'utilisateur TikTok (jazwan27) a été copié avec succès !",
+	MessagePopup = "Que le bien soit avec vous tous, je suis Ghazwan\n\nJe veux vous dire que le script est 100 % sûr, ne vous inquiétez pas du bannissement...",
+	Welcome = "Bienvenue @%s\nStatut de l'abonnement : semaine gratuite\nPour obtenir une clé valide pendant une semaine, visitez TikTok. jazwan27",
+	ReleaseNotes = "Informations de version [v2.0]\n\n1. Interface utilisateur améliorée\n2. Ajout d'autres fonctionnalités\n3. Amélioration de la qualité\n4. Aimbot amélioré",
+	InfoBox = "Bonjour %s 👋\n\nCes scripts ont été spécialement conçus pour la carte Underground War 2.0 ; ils sont sûrs et indétectables. 🛡\239\184\143",
+	MainMenu = "Menu principal",
+	UndergroundWar = "Underground War 2.0",
+	Move = "Déplacement",
+	ImprovingQuality = "Améliorer la qualité",
+	IncreaseSwordRange = "Augmenter la portée de l'épée",
+	OrbitAttack = "Attaque orbitale",
+	Aimbot = "Aimbot",
+	Speed = "Vitesse",
+	ESP = "ESP",
+	Noclip = "Noclip",
+	Xray = "Rayons X",
+	HideDirt = "Cacher la terre",
+	ClickToTeleport = "Cliquer pour se téléporter",
+	TheftFlag = "Drapeau du vol",
+	SafePlace = "Endroit sûr",
+	HeartTheBattle = "Centre de la bataille",
+	RedTower = "Tour rouge",
+	BlueTower = "Tour bleue",
+	MerryChristmas = "Joyeux Noël",
+	ComingSoon = "Bientôt disponible\n\nD'autres améliorations de qualité et graphiques seront ajoutées dans les prochaines mises à jour ! Restez à l'écoute.",
+	Executed = "Exécuté"
+}
+t2.value10 = {
+	English = t3,
+	Arabic = t4,
+	Spanish = t5,
+	Russian = t6,
+	Portuguese = t7,
+	French = t8,
+	Chinese = {
+		LoadingMessage = "如果你想获得一周有效的密钥，请访问我们的\nTikTok：jazwan27",
+		TikTokCopied = "TikTok 用户名（jazwan27）已成功复制到剪贴板！",
+		MessagePopup = "祝大家一切顺利，我是 Ghazwan\n\n我想告诉大家，这个脚本 100% 安全，不用担心被封禁……",
+		Welcome = "欢迎 @%s\n订阅状态：免费一周\n如需获得一周有效的密钥，请访问 TikTok。jazwan27",
+		ReleaseNotes = "版本信息 [v2.0]\n\n1. 改进用户界面\n2. 添加其他功能\n3. 改进画质\n4. 改进自瞄",
+		InfoBox = "你好 %s 👋\n\n这些脚本专门为 Underground War 2.0 地图设计；安全且无法被检测。🛡\239\184\143",
+		MainMenu = "主菜单",
+		UndergroundWar = "Underground War 2.0",
+		Move = "移动",
+		ImprovingQuality = "画质优化",
+		IncreaseSwordRange = "增加剑的攻击范围",
+		OrbitAttack = "环绕攻击",
+		Aimbot = "自瞄",
+		Speed = "速度",
+		ESP = "ESP",
+		Noclip = "穿墙",
+		Xray = "透视",
+		HideDirt = "隐藏泥土",
+		ClickToTeleport = "点击传送",
+		TheftFlag = "偷窃旗帜",
+		SafePlace = "安全位置",
+		HeartTheBattle = "战斗中心",
+		RedTower = "红塔",
+		BlueTower = "蓝塔",
+		MerryChristmas = "圣诞快乐",
+		ComingSoon = "即将推出\n\n后续更新将加入更多画质和图形优化！敬请期待。",
+		Executed = "已执行"
+	}
+}
+t2.value11 = Instance.new("Frame")
+t2.value11.Name = "LoadingGui"
+t2.value11.Parent = t2.value5
+t2.value11.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+t2.value11.BorderSizePixel = 0
+t2.value11.AnchorPoint = Vector2.new(0.5, 0.5)
+t2.value11.Position = UDim2.new(0.5, 0, 0.5, 0)
+t2.value11.Size = UDim2.new(0, 420, 0, 160)
+t2.value11.ZIndex = 100
+Instance.new("UICorner", t2.value11).CornerRadius = UDim.new(0, 8)
+
+local UIStroke = Instance.new("UIStroke", t2.value11)
+
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(0, 0, 0)
+t2.value1:Create(UIStroke, tweenInfo, {
+	Color = Color3.fromRGB(255, 255, 255)
+}):Play()
+t2.value12 = Instance.new("TextLabel", t2.value11)
+t2.value12.BackgroundTransparency = 1
+t2.value12.Position = UDim2.new(0, 15, 0, 15)
+t2.value12.Size = UDim2.new(1, -30, 0, 45)
+t2.value12.Font = Enum.Font.GothamBold
+t2.value12.Text = t2.value10.English.LoadingMessage
+t2.value12.TextColor3 = Color3.fromRGB(255, 255, 255)
+t2.value12.TextSize = 12
+t2.value12.TextWrapped = true
+local Frame = Instance.new("Frame", t2.value11)
+
+Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Frame.Position = UDim2.new(0, 35, 0, 80)
+Frame.Size = UDim2.new(0, 350, 0, 15)
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(1, 0)
+t2.value13 = Instance.new("Frame", Frame)
+t2.value13.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+t2.value13.Size = UDim2.new(0, 0, 1, 0)
+Instance.new("UICorner", t2.value13).CornerRadius = UDim.new(1, 0)
+t2.value14 = Instance.new("TextLabel", t2.value11)
+t2.value14.BackgroundTransparency = 1
+t2.value14.Position = UDim2.new(0, 0, 0, 105)
+t2.value14.Size = UDim2.new(1, 0, 0, 25)
+t2.value14.Font = Enum.Font.GothamBold
+t2.value14.Text = "0%"
+t2.value14.TextColor3 = Color3.fromRGB(200, 200, 200)
+t2.value14.TextSize = 13
+t2.value15 = Instance.new("ImageButton", t2.value5)
+t2.value15.BackgroundTransparency = 1
+t2.value15.Position = UDim2.new(0, 20, 0.5, -25)
+t2.value15.Size = UDim2.new(0, 50, 0, 50)
+t2.value15.Visible = false
+t2.value15.ZIndex = 50
+Instance.new("UICorner", t2.value15).CornerRadius = UDim.new(1, 0)
+
+local UIStroke2 = Instance.new("UIStroke", t2.value15)
+
+UIStroke2.Thickness = 2
+t2.value1:Create(UIStroke2, tweenInfo, {
+	Color = Color3.fromRGB(255, 255, 255)
+}):Play()
+local ImageLabel = Instance.new("ImageLabel", t2.value15)
+
+ImageLabel.BackgroundTransparency = 1
+ImageLabel.Size = UDim2.new(1, 0, 1, 0)
+ImageLabel.Image = "rbxassetid://87134092139361"
+ImageLabel.ScaleType = Enum.ScaleType.Crop
+Instance.new("UICorner", ImageLabel).CornerRadius = UDim.new(1, 0)
+t2.value16 = nil
+t2.value17 = nil
+t2.value18 = nil
+t2.value19 = nil
+t2.value15.InputBegan:Connect(function(input)
+    local v66 = input.UserInputType == Enum.UserInputType.MouseButton1
+
+    if not v66 then
+        v66 = input.UserInputType == Enum.UserInputType.Touch
+    end
+
+    if v66 then
+        t2.value16 = true
+        t2.value18 = input.Position
+        t2.value19 = t2.value15.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                t2.value16 = false
+            end
+        end)
+    end
+end)
+t2.value15.InputChanged:Connect(function(input)
+    local v68 = input.UserInputType == Enum.UserInputType.MouseMovement
+
+    if not v68 then
+        v68 = input.UserInputType == Enum.UserInputType.Touch
+    end
+
+    if v68 then
+        t2.value17 = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == t2.value17 and t2.value16 then
+        local v70 = input.Position - t2.value18
+
+        t2.value15.Position = UDim2.new(t2.value19.X.Scale, t2.value19.X.Offset + v70.X, t2.value19.Y.Scale, t2.value19.Y.Offset + v70.Y)
+    end
+end)
+t2.value20 = Instance.new("Frame", t2.value5)
+t2.value20.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+t2.value20.BorderSizePixel = 0
+t2.value20.AnchorPoint = Vector2.new(0.5, 0.5)
+t2.value20.Position = UDim2.new(0.5, 0, 0.5, 0)
+t2.value20.Size = UDim2.new(0, 480, 0, 340)
+t2.value20.Visible = false
+t2.value20.BackgroundTransparency = 1
+Instance.new("UICorner", t2.value20).CornerRadius = UDim.new(0, 6)
+t2.value21 = Instance.new("UIStroke", t2.value20)
+t2.value21.Thickness = 2
+t2.value21.Transparency = 1
+t2.value1:Create(t2.value21, tweenInfo, {
+	Color = Color3.fromRGB(255, 255, 255)
+}):Play()
+local ImageLabel2 = Instance.new("ImageLabel", t2.value20)
+
+ImageLabel2.BackgroundTransparency = 1
+ImageLabel2.Position = UDim2.new(0, -15, 0, -15)
+ImageLabel2.Size = UDim2.new(1, 30, 1, 30)
+ImageLabel2.ZIndex = -1
+ImageLabel2.Image = "rbxassetid://1316045217"
+ImageLabel2.ImageColor3 = Color3.fromRGB(0, 0, 0)
+ImageLabel2.ImageTransparency = 0.5
+ImageLabel2.ScaleType = Enum.ScaleType.Slice
+ImageLabel2.SliceCenter = Rect.new(10, 10, 118, 118)
+
+local Frame2 = Instance.new("Frame", t2.value20)
+
+Frame2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame2.BorderSizePixel = 0
+Frame2.Size = UDim2.new(1, 0, 0, 35)
+Instance.new("UICorner", Frame2).CornerRadius = UDim.new(0, 6)
+
+local UIGradient = Instance.new("UIGradient", Frame2)
+
+UIGradient.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 45)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
+})
+UIGradient.Rotation = 90
+local Frame3 = Instance.new("Frame", Frame2)
+
+Frame3.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame3.BorderSizePixel = 0
+Frame3.Position = UDim2.new(0, 0, 0.5, 0)
+Frame3.Size = UDim2.new(1, 0, 0.5, 0)
+
+local TextLabel = Instance.new("TextLabel", Frame2)
+
+TextLabel.BackgroundTransparency = 1
+TextLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+TextLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
+TextLabel.Size = UDim2.new(0, 350, 1, 0)
+TextLabel.Font = Enum.Font.GothamBlack
+TextLabel.Text = "⚔\239\184\143 jazwan_Underground war 2.0 ⚔\239\184\143"
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextSize = 15
+local UIStroke3 = Instance.new("UIStroke", TextLabel)
+
+UIStroke3.Color = Color3.fromRGB(255, 255, 255)
+UIStroke3.Transparency = 0.8
+UIStroke3.Thickness = 1
+local ScrollingFrame = Instance.new("ScrollingFrame", t2.value20)
+
+ScrollingFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ScrollingFrame.BorderSizePixel = 0
+ScrollingFrame.Position = UDim2.new(0, 0, 0, 35)
+ScrollingFrame.Size = UDim2.new(0, 145, 0, 305)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 250)
+ScrollingFrame.ScrollBarThickness = 2
+local UIGradient2 = Instance.new("UIGradient", ScrollingFrame)
+
+UIGradient2.Color = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 30)),
+	ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 12))
+})
+UIGradient2.Rotation = 90
+local UIListLayout = Instance.new("UIListLayout", ScrollingFrame)
+
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+t2.value22 = Instance.new("Frame", t2.value20)
+t2.value22.BackgroundTransparency = 1
+t2.value22.Position = UDim2.new(0, 150, 0, 45)
+t2.value22.Size = UDim2.new(0, 320, 0, 285)
+
+local ImageLabel3 = Instance.new("ImageLabel", t2.value22)
+
+ImageLabel3.BackgroundTransparency = 1
+ImageLabel3.Size = UDim2.new(1, 0, 1, 0)
+ImageLabel3.Image = "rbxassetid://78450725998826"
+ImageLabel3.ScaleType = Enum.ScaleType.Stretch
+ImageLabel3.ImageTransparency = 0.35
+local function v27(p1)
+    local ScrollingFrame2 = Instance.new("ScrollingFrame", t2.value22)
+
+    ScrollingFrame2.Name = p1 .. "Frame"
+    ScrollingFrame2.BackgroundTransparency = 1
+    ScrollingFrame2.BorderSizePixel = 0
+    ScrollingFrame2.Size = UDim2.new(1, 0, 1, 0)
+    ScrollingFrame2.Visible = false
+    ScrollingFrame2.ScrollBarThickness = 3
+    ScrollingFrame2.CanvasSize = UDim2.new(0, 0, 0, 350)
+    ScrollingFrame2.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    ScrollingFrame2.ScrollBarImageColor3 = Color3.fromRGB(200, 200, 200)
+
+    return ScrollingFrame2
+end
+local v28 = v27("MainMenu")
+local Frame4 = Instance.new("Frame", v28)
+
+Frame4.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame4.Position = UDim2.new(0, 10, 0, 10)
+Frame4.Size = UDim2.new(0, 110, 0, 110)
+Instance.new("UICorner", Frame4).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", Frame4).Color = Color3.fromRGB(0, 0, 0)
+
+local ImageLabel4 = Instance.new("ImageLabel", Frame4)
+
+ImageLabel4.BackgroundTransparency = 1
+ImageLabel4.Position = UDim2.new(0, 5, 0, 5)
+ImageLabel4.Size = UDim2.new(0, 100, 0, 100)
+ImageLabel4.Image = "rbxassetid://87134092139361"
+Instance.new("UICorner", ImageLabel4).CornerRadius = UDim.new(0, 6)
+
+local Frame5 = Instance.new("Frame", v28)
+
+Frame5.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame5.Position = UDim2.new(0, 10, 0, 128)
+Frame5.Size = UDim2.new(0, 110, 0, 36)
+Instance.new("UICorner", Frame5).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", Frame5).Color = Color3.fromRGB(0, 0, 0)
+
+local uDim2 = UDim2.new(0, 31, 0, 28)
+local ImageButton = Instance.new("ImageButton", Frame5)
+
+ImageButton.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+ImageButton.Position = UDim2.new(0, 4, 0, 4)
+ImageButton.Size = uDim2
+ImageButton.Image = "rbxassetid://105575032928910"
+Instance.new("UICorner", ImageButton).CornerRadius = UDim.new(0, 4)
+ImageButton.MouseButton1Click:Connect(function()
+    t2.value7()
+    pcall(function()
+        setclipboard("jazwan27")
+    end)
+    pcall(function()
+        local value3 = t2.value3
+        local TikTokCopied = t2.value10[t2.value8].TikTokCopied
+
+        value3:SetCore("SendNotification", {
+			Title = "Underground War 2.0",
+			Text = TikTokCopied,
+			Icon = "rbxassetid://105575032928910",
+			Duration = 5
+		})
+    end)
+end)
+
+local TextButton = Instance.new("TextButton", Frame5)
+
+TextButton.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+TextButton.Position = UDim2.new(0, 39, 0, 4)
+TextButton.Size = uDim2
+TextButton.Text = "💬"
+TextButton.TextSize = 14
+Instance.new("UICorner", TextButton).CornerRadius = UDim.new(0, 4)
+TextButton.MouseButton1Click:Connect(function()
+    t2.value7()
+
+    if t2.value5:FindFirstChild("GhazwanMessagePopup") then
+        return
+    end
+
+    local Frame6 = Instance.new("Frame", t2.value5)
+
+    Frame6.Name = "GhazwanMessagePopup"
+    Frame6.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    Frame6.Position = UDim2.new(0.5, -200, 0.5, -75)
+    Frame6.Size = UDim2.new(0, 400, 0, 150)
+    Frame6.ZIndex = 10
+    Instance.new("UICorner", Frame6).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", Frame6).Color = Color3.fromRGB(0, 0, 0)
+
+    local TextLabel2 = Instance.new("TextLabel", Frame6)
+
+    TextLabel2.BackgroundTransparency = 1
+    TextLabel2.Position = UDim2.new(0, 15, 0, 15)
+    TextLabel2.Size = UDim2.new(1, -30, 1, -30)
+    TextLabel2.Font = Enum.Font.GothamMedium
+    TextLabel2.Text = t2.value10[t2.value8].MessagePopup
+    TextLabel2.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel2.TextSize = 12
+    TextLabel2.TextWrapped = true
+    task.delay(9, function()
+        if Frame6 then
+            Frame6:Destroy()
+        end
+    end)
+end)
+
+local TextButton2 = Instance.new("TextButton", Frame5)
+
+TextButton2.Name = "TranslationButton"
+TextButton2.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+TextButton2.Position = UDim2.new(0, 74, 0, 4)
+TextButton2.Size = uDim2
+TextButton2.Text = "🌐"
+TextButton2.TextSize = 14
+TextButton2.AutoButtonColor = false
+Instance.new("UICorner", TextButton2).CornerRadius = UDim.new(0, 4)
+t2.value23 = nil
+TextButton2.MouseButton1Click:Connect(function()
+    t2.value7()
+
+    if t2.value23 then
+        local value23 = t2.value23
+
+        value23:Destroy()
+        t2.value23 = value23
+
+        return
+    end
+
+    t2.value23 = Instance.new("Frame", t2.value5)
+    t2.value23.Name = "TranslationMenu"
+    t2.value23.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    t2.value23.BorderSizePixel = 0
+    t2.value23.Position = UDim2.new(0.5, -120, 0.5, -145)
+    t2.value23.Size = UDim2.new(0, 240, 0, 290)
+    t2.value23.ZIndex = 100
+    Instance.new("UICorner", t2.value23).CornerRadius = UDim.new(0, 8)
+
+    local UIStroke4 = Instance.new("UIStroke", t2.value23)
+
+    UIStroke4.Color = Color3.fromRGB(150, 150, 150)
+    UIStroke4.Thickness = 1.5
+
+    local TextLabel3 = Instance.new("TextLabel", t2.value23)
+
+    TextLabel3.BackgroundTransparency = 1
+    TextLabel3.Position = UDim2.new(0, 10, 0, 8)
+    TextLabel3.Size = UDim2.new(1, -20, 0, 30)
+    TextLabel3.Font = Enum.Font.GothamBold
+    TextLabel3.Text = "🌐  Language"
+    TextLabel3.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel3.TextSize = 14
+
+    local ScrollingFrame3 = Instance.new("ScrollingFrame", t2.value23)
+
+    ScrollingFrame3.BackgroundTransparency = 1
+    ScrollingFrame3.BorderSizePixel = 0
+    ScrollingFrame3.Position = UDim2.new(0, 10, 0, 45)
+    ScrollingFrame3.Size = UDim2.new(1, -20, 1, -55)
+    ScrollingFrame3.CanvasSize = UDim2.new(0, 0, 0, 0)
+    ScrollingFrame3.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    ScrollingFrame3.ScrollBarThickness = 2
+
+    local UIListLayout2 = Instance.new("UIListLayout", ScrollingFrame3)
+
+    UIListLayout2.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout2.Padding = UDim.new(0, 5)
+
+    for i, v in ipairs(t2.value9) do
+        local v82 = v
+        local TextButton3 = Instance.new("TextButton", ScrollingFrame3)
+        local v84 = v82.Name == t2.value8
+
+        if v84 then
+            v84 = Color3.fromRGB(255, 255, 255)
+        end
+
+        if not v84 then
+            v84 = Color3.fromRGB(45, 45, 45)
+        end
+
+        TextButton3.BackgroundColor3 = v84
+        TextButton3.Size = UDim2.new(1, -4, 0, 28)
+        TextButton3.LayoutOrder = i
+        TextButton3.Font = Enum.Font.GothamBold
+        TextButton3.Text = v82.NativeName
+
+        local v85 = v82.Name == t2.value8
+
+        if v85 then
+            v85 = Color3.fromRGB(0, 0, 0)
+        end
+
+        if not v85 then
+            v85 = Color3.fromRGB(255, 255, 255)
+        end
+
+        TextButton3.TextColor3 = v85
+        TextButton3.TextSize = 11
+        TextButton3.AutoButtonColor = false
+        Instance.new("UICorner", TextButton3).CornerRadius = UDim.new(0, 5)
+        TextButton3.MouseButton1Click:Connect(function()
+            t2.value8 = v82.Name
+            t2.value7()
+
+            if t2.value23 then
+                t2.value23:Destroy()
+                t2.value23 = nil
+            end
+
+            if _G.ApplySelectedLanguage then
+                _G.ApplySelectedLanguage(t2.value8)
+            end
+        end)
+    end
+end)
+t2.value24 = Instance.new("TextLabel", v28)
+t2.value24.BackgroundTransparency = 1
+t2.value24.Position = UDim2.new(0, 125, 0, 10)
+t2.value24.Size = UDim2.new(0, 190, 0, 110)
+t2.value24.Font = Enum.Font.GothamBold
+t2.value24.Text = string.format(t2.value10.English.Welcome, t2.value4.Name)
+t2.value24.TextColor3 = Color3.fromRGB(255, 255, 255)
+t2.value24.TextSize = 13
+t2.value24.TextXAlignment = Enum.TextXAlignment.Left
+t2.value24.TextYAlignment = Enum.TextYAlignment.Top
+t2.value24.TextWrapped = true
+local Frame7 = Instance.new("Frame", v28)
+
+Frame7.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame7.Position = UDim2.new(0, 10, 0, 172)
+Frame7.Size = UDim2.new(0, 300, 0, 100)
+Instance.new("UICorner", Frame7).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", Frame7).Color = Color3.fromRGB(150, 150, 150)
+t2.value25 = Instance.new("TextLabel", Frame7)
+t2.value25.BackgroundTransparency = 1
+t2.value25.Position = UDim2.new(0, 15, 0, 8)
+t2.value25.Size = UDim2.new(1, -30, 1, -16)
+t2.value25.Font = Enum.Font.GothamBold
+t2.value25.Text = t2.value10.English.ReleaseNotes
+t2.value25.TextColor3 = Color3.fromRGB(255, 255, 255)
+t2.value25.TextSize = 12
+t2.value25.TextXAlignment = Enum.TextXAlignment.Left
+t2.value25.TextYAlignment = Enum.TextYAlignment.Top
+local v37 = v27("UndergroundWar")
+local Frame8 = Instance.new("Frame", v37)
+
+Frame8.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame8.Position = UDim2.new(0, 10, 0, 10)
+Frame8.Size = UDim2.new(0, 110, 0, 110)
+Instance.new("UICorner", Frame8).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", Frame8).Color = Color3.fromRGB(0, 0, 0)
+
+local ImageLabel5 = Instance.new("ImageLabel", Frame8)
+
+ImageLabel5.BackgroundTransparency = 1
+ImageLabel5.Position = UDim2.new(0, 5, 0, 5)
+ImageLabel5.Size = UDim2.new(0, 100, 0, 100)
+ImageLabel5.Image = "rbxthumb://type=AvatarHeadShot&id=" .. t2.value4.UserId .. "&w=150&h=150"
+Instance.new("UICorner", ImageLabel5).CornerRadius = UDim.new(0, 6)
+
+local Frame9 = Instance.new("Frame", v37)
+
+Frame9.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame9.Position = UDim2.new(0, 130, 0, 10)
+Frame9.Size = UDim2.new(0, 180, 0, 110)
+Instance.new("UICorner", Frame9).CornerRadius = UDim.new(0, 8)
+
+local UIStroke5 = Instance.new("UIStroke", Frame9)
+
+UIStroke5.Color = Color3.fromRGB(255, 255, 255)
+UIStroke5.Thickness = 1.5
+t2.value26 = Instance.new("TextLabel", Frame9)
+t2.value26.BackgroundTransparency = 1
+t2.value26.Position = UDim2.new(0, 10, 0, 10)
+t2.value26.Size = UDim2.new(1, -20, 1, -20)
+t2.value26.Font = Enum.Font.GothamMedium
+t2.value26.Text = string.format(t2.value10.English.InfoBox, t2.value4.Name)
+t2.value26.TextColor3 = Color3.fromRGB(255, 255, 255)
+t2.value26.TextSize = 12
+t2.value26.TextWrapped = true
+t2.value26.TextXAlignment = Enum.TextXAlignment.Left
+t2.value26.TextYAlignment = Enum.TextYAlignment.Top
+t2.value27 = Instance.new("Frame", v37)
+t2.value27.BackgroundTransparency = 1
+t2.value27.Position = UDim2.new(0, 10, 0, 135)
+t2.value27.Size = UDim2.new(1, -20, 0, 200)
+
+local UIGridLayout = Instance.new("UIGridLayout", t2.value27)
+
+UIGridLayout.CellSize = UDim2.new(0, 145, 0, 35)
+UIGridLayout.CellPadding = UDim2.new(0, 10, 0, 10)
+UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIGridLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+t2.value28 = {}
+local function v43(p2, p3, p4)
+    local TextButton4 = Instance.new("TextButton", t2.value27)
+
+    TextButton4.LayoutOrder = p3
+    TextButton4.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextButton4.Size = UDim2.new(1, 0, 1, 0)
+    TextButton4.Font = Enum.Font.GothamBold
+    TextButton4.Text = t2.value10.English[p2]
+    TextButton4.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextButton4.TextSize = 10.5
+    TextButton4.TextWrapped = true
+    TextButton4.AutoButtonColor = false
+    Instance.new("UICorner", TextButton4).CornerRadius = UDim.new(0, 6)
+
+    local UIStroke6 = Instance.new("UIStroke", TextButton4)
+
+    UIStroke6.Color = Color3.fromRGB(255, 255, 255)
+    UIStroke6.Thickness = 1.5
+    UIStroke6.Transparency = 0
+    t2.value28[p2] = {
+		Button = TextButton4,
+		Stroke = UIStroke6,
+		Executed = function()
+        return false
+    end
+	}
+    TextButton4.MouseButton1Click:Connect(function()
+        t2.value7()
+        pcall(function()
+            loadstring(game:HttpGet(p4))()
+        end)
+        t2.value1:Create(TextButton4, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+        t2.value1:Create(UIStroke6, TweenInfo.new(0.2), {
+			Color = Color3.fromRGB(255, 255, 255),
+			Thickness = 3
+		}):Play()
+        task.delay(1, function()
+            t2.value1:Create(TextButton4, TweenInfo.new(0.5), {
+				BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+			}):Play()
+            t2.value1:Create(UIStroke6, TweenInfo.new(0.5), {
+				Color = Color3.fromRGB(120, 120, 120),
+				Thickness = 1
+			}):Play()
+            t2.value1:Create(TextButton4, TweenInfo.new(0.5), {
+				TextColor3 = Color3.fromRGB(180, 180, 180)
+			}):Play()
+            TextButton4.Text = t2.value10[t2.value8][p2] .. " (" .. t2.value10[t2.value8].Executed .. ")"
+        end)
+    end)
+end
+
+local UIListLayout3 = Instance.new("UIListLayout", t2.value29)
+
+UIListLayout3.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout3.Padding = UDim.new(0, 10)
+UIListLayout3.HorizontalAlignment = Enum.HorizontalAlignment.Center
+t2.value30 = {}
+local function v45(p5, p6, p7)
+    local TextButton5 = Instance.new("TextButton", t2.value29)
+
+    TextButton5.LayoutOrder = p6
+    TextButton5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextButton5.Size = UDim2.new(0, 290, 0, 38)
+    TextButton5.Font = Enum.Font.GothamBold
+    TextButton5.Text = t2.value10.English[p5]
+    TextButton5.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextButton5.TextSize = 12
+    TextButton5.AutoButtonColor = false
+    Instance.new("UICorner", TextButton5).CornerRadius = UDim.new(0, 6)
+
+    local UIStroke7 = Instance.new("UIStroke", TextButton5)
+
+    UIStroke7.Color = Color3.fromRGB(255, 255, 255)
+    UIStroke7.Thickness = 1.5
+    UIStroke7.Transparency = 0
+    t2.value30[p5] = {
+		Button = TextButton5,
+		Executed = function()
+        return false
+    end
+	}
+    TextButton5.MouseButton1Click:Connect(function()
+        t2.value7()
+        pcall(function()
+            loadstring(game:HttpGet(p7))()
+        end)
+        t2.value1:Create(TextButton5, TweenInfo.new(0.15), {
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+        t2.value1:Create(UIStroke7, TweenInfo.new(0.15), {
+			Color = Color3.fromRGB(255, 255, 255),
+			Thickness = 3
+		}):Play()
+        task.delay(0.2, function()
+            t2.value1:Create(TextButton5, TweenInfo.new(0.3), {
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			}):Play()
+            t2.value1:Create(UIStroke7, TweenInfo.new(0.3), {
+				Color = Color3.fromRGB(255, 255, 255),
+				Thickness = 1.5
+			}):Play()
+        end)
+    end)
+end;
+(function(p8, p9, p10)
+    local TextButton6 = Instance.new("TextButton", t2.value29)
+
+    TextButton6.LayoutOrder = p9
+    TextButton6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    TextButton6.Size = UDim2.new(0, 290, 0, 38)
+    TextButton6.Font = Enum.Font.GothamBold
+    TextButton6.Text = t2.value10.English[p8]
+    TextButton6.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextButton6.TextSize = 12
+    TextButton6.AutoButtonColor = false
+    Instance.new("UICorner", TextButton6).CornerRadius = UDim.new(0, 6)
+
+    local UIStroke8 = Instance.new("UIStroke", TextButton6)
+
+    UIStroke8.Color = Color3.fromRGB(255, 255, 255)
+    UIStroke8.Thickness = 1.5
+    UIStroke8.Transparency = 0
+    t2.value30[p8] = {
+		Button = TextButton6,
+		Executed = function()
+        return false
+    end
+	}
+    TextButton6.MouseButton1Click:Connect(function()
+        t2.value7()
+        pcall(function()
+            loadstring(game:HttpGet(p10))()
+        end)
+        t2.value1:Create(TextButton6, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+        t2.value1:Create(UIStroke8, TweenInfo.new(0.2), {
+			Color = Color3.fromRGB(255, 255, 255),
+			Thickness = 3
+		}):Play()
+        task.delay(1, function()
+            t2.value1:Create(TextButton6, TweenInfo.new(0.5), {
+				BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+			}):Play()
+            t2.value1:Create(UIStroke8, TweenInfo.new(0.5), {
+				Color = Color3.fromRGB(120, 120, 120),
+				Thickness = 1
+			}):Play()
+            t2.value1:Create(TextButton6, TweenInfo.new(0.5), {
+				TextColor3 = Color3.fromRGB(180, 180, 180)
+			}):Play()
+            TextButton6.Text = t2.value10[t2.value8][p8] .. " (" .. t2.value10[t2.value8].Executed .. ")"
+        end)
+    end)
+
+local v46 = v27("ImprovingQuality")
+local UIListLayout4 = Instance.new("UIListLayout", v46)
+
+UIListLayout4.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout4.Padding = UDim.new(0, 10)
+UIListLayout4.HorizontalAlignment = Enum.HorizontalAlignment.Center
+t2.value31 = Instance.new("TextButton", v46)
+t2.value31.LayoutOrder = 1
+t2.value31.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+t2.value31.Size = UDim2.new(0, 290, 0, 38)
+t2.value31.Font = Enum.Font.GothamBold
+t2.value31.Text = t2.value10.English.MerryChristmas
+t2.value31.TextColor3 = Color3.fromRGB(0, 0, 0)
+t2.value31.TextSize = 12
+t2.value31.AutoButtonColor = false
+Instance.new("UICorner", t2.value31).CornerRadius = UDim.new(0, 6)
+t2.value32 = Instance.new("UIStroke", t2.value31)
+t2.value32.Color = Color3.fromRGB(255, 255, 255)
+t2.value32.Thickness = 1.5
+t2.value32.Transparency = 0
+t2.value33 = false
+t2.value31.MouseButton1Click:Connect(function()
+    if t2.value33 then
+        return
+    end
+
+    t2.value33 = true
+    t2.value7()
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/jazwan/Ice-quality-/refs/heads/main/Ice%20quality"))()
+    end)
+    t2.value1:Create(t2.value31, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	}):Play()
+    t2.value1:Create(t2.value32, TweenInfo.new(0.2), {
+		Color = Color3.fromRGB(255, 255, 255),
+		Thickness = 3
+	}):Play()
+    task.delay(1, function()
+        t2.value1:Create(t2.value31, TweenInfo.new(0.5), {
+			BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+		}):Play()
+        t2.value1:Create(t2.value32, TweenInfo.new(0.5), {
+			Color = Color3.fromRGB(120, 120, 120),
+			Thickness = 1
+		}):Play()
+        t2.value1:Create(t2.value31, TweenInfo.new(0.5), {
+			TextColor3 = Color3.fromRGB(180, 180, 180)
+		}):Play()
+        t2.value31.Text = t2.value10[t2.value8].MerryChristmas .. " (" .. t2.value10[t2.value8].Executed .. ")"
+    end)
+end)
+
+local Frame10 = Instance.new("Frame", v46)
+
+Frame10.LayoutOrder = 2
+Frame10.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame10.Size = UDim2.new(0, 290, 0, 90)
+Instance.new("UICorner", Frame10).CornerRadius = UDim.new(0, 8)
+
+local UIStroke9 = Instance.new("UIStroke", Frame10)
+
+UIStroke9.Color = Color3.fromRGB(150, 150, 150)
+UIStroke9.Thickness = 1.5
+t2.value34 = Instance.new("TextLabel", Frame10)
+t2.value34.BackgroundTransparency = 1
+t2.value34.Position = UDim2.new(0, 15, 0, 10)
+t2.value34.Size = UDim2.new(1, -30, 1, -20)
+t2.value34.Font = Enum.Font.GothamBold
+t2.value34.Text = t2.value10.English.ComingSoon
+t2.value34.TextColor3 = Color3.fromRGB(255, 255, 255)
+t2.value34.TextSize = 12
+t2.value34.TextXAlignment = Enum.TextXAlignment.Left
+t2.value34.TextYAlignment = Enum.TextYAlignment.Top
+t2.value34.TextWrapped = true
+local function v50(p11)
+    local v102 = t2.value10[p11]
+    if not v102 then
+        return
+    end
+    t2.value12.Text = v102.LoadingMessage
+    t2.value24.Text = string.format(v102.Welcome, t2.value4.Name)
+    t2.value25.Text = v102.ReleaseNotes
+    t2.value26.Text = string.format(v102.InfoBox, t2.value4.Name)
+    for v105, v106 in pairs(t2.value28) do
+
+        local Button = v106.Button
+
+        if v106.Executed() then
+            Button.Text = v102[v105] .. " (" .. v102.Executed .. ")"
+        else
+            Button.Text = v102[v105]
+        end
+    end
+    for v110, v111 in pairs(t2.value30) do
+
+        if v111 and v111.Button then
+            v111.Button.Text = v102[v110]
+        end
+    end
+    if t2.value33 then
+        t2.value31.Text = v102.MerryChristmas .. " (" .. v102.Executed .. ")"
+    else
+        t2.value31.Text = v102.MerryChristmas
+    end
+    t2.value34.Text = v102.ComingSoon
+end
+_G.ApplySelectedLanguage = v50
+t2.value35 = {
+	{
+		key = "MainMenu",
+		text = "Main menu",
+		frame = v28
+	},
+	{
+		key = "UndergroundWar",
+		text = "Underground War 2.0",
+		frame = v37
+	},
+	{
+		key = "Move",
+		text = "Move",
+		frame = t2.value29
+	},
+	{
+		key = "ImprovingQuality",
+		text = "Improving quality",
+		frame = v46
+	}
+}
+t2.value36 = {}
+for i, v in ipairs(t2.value35) do
+    local v53 = i
+    local v54 = v
+    local TextButton7 = Instance.new("TextButton", ScrollingFrame)
+
+    t1.value5 = v53 == 1
+    t1.value4 = t1.value5
+
+    if t1.value5 then
+        t1.value4 = Color3.fromRGB(255, 255, 255)
+    end
+
+    t1.value2 = t1.value4
+
+    if not t1.value4 then
+        t1.value2 = Color3.fromRGB(140, 140, 140)
+    end
+
+    TextButton7.BackgroundColor3 = t1.value2
+    t1.value3 = UDim2.new(0, 140, 0, 38)
+    TextButton7.Size = t1.value3
+    t1.value2 = Enum.Font.GothamBold
+    TextButton7.Font = t1.value2
+    t1.value2 = v54.text
+    TextButton7.Text = t1.value2
+    t1.value3 = Color3.fromRGB(0, 0, 0)
+    TextButton7.TextColor3 = t1.value3
+    TextButton7.TextSize = 12
+
+    local UICorner = Instance.new("UICorner", TextButton7)
+
+    t1.value3 = UDim.new(0, 4)
+    UICorner.CornerRadius = t1.value3
+
+    local UIStroke10 = Instance.new("UIStroke", TextButton7)
+
+    t1.value4 = Color3.fromRGB(255, 255, 255)
+    UIStroke10.Color = t1.value4
+    UIStroke10.Thickness = 1.5
+    UIStroke10.Transparency = v53 ~= 1 and 1 or 0
+    v54.button = TextButton7
+    v54.stroke = UIStroke10
+
+    local value36 = t2.value36
+
+    t1.value2 = v54.key
+    value36[t1.value2] = TextButton7
+
+    local MouseButton1Click = TextButton7.MouseButton1Click
+
+    function t1.value3()
+        t2.value7()
+
+        for _, v2 in ipairs(t2.value35) do
+            v2.frame.Visible = false
+            t2.value1:Create(v2.button, TweenInfo.new(0.2), {
+				BackgroundColor3 = Color3.fromRGB(140, 140, 140)
+			}):Play()
+            t2.value1:Create(v2.stroke, TweenInfo.new(0.2), {
+				Transparency = 1
+			}):Play()
+        end
+
+        v54.frame.Visible = true
+        t2.value1:Create(TextButton7, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+        t2.value1:Create(UIStroke10, TweenInfo.new(0.2), {
+			Transparency = 0
+		}):Play()
+    end
+
+    MouseButton1Click:Connect(t1.value3)
+
+    local MouseEnter = TextButton7.MouseEnter
+
+    function t1.value3()
+        if not v54.frame.Visible then
+            t2.value1:Create(TextButton7, TweenInfo.new(0.2), {
+				BackgroundColor3 = Color3.fromRGB(190, 190, 190)
+			}):Play()
+        end
+    end
+
+    MouseEnter:Connect(t1.value3)
+
+    local MouseLeave = TextButton7.MouseLeave
+
+    function t1.value3()
+        if not v54.frame.Visible then
+            t2.value1:Create(TextButton7, TweenInfo.new(0.2), {
+				BackgroundColor3 = Color3.fromRGB(140, 140, 140)
+			}):Play()
+        end
+    end
+
+    MouseLeave:Connect(t1.value3)
+
+    if v53 == 1 then
+        v54.frame.Visible = true
+    end
+end
+t2.value37 = nil
+t2.value37 = v50
+function _G.ApplySelectedLanguage(p12)
+    t2.value37(p12)
+
+    local v117 = t2.value10[p12]
+
+    if not v117 then
+        return
+    end
+
+    t2.value36.MainMenu.Text = v117.MainMenu
+    t2.value36.UndergroundWar.Text = v117.UndergroundWar
+    t2.value36.Move.Text = v117.Move
+    t2.value36.ImprovingQuality.Text = v117.ImprovingQuality
+end
+t2.value38 = nil
+t2.value39 = nil
+t2.value40 = nil
+t2.value41 = nil
+t2.value20.InputBegan:Connect(function(input)
+    local v119 = input.UserInputType == Enum.UserInputType.MouseButton1
+
+    if not v119 then
+        v119 = input.UserInputType == Enum.UserInputType.Touch
+    end
+
+    if v119 then
+        t2.value38 = true
+        t2.value40 = input.Position
+        t2.value41 = t2.value20.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                t2.value38 = false
+            end
+        end)
+    end
+end)
+t2.value20.InputChanged:Connect(function(input)
+    local v121 = input.UserInputType == Enum.UserInputType.MouseMovement
+
+    if not v121 then
+        v121 = input.UserInputType == Enum.UserInputType.Touch
+    end
+
+    if v121 then
+        t2.value39 = input
+    end
+end)
+
+local InputChanged = UserInputService.InputChanged
+function t1.value3(p13)
+    if p13 == t2.value39 and t2.value38 then
+        local v123 = p13.Position - t2.value40
+
+        t2.value20.Position = UDim2.new(t2.value41.X.Scale, t2.value41.X.Offset + v123.X, t2.value41.Y.Scale, t2.value41.Y.Offset + v123.Y)
+    end
+end
+InputChanged:Connect(t1.value3)
+task.spawn(function()
+    t2.value7()
+
+    for i = 0, 100 do
+        local v125 = i
+
+        if t2.value13 then
+            t2.value13.Size = UDim2.new(v125 / 100, 0, 1, 0)
+        end
+
+        if t2.value14 then
+            t2.value14.Text = v125 .. "%"
+        end
+
+        task.wait(0.08)
+    end
+
+    if t2.value11 then
+        t2.value11:Destroy()
+    end
+
+    t2.value15.Visible = true
+    t2.value20.Visible = true
+    t2.value20.Size = UDim2.new(0, 400, 0, 270)
+    t2.value20.BackgroundTransparency = 1
+    t2.value21.Transparency = 1
+    t2.value1:Create(t2.value20, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, 480, 0, 340),
+		BackgroundTransparency = 0
+	}):Play()
+    t2.value1:Create(t2.value21, TweenInfo.new(0.3), {
+		Transparency = 0
+	}):Play()
+end)
+t2.value42 = true
+t2.value43 = false
+local function v63()
+    if t2.value43 then
+        return
+    end
+
+    t2.value7()
+
+    if not t2.value42 then
+        t2.value20.Visible = true
+        t2.value20.Size = UDim2.new(0, 400, 0, 270)
+        t2.value20.BackgroundTransparency = 1
+        t2.value21.Transparency = 1
+
+        local v126 = t2.value1:Create(t2.value20, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 480, 0, 340),
+			BackgroundTransparency = 0
+		})
+
+        t2.value1:Create(t2.value21, TweenInfo.new(0.3), {
+			Transparency = 0
+		}):Play()
+        v126:Play()
+        v126.Completed:Wait()
+
+        return
+    end
+
+    local v127 = t2.value1:Create(t2.value20, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+		Size = UDim2.new(0, 400, 0, 270),
+		BackgroundTransparency = 1
+	})
+
+    t2.value1:Create(t2.value21, TweenInfo.new(0.2), {
+		Transparency = 1
+	}):Play()
+    v127:Play()
+    v127.Completed:Wait()
+    t2.value20.Visible = false
+end
+t2.value44 = 0
+t1.value4 = t2.value15.InputBegan
+t1.value4:Connect(function(p14)
+    local v129 = p14.UserInputType == Enum.UserInputType.MouseButton1
+
+    if not v129 then
+        v129 = p14.UserInputType == Enum.UserInputType.Touch
+    end
+
+    if v129 then
+        t2.value44 = tick()
+    end
+end)
+t1.value4 = t2.value15.InputEnded
+t1.value4:Connect(function(p15)
+    local v131 = p15.UserInputType == Enum.UserInputType.MouseButton1
+
+    if not v131 then
+        v131 = p15.UserInputType == Enum.UserInputType.Touch
+    end
+
+    if v131 and tick() - t2.value44 < 0.25 then
+        v63()
+    end
+end)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    local v134 = not gameProcessed
+
+    if v134 then
+        v134 = input.KeyCode == Enum.KeyCode.B
+    end
+
+    if v134 then
+        v63()
+    end
+end)
