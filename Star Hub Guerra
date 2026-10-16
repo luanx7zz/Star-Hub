@@ -63,7 +63,7 @@ local redzlib = {
 		Version = "1.2.0"
 	},
 	Save = {
-		UISize = {550, 380},
+		UISize = {590, 400},
 		TabSize = 160,
 		Theme = "Red"
 	},
@@ -102,6 +102,29 @@ local redzlib = {
 		}
 	end)()
 }
+
+do -- Star Hub themes
+	local function MakeTheme(top, mid, hub2, stroke, accent, text, dim, section)
+		return {
+			["Color Hub 1"] = ColorSequence.new({
+				ColorSequenceKeypoint.new(0.00, top),
+				ColorSequenceKeypoint.new(0.50, mid),
+				ColorSequenceKeypoint.new(1.00, top)
+			}),
+			["Color Hub 2"] = hub2,
+			["Color Stroke"] = stroke,
+			["Color Theme"] = accent,
+			["Color Text"] = text,
+			["Color Dark Text"] = dim,
+			["Color Dark Purple"] = section,
+			["Color Dark Greem"] = section
+		}
+	end
+	redzlib.Themes.Star = MakeTheme(Color3.fromRGB(10, 11, 20), Color3.fromRGB(22, 18, 42), Color3.fromRGB(25, 27, 46), Color3.fromRGB(48, 52, 88), Color3.fromRGB(139, 108, 255), Color3.fromRGB(240, 242, 255), Color3.fromRGB(148, 155, 190), Color3.fromRGB(96, 196, 255))
+	redzlib.Themes.Ocean = MakeTheme(Color3.fromRGB(8, 14, 22), Color3.fromRGB(12, 28, 44), Color3.fromRGB(19, 34, 52), Color3.fromRGB(36, 64, 94), Color3.fromRGB(56, 189, 248), Color3.fromRGB(236, 246, 255), Color3.fromRGB(140, 166, 190), Color3.fromRGB(110, 231, 183))
+	redzlib.Themes.Rose = MakeTheme(Color3.fromRGB(18, 10, 16), Color3.fromRGB(38, 16, 30), Color3.fromRGB(40, 22, 36), Color3.fromRGB(78, 42, 66), Color3.fromRGB(255, 84, 130), Color3.fromRGB(255, 240, 246), Color3.fromRGB(190, 150, 168), Color3.fromRGB(255, 170, 90))
+	redzlib.Save.Theme = "Star"
+end
 
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
@@ -470,11 +493,15 @@ AddEle("Button", function(parent, props, ...)
 	New.MouseEnter:Connect(function()
 		IsMouseOver = true
 		New.BackgroundTransparency = 0.4
+		local St = New:FindFirstChildOfClass("UIStroke")
+		if St then CreateTween({St, "Color", Theme["Color Theme"], 0.2}) end
 	end)
 	
 	New.MouseLeave:Connect(function()
 		IsMouseOver = false
 		New.BackgroundTransparency = 0
+		local St = New:FindFirstChildOfClass("UIStroke")
+		if St then CreateTween({St, "Color", Theme["Color Stroke"], 0.2}) end
 	end)
 
 	New.MouseButton1Down:Connect(function()
@@ -503,7 +530,7 @@ end)
 
 local function ButtonFrame(Instance, Title, Description, HolderSize)
 	local TitleL = InsertTheme(Create("TextLabel", {
-		Font = Enum.Font.FredokaOne, --GothamMedium
+		Font = Enum.Font.GothamBold,
 		TextColor3 = Theme["Color Text"],
 		Size = UDim2.new(1, -20),
 		AutomaticSize = "Y",
@@ -511,31 +538,31 @@ local function ButtonFrame(Instance, Title, Description, HolderSize)
 		AnchorPoint = Vector2.new(0, 0.5),
 		BackgroundTransparency = 1,
 		TextTruncate = "AtEnd",
-		TextSize = 10,
+		TextSize = 12,
 		TextXAlignment = "Left",
 		Text = "",
 		RichText = true
 	}), "Text")
 	
 	local DescL = InsertTheme(Create("TextLabel", {
-		Font = Enum.Font.Gotham,
+		Font = Enum.Font.GothamMedium,
 		TextColor3 = Theme["Color Dark Text"],
 		Size = UDim2.new(1, -20),
 		AutomaticSize = "Y",
 		Position = UDim2.new(0, 12, 0, 15),
 		BackgroundTransparency = 1,
 		TextWrapped = true,
-		TextSize = 8,
+		TextSize = 10,
 		TextXAlignment = "Left",
 		Text = "",
 		RichText = true
 	}), "DarkText")
 
 	local Frame = Make("Button", Instance, {
-		Size = UDim2.new(1, 0, 0, 25),
+		Size = UDim2.new(1, 0, 0, 36),
 		AutomaticSize = "Y",
 		Name = "Option"
-	})Make("Corner", Frame, UDim.new(0, 6))
+	})Make("Corner", Frame, UDim.new(0, 8))Make("Stroke", Frame, {Transparency = 0.3})
 	
 	LabelHolder = Create("Frame", Frame, {
 		AutomaticSize = "Y",
@@ -673,27 +700,34 @@ function redzlib:Notify(Configs)
 	local Image = Configs.Image or "rbxassetid://113449060491896"
 	
 	local Colors = {
-		Info = Color3.fromRGB(88, 101, 242),
-		Success = Color3.fromRGB(82, 75, 87),
+		Info = Color3.fromRGB(96, 196, 255),
+		Success = Color3.fromRGB(80, 220, 140),
 		Warning = Color3.fromRGB(255, 193, 7),
-		Error = Color3.fromRGB(255, 17, 0)
+		Error = Color3.fromRGB(255, 80, 90)
 	}
 	
 	local TypeColor = Colors[Type] or Colors.Info
 	
 	local NotificationFrame = Create("Frame", NotificationContainer, {
 		Size = UDim2.new(1, 0, 0, 45),
-		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+		BackgroundColor3 = Color3.fromRGB(14, 15, 26),
 		BackgroundTransparency = 0,
 		BorderSizePixel = 0,
 		ClipsDescendants = true
 	})
 	
 	Make("Corner", NotificationFrame, UDim.new(0, 12))
+	Create("Frame", NotificationFrame, {
+		Size = UDim2.new(0, 3, 1, -16),
+		Position = UDim2.new(0, 0, 0, 8),
+		BackgroundColor3 = TypeColor,
+		BorderSizePixel = 0
+	})
 	
 	local NotificationStroke = Create("UIStroke", NotificationFrame, {
-		Color = Color3.fromRGB(42, 38, 43),
-		Thickness = 2,
+		Color = TypeColor,
+		Transparency = 0.55,
+		Thickness = 1.5,
 		ApplyStrokeMode = "Border"
 	})
 	
@@ -809,13 +843,19 @@ function redzlib:MakeWindow(Configs)
 	local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
 		Size = UDim2.fromOffset(UISizeX, UISizeY),
 		Position = UDim2.new(0.5, -UISizeX/2, 0.5, -UISizeY/2),
-		BackgroundTransparency = 0.15,
+		BackgroundTransparency = 0.06,
 		Name = "Hub"
 }), "Main")
 	Make("Gradient", MainFrame, {
 		Rotation = 45
 	})MakeDrag(MainFrame)
-	local MainCorner = Make("Corner", MainFrame)
+	local MainCorner = Make("Corner", MainFrame, UDim.new(0, 12))
+	InsertTheme(Create("UIStroke", MainFrame, {
+		Color = Theme["Color Theme"],
+		Thickness = 1.5,
+		Transparency = 0.45,
+		ApplyStrokeMode = "Border"
+	}), "Theme")
 	local Components = Create("Folder", MainFrame, {
 		Name = "Components"
 	})
@@ -825,21 +865,30 @@ function redzlib:MakeWindow(Configs)
 	})
 	
 	local TopBar = Create("Frame", Components, {
-		Size = UDim2.new(1, 0, 0, 28),
+		Size = UDim2.new(1, 0, 0, 38),
 		BackgroundTransparency = 1,
 		Name = "Top Bar"
 	})
 	
+	InsertTheme(Create("Frame", Components, {
+		Size = UDim2.new(1, 0, 0, 1),
+		Position = UDim2.fromOffset(0, 38),
+		BackgroundColor3 = Theme["Color Theme"],
+		BackgroundTransparency = 0.7,
+		BorderSizePixel = 0,
+		Name = "TopLine"
+	}), "Theme")
+
 	local Title = InsertTheme(Create("TextLabel", TopBar, {
 		Position = UDim2.new(0, 15, 0.5),
 		AnchorPoint = Vector2.new(0, 0.5),
 		AutomaticSize = "XY",
 		Text = WTitle,
 		TextXAlignment = "Left",
-		TextSize = 12,
+		TextSize = 15,
 		TextColor3 = Theme["Color Text"],
 		BackgroundTransparency = 1,
-		Font = Enum.Font.FredokaOne,  --GothamMedium
+		Font = Enum.Font.GothamBlack,
 		Name = "Title"
 	}, {
 		InsertTheme(Create("TextLabel", {
@@ -852,8 +901,8 @@ function redzlib:MakeWindow(Configs)
 			BackgroundTransparency = 1,
 			TextXAlignment = "Left",
 			TextYAlignment = "Bottom",
-			TextSize = 9,
-			Font = Enum.Font.Gotham,
+			TextSize = 10,
+			Font = Enum.Font.GothamMedium,
 			Name = "SubTitle"
 		}), "DarkText")
 	}), "Text")
@@ -900,10 +949,10 @@ function redzlib:MakeWindow(Configs)
 	})
 	
 	local ParticleConfig = {
-		MaxParticles = 30,
-		SpawnRate = 0.1,
-		ParticleSize = {Min = 6, Max = 10},
-		ParticleSpeed = {Min = 15, Max = 25},
+		MaxParticles = 22,
+		SpawnRate = 0.16,
+		ParticleSize = {Min = 3, Max = 6},
+		ParticleSpeed = {Min = 12, Max = 22},
 		ParticleLifetime = 6
 	}
 
@@ -1057,8 +1106,8 @@ end
 	})
 	
 	local CloseButton = Create("ImageButton", {
-		Size = UDim2.new(0, 14, 0, 14),
-		Position = UDim2.new(1, -10, 0.5),
+		Size = UDim2.new(0, 16, 0, 16),
+		Position = UDim2.new(1, -12, 0.5),
 		AnchorPoint = Vector2.new(1, 0.5),
 		BackgroundTransparency = 1,
 		Image = "rbxassetid://10747384394",
@@ -1067,7 +1116,7 @@ end
 	})
 	
 	local MinimizeButton = SetProps(CloseButton:Clone(), {
-		Position = UDim2.new(1, -35, 0.5),
+		Position = UDim2.new(1, -40, 0.5),
 		Image = "rbxassetid://10734896206",
 		Name = "Minimize"
 	})
@@ -1116,7 +1165,7 @@ end
 					particle.Frame.Visible = false
 				end
 			end
-			CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, 28), 0.25, true})
+			CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, 38), 0.25, true})
 			Minimized = true
 		end
 		
@@ -1315,17 +1364,17 @@ end
 		end
 		
 		local TabSelect = Make("Button", MainScroll, {
-			Size = UDim2.new(1, 0, 0, 24)
-		})Make("Corner", TabSelect)
+			Size = UDim2.new(1, 0, 0, 30)
+		})Make("Corner", TabSelect, UDim.new(0, 8))
 		
 		local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
 			Size = UDim2.new(1, TIcon and -25 or -15, 1),
 			Position = UDim2.fromOffset(TIcon and 25 or 15),
 			BackgroundTransparency = 1,
-			Font = Enum.Font.BuilderSansBold, --GothamMedium
+			Font = Enum.Font.GothamBold,
 			Text = TName,
 			TextColor3 = Theme["Color Text"],
-			TextSize = 10,
+			TextSize = 11,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextTransparency = (FirstTab and 0.3) or 0,
 			TextTruncate = "AtEnd"
@@ -1333,7 +1382,7 @@ end
 		
 		local LabelIcon = InsertTheme(Create("ImageLabel", TabSelect, {
 			Position = UDim2.new(0, 8, 0.5),
-			Size = UDim2.new(0, 13, 0, 13),
+			Size = UDim2.new(0, 15, 0, 15),
 			AnchorPoint = Vector2.new(0, 0.5),
 			Image = TIcon or "",
 			BackgroundTransparency = 1,
@@ -1341,7 +1390,7 @@ end
 		}), "Text")
 		
 		local Selected = InsertTheme(Create("Frame", TabSelect, {
-			Size = FirstTab and UDim2.new(0, 4, 0, 4) or UDim2.new(0, 4, 0, 13),
+			Size = FirstTab and UDim2.new(0, 4, 0, 4) or UDim2.new(0, 4, 0, 16),
 			Position = UDim2.new(0, 1, 0.5),
 			AnchorPoint = Vector2.new(0, 0.5),
 			BackgroundColor3 = Theme["Color Theme"],
@@ -1393,7 +1442,7 @@ end
 			CreateTween({Container, "Size", UDim2.new(1, 0, 1, 0), 0.3})
 			CreateTween({LabelTitle, "TextTransparency", 0, 0.35})
 			CreateTween({LabelIcon, "ImageTransparency", 0, 0.35})
-			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 13), 0.35})
+			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 16), 0.35})
 			CreateTween({Selected, "BackgroundTransparency", 0, 0.35})
 		end
 		TabSelect.Activated:Connect(Tabs)
@@ -1429,7 +1478,7 @@ end
 			})
 			
 			local SectionLabel = InsertTheme(Create("TextLabel", SectionFrame, {
-				Font = Enum.Font.BuilderSansExtraBold,--GothamBold
+				Font = Enum.Font.GothamBold,
 				Text = SectionName,
 				TextColor3 = Theme["Color Dark Purple"],
 				Size = UDim2.new(1, -25, 1, 0),
@@ -2244,7 +2293,7 @@ end
 ----------------------------------------------------------------------
 -- STAR HUB  (funções + abas)
 ----------------------------------------------------------------------
-local VERSION = "v3.0"
+local VERSION = "v3.1"
 local GAME_NAME = "Underground War 2.0"
 local TOGGLE_KEYS = { [Enum.KeyCode.B] = true, [Enum.KeyCode.RightShift] = true }
 
@@ -2362,21 +2411,104 @@ end
 ----------------------------------------------------------------------
 local Window = redzlib:MakeWindow({ "Star Hub", GAME_NAME })
 
--- botão flutuante para reabrir o hub depois de minimizar
-Window:AddMinimizeButton({
-	Button = { Size = UDim2.fromOffset(52, 52), Position = UDim2.fromScale(0.04, 0.45) },
+-- botão flutuante (abre/fecha o hub): mesma imagem da sua UI
+local Floating = Window:AddMinimizeButton({
+	Button = {
+		Size = UDim2.fromOffset(54, 54),
+		Position = UDim2.fromScale(0.04, 0.45),
+		Image = "rbxassetid://114883288714962",
+		ScaleType = Enum.ScaleType.Crop,
+		BackgroundTransparency = 0,
+		BackgroundColor3 = Theme["Color Hub 2"],
+	},
 	Corner = { CornerRadius = UDim.new(1, 0) },
 	Stroke = { Color = Theme["Color Theme"], Thickness = 2 },
 })
+do
+	local fb = Floating.Button
+	local baseSize = fb.Size
+	fb.MouseEnter:Connect(function() CreateTween({ fb, "Size", UDim2.fromOffset(60, 60), 0.2 }) end)
+	fb.MouseLeave:Connect(function() CreateTween({ fb, "Size", baseSize, 0.2 }) end)
+	-- a borda acompanha a cor do tema
+	for _, v in ipairs(redzlib.Instances) do
+		if v.Instance == Floating.Stroke then v.Type = "Theme" end
+	end
+end
 
 -- Início
 local Home = Window:MakeTab({ "Início", "home" })
-Home:AddSection("Perfil")
-Home:AddParagraph({ "Bem-vindo, @" .. Player.Name, Player.DisplayName .. "  •  " .. GAME_NAME .. "  •  " .. VERSION })
-Home:AddSection("Status")
-local StatusPara = Home:AddParagraph({ "FPS: --  |  Ping: --", "Funções carregadas: 0" })
+local fpsLbl, pingLbl, loadedLbl
+do
+	local hero = InsertTheme(Create("Frame", Home.Cont, {
+		Size = UDim2.new(1, 0, 0, 84),
+		BackgroundColor3 = Theme["Color Hub 2"],
+		Name = "Option",
+	}), "Frame")
+	Make("Corner", hero, UDim.new(0, 10))
+	Make("Stroke", hero, { Transparency = 0.25 })
+
+	local avatar = Create("ImageLabel", hero, {
+		Size = UDim2.fromOffset(56, 56),
+		Position = UDim2.new(0, 14, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme["Color Stroke"],
+		Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150",
+	})
+	Make("Corner", avatar, UDim.new(1, 0))
+	InsertTheme(Create("UIStroke", avatar, {
+		Color = Theme["Color Theme"], Thickness = 2, ApplyStrokeMode = "Border",
+	}), "Theme")
+
+	InsertTheme(Create("TextLabel", hero, {
+		Text = "Bem-vindo, " .. Player.DisplayName,
+		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Theme["Color Text"],
+		BackgroundTransparency = 1, TextXAlignment = "Left", TextTruncate = "AtEnd",
+		Position = UDim2.new(0, 82, 0, 15), Size = UDim2.new(1, -96, 0, 20),
+	}), "Text")
+	InsertTheme(Create("TextLabel", hero, {
+		Text = "@" .. Player.Name .. "  •  " .. GAME_NAME,
+		Font = Enum.Font.GothamMedium, TextSize = 11, TextColor3 = Theme["Color Dark Text"],
+		BackgroundTransparency = 1, TextXAlignment = "Left", TextTruncate = "AtEnd",
+		Position = UDim2.new(0, 82, 0, 37), Size = UDim2.new(1, -96, 0, 16),
+	}), "DarkText")
+
+	local pill = InsertTheme(Create("Frame", hero, {
+		Position = UDim2.new(0, 82, 0, 58), Size = UDim2.fromOffset(46, 16),
+		BackgroundColor3 = Theme["Color Theme"], BackgroundTransparency = 0.78, BorderSizePixel = 0,
+	}), "Theme")
+	Make("Corner", pill, UDim.new(1, 0))
+	InsertTheme(Create("TextLabel", pill, {
+		Text = VERSION, Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme["Color Theme"],
+		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0),
+	}), "Theme")
+
+	local row = Create("Frame", Home.Cont, {
+		Size = UDim2.new(1, 0, 0, 58), BackgroundTransparency = 1, Name = "Option",
+	}, {
+		Create("UIListLayout", { FillDirection = "Horizontal", Padding = UDim.new(0, 8), SortOrder = "LayoutOrder" }),
+	})
+	local function Tile(order, caption)
+		local tile = InsertTheme(Create("Frame", row, {
+			Size = UDim2.new(1 / 3, -6, 1, 0), BackgroundColor3 = Theme["Color Hub 2"], LayoutOrder = order,
+		}), "Frame")
+		Make("Corner", tile, UDim.new(0, 10))
+		Make("Stroke", tile, { Transparency = 0.3 })
+		local value = InsertTheme(Create("TextLabel", tile, {
+			Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 9), BackgroundTransparency = 1,
+			Font = Enum.Font.GothamBold, TextSize = 17, TextColor3 = Theme["Color Text"], Text = "--",
+		}), "Text")
+		InsertTheme(Create("TextLabel", tile, {
+			Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 34), BackgroundTransparency = 1,
+			Font = Enum.Font.GothamMedium, TextSize = 10, TextColor3 = Theme["Color Dark Text"], Text = caption,
+		}), "DarkText")
+		return value
+	end
+	fpsLbl = Tile(1, "FPS")
+	pingLbl = Tile(2, "PING")
+	loadedLbl = Tile(3, "FUNÇÕES ATIVAS")
+end
 Home:AddSection("Atalhos")
-Home:AddParagraph({ "B ou RightShift", "Mostra e esconde o hub. O botão de minimizar encolhe a janela e a estrela flutuante reabre." })
+Home:AddParagraph({ "B ou RightShift", "Mostra e esconde o hub. A estrela flutuante também abre e fecha, e o botão — encolhe a janela." })
 
 -- Funções
 addFeatureTab(Window:MakeTab({ "Combate", "flame" }), FEATURES.Combat, true)
@@ -2387,11 +2519,14 @@ addFeatureTab(Window:MakeTab({ "Teleportes", "anchor" }), FEATURES.Teleports, fa
 -- Ajustes
 local Config = Window:MakeTab({ "Ajustes", "settings" })
 Config:AddSection("Aparência")
-for _, themeName in ipairs({ "Red", "Dark", "Darker" }) do
+for _, t in ipairs({
+	{ "Star", "Star (padrão)" }, { "Ocean", "Oceano" }, { "Rose", "Rosa" },
+	{ "Red", "Vermelho" }, { "Dark", "Escuro" }, { "Darker", "Mais escuro" },
+}) do
 	Config:AddButton({
-		Name = "Tema: " .. themeName,
+		Name = "Tema: " .. t[2],
 		Desc = "Muda as cores do hub",
-		Callback = function() redzlib:SetTheme(themeName) end,
+		Callback = function() redzlib:SetTheme(t[1]) end,
 	})
 end
 Config:AddToggle({
@@ -2424,7 +2559,9 @@ task.spawn(function()
 		pcall(function()
 			ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) .. " ms"
 		end)
-		StatusPara:Set("FPS: " .. fps .. "  |  Ping: " .. ping, "Funções carregadas: " .. loadedCount)
+		fpsLbl.Text = tostring(fps)
+		pingLbl.Text = ping
+		loadedLbl.Text = tostring(loadedCount)
 	end
 	hb:Disconnect()
 end)
