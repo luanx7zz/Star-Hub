@@ -644,6 +644,10 @@ local KA = {
 	Hits = 0, LastHit = 0, Targets = 0, Errors = 0, Restarts = 0, LastErr = "-", Status = "desligada",
 	IgnoreFF = false, Reach = false, ReachSize = 12, Nearest = nil, ToolName = "-", PartInfo = "-",
 }
+KA.Safe = true
+local kaBusy = false
+local nextIv = 0.06
+local function effRange() return KA.Safe and math.min(KA.Range, 16) or KA.Range end
 local reachOrig = {}
 local function reachRestore()
 	for p, o in pairs(reachOrig) do
@@ -716,7 +720,7 @@ local function collectTargets(myRoot)
 			if r and h and h.Health > 0 and (KA.IgnoreFF or not ch:FindFirstChildOfClass("ForceField")) then
 				local d = (myPos - r.Position).Magnitude
 				if not KA.Nearest or d < KA.Nearest then KA.Nearest = d end
-				if d <= KA.Range then
+				if d <= effRange() then
 					list[#list + 1] = { ch = ch, root = r, hum = h, dist = d }
 				end
 			end
@@ -727,20 +731,24 @@ local function collectTargets(myRoot)
 	else
 		table.sort(list, function(a, b) return a.dist < b.dist end)
 	end
-	while #list > KA.MaxTargets do table.remove(list) end
+	while #list > (KA.Safe and 1 or KA.MaxTargets) do table.remove(list) end
 	return list
 end
 
 local function hitTarget(parts, tgt, myRoot)
 	local targetParts = { tgt.root }
-	local head = tgt.ch:FindFirstChild("Head")
-	if head then targetParts[#targetParts + 1] = head end
-	local torso = tgt.ch:FindFirstChild("UpperTorso") or tgt.ch:FindFirstChild("Torso")
-	if torso then targetParts[#targetParts + 1] = torso end
+	if KA.Safe then
+		parts = { parts[1] }
+	else
+		local head = tgt.ch:FindFirstChild("Head")
+		if head then targetParts[#targetParts + 1] = head end
+		local torso = tgt.ch:FindFirstChild("UpperTorso") or tgt.ch:FindFirstChild("Torso")
+		if torso then targetParts[#targetParts + 1] = torso end
+	end
 
 	local origin = myRoot.CFrame
 	local moved = false
-	if KA.Teleport then
+	if KA.Teleport and not KA.Safe then
 		moved = pcall(function() myRoot.CFrame = tgt.root.CFrame * CFrame.new(0, 0, 2) end)
 	end
 	local ok, err = pcall(function()
@@ -811,6 +819,24 @@ local function kaStep()
 	if #targets == 0 then KA.Status = "ligada — sem alvos no alcance" return end
 	KA.Status = "atacando"
 
+	if KA.Safe then
+		-- modo seguro: 1 golpe por ciclo, no ritmo da espada: balança e só então toca (sem teleporte)
+		if kaBusy then return end
+		kaBusy = true
+		if KA.AutoSwing then pcall(function() tool:Activate() end) end
+		task.delay(0.1, function()
+			pcall(function()
+				local r2 = getRoot()
+				if r2 and tool.Parent == LP.Character then
+					for _, tgt in ipairs(targets) do
+						if tgt.hum.Health > 0 then hitTarget(parts, tgt, r2) end
+					end
+				end
+			end)
+			kaBusy = false
+		end)
+		return
+	end
 	if KA.AutoSwing and os.clock() - lastSwing > 0.25 then
 		lastSwing = os.clock()
 		pcall(function() tool:Activate() end)
@@ -826,8 +852,13 @@ local function kaOnHeartbeat()
 		pcall(reachStep)
 	end
 	if not KA.Enabled or not alive then return end
-	if lastTick - lastAttack < KA.Interval then return end
+	if lastTick - lastAttack < nextIv then return end
 	lastAttack = lastTick
+	if KA.Safe then
+		nextIv = math.max(KA.Interval, 0.4) * (0.8 + math.random() * 0.5)
+	else
+		nextIv = KA.Interval
+	end
 	local ok, err = pcall(kaStep)
 	if not ok then
 		KA.Errors = KA.Errors + 1
@@ -1172,6 +1203,7 @@ Combat:AddSection("Kill Aura / Alcance da espada")
 if not ftouch then
 	Combat:AddParagraph({ "Atenção", "Seu executor não tem firetouchinterest. A Kill Aura precisa dele para funcionar." })
 end
+Combat:AddToggle({ Name = "Modo seguro (recomendado)", Desc = "Ritmo de espada normal, sem teleporte, alcance máx. 16", Default = true, Callback = function(v) KA.Safe = v end })
 tog(Combat, "Kill Aura", "Acerta inimigos no alcance sem precisar mirar", function(v)
 	KA.Enabled = v
 	if v and not ftouch then
@@ -1190,7 +1222,7 @@ Combat:AddToggle({ Name = "Equipar espada automaticamente", Desc = "Pega a prime
 Combat:AddToggle({ Name = "Destacar a espada", Desc = "Contorno colorido na hitbox", Default = true, Callback = function(v) KA.Highlight = v if not v then killIndicator() end end })
 Combat:AddToggle({ Name = "Atacar mesmo com ForceField", Desc = "Se o jogo dá escudo a todo mundo, ligue isto", Default = false, Callback = function(v) KA.IgnoreFF = v end })
 Combat:AddSection("Alcance físico da espada")
-tog(Combat, "Aumentar o cabo da espada", "Método alternativo: o golpe normal passa a pegar de longe", function(v)
+tog(Combat, "Aumentar o cabo da espada", "⚠ Arriscado: o servidor vê o tamanho mudar", function(v)
 	KA.Reach = v
 	if not v then reachRestore() end
 end)
@@ -1205,7 +1237,7 @@ end })
 local kaPanel = Combat:AddParagraph({ "Status da Kill Aura", "desligada" })
 
 Combat:AddSection("Hitbox")
-tog(Combat, "Aumentar hitbox dos inimigos", "Deixa os inimigos mais fáceis de acertar", function(v)
+tog(Combat, "Aumentar hitbox dos inimigos", "⚠ Arriscado: muda o tamanho dos outros jogadores", function(v)
 	HB.Enabled = v
 	if not v then hbRestore() end
 end)
