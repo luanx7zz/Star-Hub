@@ -642,7 +642,29 @@ local KA = {
 	Enabled = false, Range = 18, Teleport = true, AutoSwing = true, TeamCheck = true,
 	MaxTargets = 4, Interval = 0.06, Highlight = true, AutoEquip = false, Priority = "Mais perto",
 	Hits = 0, LastHit = 0, Targets = 0, Errors = 0, Restarts = 0, LastErr = "-", Status = "desligada",
+	IgnoreFF = false, Reach = false, ReachSize = 12, Nearest = nil, ToolName = "-", PartInfo = "-",
 }
+local reachOrig = {}
+local function reachRestore()
+	for p, o in pairs(reachOrig) do
+		if p.Parent then pcall(function() p.Size, p.Massless, p.CanCollide = o[1], o[2], o[3] end) end
+		reachOrig[p] = nil
+	end
+end
+local function reachStep()
+	local ch = LP.Character
+	local tool = ch and ch:FindFirstChildOfClass("Tool")
+	if not KA.Reach or not tool then reachRestore() return end
+	local h = tool:FindFirstChild("Handle")
+	if not (h and h:IsA("BasePart")) then return end
+	for p in pairs(reachOrig) do if p ~= h then reachRestore() break end end
+	if not reachOrig[h] then reachOrig[h] = { h.Size, h.Massless, h.CanCollide } end
+	pcall(function()
+		h.Size = Vector3.new(KA.ReachSize, KA.ReachSize, KA.ReachSize)
+		h.Massless = true
+		h.CanCollide = false
+	end)
+end
 local ftouch = firetouchinterest
 local partCache = { tool = nil, parts = {}, t = 0 }
 local indicator, hue = nil, 0
@@ -685,13 +707,15 @@ end
 local function collectTargets(myRoot)
 	local list = {}
 	local myPos = myRoot.Position
+	KA.Nearest = nil
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if isEnemy(plr) then
 			local ch = plr.Character
 			local r = ch and ch:FindFirstChild("HumanoidRootPart")
 			local h = ch and ch:FindFirstChildOfClass("Humanoid")
-			if r and h and h.Health > 0 and not ch:FindFirstChildOfClass("ForceField") then
+			if r and h and h.Health > 0 and (KA.IgnoreFF or not ch:FindFirstChildOfClass("ForceField")) then
 				local d = (myPos - r.Position).Magnitude
+				if not KA.Nearest or d < KA.Nearest then KA.Nearest = d end
 				if d <= KA.Range then
 					list[#list + 1] = { ch = ch, root = r, hum = h, dist = d }
 				end
@@ -756,8 +780,13 @@ local function kaStep()
 		return
 	end
 
+	KA.ToolName = tool.Name
 	local parts = getToolParts(tool)
+	local names = {}
+	for _, p in ipairs(parts) do names[#names + 1] = p.Name end
+	KA.PartInfo = table.concat(names, ", ")
 	if #parts == 0 then KA.Status = "espada sem hitbox" killIndicator() return end
+	if not ftouch then KA.Status = "ERRO: executor sem firetouchinterest" return end
 
 	if KA.Highlight then
 		if not indicator or indicator.Adornee ~= parts[1] or not indicator.Parent then
@@ -792,6 +821,10 @@ end
 local kaConn
 local function kaOnHeartbeat()
 	lastTick = os.clock()
+	if alive and KA.Reach and lastTick - (KA.lastReach or 0) > 0.2 then
+		KA.lastReach = lastTick
+		pcall(reachStep)
+	end
 	if not KA.Enabled or not alive then return end
 	if lastTick - lastAttack < KA.Interval then return end
 	lastAttack = lastTick
@@ -807,7 +840,7 @@ local function kaConnect()
 	lastTick = os.clock()
 end
 kaConnect()
-onCleanup(function() KA.Enabled = false if kaConn then kaConn:Disconnect() end killIndicator() end)
+onCleanup(function() KA.Enabled = false KA.Reach = false reachRestore() if kaConn then kaConn:Disconnect() end killIndicator() end)
 
 -- watchdog: religa o loop se ele parar de rodar
 task.spawn(function()
@@ -1155,6 +1188,20 @@ Combat:AddToggle({ Name = "Auto-golpe", Desc = "Balança a espada sozinho (Tool:
 Combat:AddToggle({ Name = "Ignorar meu time", Default = true, Callback = function(v) KA.TeamCheck = v end })
 Combat:AddToggle({ Name = "Equipar espada automaticamente", Desc = "Pega a primeira ferramenta da mochila ao respawnar", Default = false, Callback = function(v) KA.AutoEquip = v end })
 Combat:AddToggle({ Name = "Destacar a espada", Desc = "Contorno colorido na hitbox", Default = true, Callback = function(v) KA.Highlight = v if not v then killIndicator() end end })
+Combat:AddToggle({ Name = "Atacar mesmo com ForceField", Desc = "Se o jogo dá escudo a todo mundo, ligue isto", Default = false, Callback = function(v) KA.IgnoreFF = v end })
+Combat:AddSection("Alcance físico da espada")
+tog(Combat, "Aumentar o cabo da espada", "Método alternativo: o golpe normal passa a pegar de longe", function(v)
+	KA.Reach = v
+	if not v then reachRestore() end
+end)
+Combat:AddSlider({ Name = "Tamanho do cabo", Min = 4, Max = 40, Default = 12, Increase = 1, Callback = function(v) KA.ReachSize = v end })
+Combat:AddButton({ Name = "Testar Kill Aura agora", Desc = "Mostra o que ela está enxergando", Callback = function()
+	local ch = LP.Character
+	local tool = ch and ch:FindFirstChildOfClass("Tool")
+	local near = KA.Nearest and string.format("%.0f studs", KA.Nearest) or "nenhum inimigo vivo"
+	notify("Teste", string.format("firetouch: %s | espada: %s | partes: %s | mais perto: %s | alcance: %d",
+		ftouch and "ok" or "NÃO", tool and tool.Name or "nenhuma equipada", KA.PartInfo, near, KA.Range), ftouch and tool and "Info" or "Error", 8)
+end })
 local kaPanel = Combat:AddParagraph({ "Status da Kill Aura", "desligada" })
 
 Combat:AddSection("Hitbox")
@@ -1389,8 +1436,9 @@ task.spawn(function()
 		activeLbl.Text = tostring(activeCount + loadedCount)
 
 		local since = KA.LastHit > 0 and string.format("%.1fs", os.clock() - KA.LastHit) or "nunca"
-		kaPanel:Set(nil, string.format("%s\nAlvos: %d  •  Acertos: %d  •  Último: %s\nErros: %d  •  Reinícios do loop: %d\nÚltimo erro: %s",
-			KA.Status, KA.Targets, KA.Hits, since, KA.Errors, KA.Restarts, KA.LastErr))
+		local near = KA.Nearest and string.format("%.0f studs", KA.Nearest) or "—"
+		kaPanel:Set(nil, string.format("%s\nEspada: %s (%s)\nInimigo mais perto: %s  •  Alcance: %d\nAlvos: %d  •  Acertos: %d  •  Último: %s\nErros: %d  •  Reinícios do loop: %d\nÚltimo erro: %s",
+			KA.Status, KA.ToolName, KA.PartInfo, near, KA.Range, KA.Targets, KA.Hits, since, KA.Errors, KA.Restarts, KA.LastErr))
 	end
 	hb:Disconnect()
 end)
