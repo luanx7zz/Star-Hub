@@ -1,2306 +1,1012 @@
---[[ Star Hub v3.0 | Underground War 2.0 ]]
-if _G.StarHubCleanup then pcall(_G.StarHubCleanup) end
-local table = setmetatable({ foreach = function(t, f) for k, v in pairs(t) do f(k, v) end end }, { __index = table })
+--[[
+	STAR HUB  v4.0  —  Underground War 2.0
+	UI no estilo Redz V5 (embutida, sem link externo)
+	Teclas: B ou RightShift = mostrar/esconder
+]]
 
-local MarketplaceService = game:GetService("MarketplaceService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
-local CoreGui = (function() local ok, ui = pcall(function() return gethui and gethui() end) if ok and typeof(ui) == "Instance" then return ui end return game:GetService("CoreGui") end)()
 local Players = game:GetService("Players")
-local Player = Players.LocalPlayer
-local PlayerMouse = Player:GetMouse()
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local LP = Players.LocalPlayer
 
-local redzlib = {
-	Themes = {
-		Darker = {
-			["Color Hub 1"] = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32.5, 32.5, 32.5)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
-			}),
-			["Color Hub 2"] = Color3.fromRGB(30, 30, 30),
-			["Color Stroke"] = Color3.fromRGB(40, 40, 40),
-			["Color Theme"] = Color3.fromRGB(88, 101, 242),
-			["Color Text"] = Color3.fromRGB(243, 243, 243),
-			["Color Dark Text"] = Color3.fromRGB(180, 180, 180),
-			["Color Dark Purple"] = Color3.fromRGB(88, 101, 242),
-			["Color Dark Greem"] = Color3.fromRGB(43, 255, 0)
-		},
-		Dark = {
-			["Color Hub 1"] = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(40, 40, 40)),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(47.5, 47.5, 47.5)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(40, 40, 40))
-			}),
-			["Color Hub 2"] = Color3.fromRGB(45, 45, 45),
-			
-			["Color Stroke"] = Color3.fromRGB(65, 65, 65),
-			["Color Theme"] = Color3.fromRGB(65, 150, 255),
-			["Color Text"] = Color3.fromRGB(245, 245, 245),
-			["Color Dark Text"] = Color3.fromRGB(190, 190, 190),
-			["Color Dark Purple"] = Color3.fromRGB(65, 150, 255),
-			["Color Dark Greem"] = Color3.fromRGB(43, 255, 0)
-		},
-		Red = {
-			["Color Hub 1"] = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, Color3.fromRGB(27.5, 25, 30)),
-				ColorSequenceKeypoint.new(0.50, Color3.fromRGB(32.5, 32.5, 32.5)),
-				ColorSequenceKeypoint.new(1.00, Color3.fromRGB(27.5, 25, 30))
-			}),
-			["Color Hub 2"] = Color3.fromRGB(30, 30, 30),
-			["Color Stroke"] = Color3.fromRGB(40, 40, 40),
-			["Color Theme"] = Color3.fromRGB(255, 0, 0),
-			["Color Text"] = Color3.fromRGB(240, 240, 240),
-			["Color Dark Text"] = Color3.fromRGB(180, 180, 180),
-			["Color Dark Purple"] = Color3.fromRGB(255, 0, 0),
-			["Color Hub 9"] = Color3.fromRGB(0, 0, 0, 0),
-			["Color Dark Greem"] = Color3.fromRGB(43, 255, 0)
-		}
-	},
-	Info = {
-		Version = "1.2.0"
-	},
-	Save = {
-		UISize = {590, 400},
-		TabSize = 160,
-		Theme = "Red"
-	},
-	Settings = {},
-	Connection = {},
-	Instances = {},
-	Elements = {},
-	Options = {},
-	Flags = {},
-	Tabs = {},
-	Icons = (function()
-		return {
-			["anchor"] = "rbxassetid://10709761530",
-			["apple"] = "rbxassetid://10709761889",
-			["car"] = "rbxassetid://10709789810",
-			["carrot"] = "rbxassetid://10709789960",
-			["usercog"] = "rbxassetid://10747372167",
-			["userminus"] = "rbxassetid://10747372346",
-			["userplus"] = "rbxassetid://10747372702",
-			["userx"] = "rbxassetid://10747372992",
-			["info"] = "rbxassetid://10723415903",
-			["eye"] = "rbxassetid://10723346959",
-    	    ["home"] = "rbxassetid://10723407389",
-    	    ["truck"] = "rbxassetid://10747364031",
-			["headphones"] = "rbxassetid://10723406165",
-			["Drip"] = "rbxassetid://72495850369898",
-			["flame"] = "rbxassetid://10723376114",
-			["shirt"] = "rbxassetid://10734952036",
-			["settings"] = "rbxassetid://10734950309",
-			["shield"] = "rbxassetid://10734951847",
-			["coffee"] = "rbxassetid://10709810814",
-			["users"] = "rbxassetid://10747373426",
-            ["baby"] = "rbxassetid://10709769732",
-			["ghost"] = "rbxassetid://10723396107",
-			
-		}
-	end)()
+-- recarregar o script = limpa a instância anterior (nada de loops empilhados)
+if _G.StarHubCleanup then pcall(_G.StarHubCleanup) end
+
+local Conns, Cleanups = {}, {}
+local alive = true
+local function track(c) Conns[#Conns + 1] = c return c end
+local function onCleanup(f) Cleanups[#Cleanups + 1] = f end
+local function cam() return workspace.CurrentCamera end
+
+----------------------------------------------------------------------
+-- Utilidades de UI
+----------------------------------------------------------------------
+local function New(class, props, children)
+	local o = Instance.new(class)
+	local parent
+	for k, v in pairs(props or {}) do
+		if k == "Parent" then parent = v else o[k] = v end
+	end
+	for _, c in ipairs(children or {}) do c.Parent = o end
+	if parent then o.Parent = parent end
+	return o
+end
+
+local function tw(o, t, props, style)
+	local ok, tween = pcall(function()
+		return TweenService:Create(o, TweenInfo.new(t, style or Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props)
+	end)
+	if ok and tween then tween:Play() end
+	return tween
+end
+
+----------------------------------------------------------------------
+-- Temas
+----------------------------------------------------------------------
+local Themes = {
+	Star = { Bg = Color3.fromRGB(13, 13, 21), Panel = Color3.fromRGB(19, 19, 31), Item = Color3.fromRGB(26, 26, 41), Stroke = Color3.fromRGB(46, 46, 72), Accent = Color3.fromRGB(139, 108, 255), Accent2 = Color3.fromRGB(86, 204, 255), Text = Color3.fromRGB(240, 240, 252), Dim = Color3.fromRGB(148, 148, 176) },
+	Ocean = { Bg = Color3.fromRGB(10, 16, 24), Panel = Color3.fromRGB(14, 23, 34), Item = Color3.fromRGB(20, 32, 47), Stroke = Color3.fromRGB(34, 58, 82), Accent = Color3.fromRGB(56, 189, 248), Accent2 = Color3.fromRGB(52, 211, 153), Text = Color3.fromRGB(235, 245, 252), Dim = Color3.fromRGB(135, 160, 180) },
+	Rose = { Bg = Color3.fromRGB(21, 12, 18), Panel = Color3.fromRGB(30, 17, 26), Item = Color3.fromRGB(41, 24, 36), Stroke = Color3.fromRGB(76, 42, 62), Accent = Color3.fromRGB(244, 114, 182), Accent2 = Color3.fromRGB(251, 146, 60), Text = Color3.fromRGB(252, 238, 246), Dim = Color3.fromRGB(178, 140, 160) },
+	Red = { Bg = Color3.fromRGB(18, 10, 10), Panel = Color3.fromRGB(26, 14, 14), Item = Color3.fromRGB(37, 20, 20), Stroke = Color3.fromRGB(70, 36, 36), Accent = Color3.fromRGB(239, 68, 68), Accent2 = Color3.fromRGB(251, 146, 60), Text = Color3.fromRGB(252, 238, 238), Dim = Color3.fromRGB(176, 140, 140) },
+	Mint = { Bg = Color3.fromRGB(10, 18, 15), Panel = Color3.fromRGB(14, 26, 21), Item = Color3.fromRGB(20, 37, 30), Stroke = Color3.fromRGB(34, 68, 54), Accent = Color3.fromRGB(52, 211, 153), Accent2 = Color3.fromRGB(163, 230, 53), Text = Color3.fromRGB(235, 252, 245), Dim = Color3.fromRGB(135, 176, 160) },
 }
+local T = {}
+for k, v in pairs(Themes.Star) do T[k] = v end
 
-do -- Star Hub themes
-	local function MakeTheme(top, mid, hub2, stroke, accent, text, dim, section)
-		return {
-			["Color Hub 1"] = ColorSequence.new({
-				ColorSequenceKeypoint.new(0.00, top),
-				ColorSequenceKeypoint.new(0.50, mid),
-				ColorSequenceKeypoint.new(1.00, top)
-			}),
-			["Color Hub 2"] = hub2,
-			["Color Stroke"] = stroke,
-			["Color Theme"] = accent,
-			["Color Text"] = text,
-			["Color Dark Text"] = dim,
-			["Color Dark Purple"] = section,
-			["Color Dark Greem"] = section
-		}
-	end
-	redzlib.Themes.Star = MakeTheme(Color3.fromRGB(10, 11, 20), Color3.fromRGB(22, 18, 42), Color3.fromRGB(25, 27, 46), Color3.fromRGB(48, 52, 88), Color3.fromRGB(139, 108, 255), Color3.fromRGB(240, 242, 255), Color3.fromRGB(148, 155, 190), Color3.fromRGB(96, 196, 255))
-	redzlib.Themes.Ocean = MakeTheme(Color3.fromRGB(8, 14, 22), Color3.fromRGB(12, 28, 44), Color3.fromRGB(19, 34, 52), Color3.fromRGB(36, 64, 94), Color3.fromRGB(56, 189, 248), Color3.fromRGB(236, 246, 255), Color3.fromRGB(140, 166, 190), Color3.fromRGB(110, 231, 183))
-	redzlib.Themes.Rose = MakeTheme(Color3.fromRGB(18, 10, 16), Color3.fromRGB(38, 16, 30), Color3.fromRGB(40, 22, 36), Color3.fromRGB(78, 42, 66), Color3.fromRGB(255, 84, 130), Color3.fromRGB(255, 240, 246), Color3.fromRGB(190, 150, 168), Color3.fromRGB(255, 170, 90))
-	redzlib.Save.Theme = "Star"
+local reg, refreshers = {}, {}
+local function bind(inst, prop, key)
+	inst[prop] = T[key]
+	reg[#reg + 1] = { inst, prop, key }
+	return inst
+end
+local function corner(o, r) return New("UICorner", { CornerRadius = UDim.new(0, r), Parent = o }) end
+local function stroke(o, key, th, tr)
+	local s = New("UIStroke", { Thickness = th or 1, Transparency = tr or 0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = o })
+	bind(s, "Color", key or "Stroke")
+	return s
+end
+local function label(parent, text, size, font, key, props)
+	local l = New("TextLabel", {
+		BackgroundTransparency = 1, Text = text, TextSize = size, Font = font,
+		TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Center,
+		Size = UDim2.new(1, 0, 0, size + 4), Parent = parent,
+	})
+	bind(l, "TextColor3", key)
+	for k, v in pairs(props or {}) do l[k] = v end
+	return l
 end
 
-local ViewportSize = workspace.CurrentCamera.ViewportSize
-local UIScale = ViewportSize.Y / 450
-
-local Settings = redzlib.Settings
-local Flags = redzlib.Flags
-
-local SetProps, SetChildren, InsertTheme, Create do
-	InsertTheme = function(Instance, Type)
-		table.insert(redzlib.Instances, {
-			Instance = Instance,
-			Type = Type
-		})
-		return Instance
-	end
-	
-	SetChildren = function(Instance, Children)
-		if Children then
-			table.foreach(Children, function(_,Child)
-				Child.Parent = Instance
-			end)
-		end
-		return Instance
-	end
-	
-	SetProps = function(Instance, Props)
-		if Props then
-			table.foreach(Props, function(prop, value)
-				Instance[prop] = value
-			end)
-		end
-		return Instance
-	end
-	
-	Create = function(...)
-		local args = {...}
-		if type(args) ~= "table" then return end
-		local new = Instance.new(args[1])
-		local Children = {}
-		
-		if type(args[2]) == "table" then
-			SetProps(new, args[2])
-			SetChildren(new, args[3])
-			Children = args[3] or {}
-		elseif typeof(args[2]) == "Instance" then
-			new.Parent = args[2]
-			SetProps(new, args[3])
-			SetChildren(new, args[4])
-			Children = args[4] or {}
-		end
-		return new
-	end
-	
-	local function Save(file)
-		if readfile and isfile and isfile(file) then
-			local decode = HttpService:JSONDecode(readfile(file))
-			
-			if type(decode) == "table" then
-				if rawget(decode, "UISize") then redzlib.Save["UISize"] = decode["UISize"] end
-				if rawget(decode, "TabSize") then redzlib.Save["TabSize"] = decode["TabSize"] end
-				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then redzlib.Save["Theme"] = decode["Theme"] end
-			end
-		end
-	end
-	
-	pcall(Save, "StarHub.json")
-end
-
-local Funcs = {} do
-	function Funcs:InsertCallback(tab, func)
-		if type(func) == "function" then
-			table.insert(tab, func)
-		end
-		return func
-	end
-	
-	function Funcs:FireCallback(tab, ...)
-		for _,v in ipairs(tab) do
-			if type(v) == "function" then
-				task.spawn(v, ...)
-			end
-		end
-	end
-	
-	function Funcs:ToggleVisible(Obj, Bool)
-		Obj.Visible = Bool ~= nil and Bool or Obj.Visible
-	end
-	
-	function Funcs:ToggleParent(Obj, Parent)
-		if Bool ~= nil then
-			Obj.Parent = Bool
+local function applyTheme(name)
+	local th = Themes[name]
+	if not th then return end
+	for k, v in pairs(th) do T[k] = v end
+	for i = #reg, 1, -1 do
+		local r = reg[i]
+		if r[1].Parent == nil then
+			table.remove(reg, i)
 		else
-			Obj.Parent = not Obj.Parent and Parent
+			pcall(function() r[1][r[2]] = T[r[3]] end)
 		end
 	end
-	
-	function Funcs:GetConnectionFunctions(ConnectedFuncs, func)
-		local Connected = { Function = func, Connected = true }
-		
-		function Connected:Disconnect()
-			if self.Connected then
-				table.remove(ConnectedFuncs, table.find(ConnectedFuncs, self.Function))
-				self.Connected = false
-			end
-		end
-		
-		function Connected:Fire(...)
-			if self.Connected then
-				task.spawn(self.Function, ...)
-			end
-		end
-		
-		return Connected
-	end
-	
-	function Funcs:GetCallback(Configs, index)
-		local func = Configs[index] or Configs.Callback or function()end
-		
-		if type(func) == "table" then
-			return ({function(Value) func[1][func[2]] = Value end})
-		end
-		return {func}
-	end
+	for _, f in ipairs(refreshers) do pcall(f) end
 end
 
-local Connections, Connection = {}, redzlib.Connection do
-	local function NewConnectionList(List)
-		if type(List) ~= "table" then return end
-		
-		for _,CoName in ipairs(List) do
-			local ConnectedFuncs, Connect = {}, {}
-			Connection[CoName] = Connect
-			Connections[CoName] = ConnectedFuncs
-			Connect.Name = CoName
-			
-			function Connect:Connect(func)
-				if type(func) == "function" then
-					table.insert(ConnectedFuncs, func)
-					return Funcs:GetConnectionFunctions(ConnectedFuncs, func)
+local function makeDrag(handle, target, onTap)
+	local dragging, moved, dragStart, startPos = false, 0, nil, nil
+	track(handle.InputBegan:Connect(function(i)
+		if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+			dragging, moved = true, 0
+			dragStart, startPos = i.Position, target.Position
+			local c
+			c = i.Changed:Connect(function()
+				if i.UserInputState == Enum.UserInputState.End then
+					dragging = false
+					c:Disconnect()
+					if onTap and moved < 6 then onTap() end
 				end
-			end
-			
-			-- LINHA REMOVIDA: NotificationContainer foi movido para depois da criação do ScreenGui
-			
-			function Connect:Once(func)
-				if type(func) == "function" then
-					local Connected;
-					
-					local _NFunc;_NFunc = function(...)
-						task.spawn(func, ...)
-						Connected:Disconnect()
-					end
-					
-					Connected = Funcs:GetConnectionFunctions(ConnectedFuncs, _NFunc)
-					return Connected
-				end
-			end
-		end
-	end
-	
-
-	function Connection:FireConnection(CoName, ...)
-		local Connection = type(CoName) == "string" and Connections[CoName] or Connections[CoName.Name]
-		for _,Func in pairs(Connection) do
-			task.spawn(Func, ...)
-		end
-	end
-	
-	NewConnectionList({"FlagsChanged", "ThemeChanged", "FileSaved", "ThemeChanging", "OptionAdded"})
-end
-
-local GetFlag, SetFlag, CheckFlag do
-	CheckFlag = function(Name)
-		return type(Name) == "string" and Flags[Name] ~= nil
-	end
-	
-	GetFlag = function(Name)
-		return type(Name) == "string" and Flags[Name]
-	end
-	
-	SetFlag = function(Flag, Value)
-		if Flag and (Value ~= Flags[Flag] or type(Value) == "table") then
-			Flags[Flag] = Value
-			Connection:FireConnection("FlagsChanged", Flag, Value)
-		end
-	end
-	
-	local db
-	Connection.FlagsChanged:Connect(function(Flag, Value)
-		local ScriptFile = Settings.ScriptFile
-		if not db and ScriptFile and writefile then
-			db=true;task.wait(0.1);db=false
-			
-			local Success, Encoded = pcall(function()
-				-- local _Flags = {}
-				-- for _,Flag in pairs(Flags) do _Flags[_] = Flag.Value end
-				return HttpService:JSONEncode(Flags)
 			end)
-			
-			if Success then
-				local Success = pcall(writefile, ScriptFile, Encoded)
-				if Success then
-					Connection:FireConnection("FileSaved", "Script-Flags", ScriptFile, Encoded)
-				end
-			end
 		end
-	end)
-end
-
-local ScreenGui = Create("ScreenGui", CoreGui, {
-	Name = "StarHub",
-}, {
-	Create("UIScale", {
-		Scale = UIScale,
-		Name = "Scale"
-	})
-})
-
-local ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
-if ScreenFind and ScreenFind ~= ScreenGui then
-	ScreenFind:Destroy()
-end
-
--- ========== NOTIFICATION CONTAINER MOVED HERE ==========
-local NotificationContainer = Create("Frame", ScreenGui, {
-	Name = "NotificationContainer",
-	Size = UDim2.new(0, 280, 1, 0),
-	Position = UDim2.new(1, -300, 1, -20),
-	AnchorPoint = Vector2.new(0, 1),
-	BackgroundTransparency = 1,
-	ZIndex = 999
-}, {
-	Create("UIListLayout", {
-		SortOrder = "LayoutOrder",
-		Padding = UDim.new(0, 8),
-		VerticalAlignment = "Bottom"
-	})
-})
--- =======================================================
-
-local function GetStr(val)
-	if type(val) == "function" then
-		return val()
-	end
-	return val
-end
-
-local function ConnectSave(Instance, func)
-	Instance.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-			while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do task.wait()
-			end
+	end))
+	track(UserInputService.InputChanged:Connect(function(i)
+		if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+			local d = i.Position - dragStart
+			moved = math.max(moved, d.Magnitude)
+			target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + d.X, startPos.Y.Scale, startPos.Y.Offset + d.Y)
 		end
-		func()
+	end))
+end
+
+local function parentGui(gui)
+	pcall(function() if syn and syn.protect_gui then syn.protect_gui(gui) end end)
+	local ok = pcall(function()
+		if gethui then gui.Parent = gethui() else gui.Parent = game:GetService("CoreGui") end
 	end)
+	if not ok or not gui.Parent then gui.Parent = LP:WaitForChild("PlayerGui") end
 end
 
-local function CreateTween(Configs)
-	local Instance = Configs[1] or Configs.Instance
-	local Prop = Configs[2] or Configs.Prop
-	local NewVal = Configs[3] or Configs.NewVal
-	local Time = Configs[4] or Configs.Time or 0.5
-	local TweenWait = Configs[5] or Configs.wait or false
-	local TweenInfo = TweenInfo.new(Time, Enum.EasingStyle.Quint)
-	
-	local Tween = TweenService:Create(Instance, TweenInfo, {[Prop] = NewVal})
-	Tween:Play()
-	if TweenWait then
-		Tween.Completed:Wait()
+local LOGO = "rbxassetid://114883288714962"
+
+----------------------------------------------------------------------
+-- Biblioteca (API parecida com a Redz V5)
+----------------------------------------------------------------------
+local UI = { New = New, Bind = bind, Corner = corner, Stroke = stroke, Label = label, T = T, Tween = tw }
+
+function UI:MakeWindow(cfg)
+	local Window = {}
+	local title, subtitle = cfg.Title or "Star Hub", cfg.SubTitle or ""
+
+	local gui = New("ScreenGui", {
+		Name = "StarHub", ResetOnSpawn = false, IgnoreGuiInset = true,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling, DisplayOrder = 999,
+	})
+	parentGui(gui)
+	Window.Gui = gui
+
+	local vp = cam() and cam().ViewportSize or Vector2.new(1280, 720)
+	local W = math.clamp(vp.X - 40, 380, 680)
+	local H = math.clamp(vp.Y - 80, 290, 440)
+	local sideW = W < 500 and 124 or 160
+
+	local main = New("Frame", {
+		Name = "Main", Size = UDim2.fromOffset(W, H), Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5), BorderSizePixel = 0, Parent = gui,
+	})
+	bind(main, "BackgroundColor3", "Bg")
+	corner(main, 14)
+	stroke(main, "Stroke", 1.5, 0.2)
+	local scale = New("UIScale", { Scale = 1, Parent = main })
+
+	-- brilho de topo (gradiente da cor do tema)
+	local glow = New("Frame", { Size = UDim2.new(1, 0, 0, 2), Position = UDim2.fromOffset(0, 0), BorderSizePixel = 0, ZIndex = 5, Parent = main })
+	bind(glow, "BackgroundColor3", "Accent")
+	corner(glow, 2)
+	local glowGrad = New("UIGradient", { Parent = glow })
+	local function paintGlow()
+		glowGrad.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, T.Accent), ColorSequenceKeypoint.new(1, T.Accent2),
+		})
 	end
-	return Tween
-end
+	paintGlow()
+	refreshers[#refreshers + 1] = paintGlow
 
-local function MakeDrag(Instance)
+	-- barra superior
+	local top = New("Frame", { Size = UDim2.new(1, 0, 0, 46), BackgroundTransparency = 1, Parent = main })
+	local logo = New("ImageLabel", {
+		Size = UDim2.fromOffset(28, 28), Position = UDim2.fromOffset(12, 9), BackgroundTransparency = 1,
+		Image = LOGO, ScaleType = Enum.ScaleType.Crop, Parent = top,
+	})
+	corner(logo, 8)
+	label(top, title, 16, Enum.Font.GothamBlack, "Text", { Position = UDim2.fromOffset(48, 6), Size = UDim2.new(1, -150, 0, 18) })
+	label(top, subtitle, 11, Enum.Font.GothamMedium, "Dim", { Position = UDim2.fromOffset(48, 24), Size = UDim2.new(1, -150, 0, 14), TextTruncate = Enum.TextTruncate.AtEnd })
+	local topLine = New("Frame", { Size = UDim2.new(1, -24, 0, 1), Position = UDim2.new(0, 12, 1, -1), BorderSizePixel = 0, BackgroundTransparency = 0.3, Parent = top })
+	bind(topLine, "BackgroundColor3", "Stroke")
+	makeDrag(top, main)
+
+	local function topBtn(text, xOff, hoverColor)
+		local b = New("TextButton", {
+			Size = UDim2.fromOffset(28, 28), Position = UDim2.new(1, xOff, 0, 9), Text = text, TextSize = 16,
+			Font = Enum.Font.GothamBold, AutoButtonColor = false, BorderSizePixel = 0, Parent = top,
+		})
+		bind(b, "BackgroundColor3", "Item")
+		bind(b, "TextColor3", "Dim")
+		corner(b, 8)
+		b.MouseEnter:Connect(function() tw(b, 0.12, { BackgroundColor3 = hoverColor, TextColor3 = Color3.new(1, 1, 1) }) end)
+		b.MouseLeave:Connect(function() tw(b, 0.12, { BackgroundColor3 = T.Item, TextColor3 = T.Dim }) end)
+		return b
+	end
+	local btnMin = topBtn("–", -72, Color3.fromRGB(80, 80, 110))
+	local btnClose = topBtn("×", -38, Color3.fromRGB(220, 70, 80))
+
+	-- barra lateral
+	local side = New("Frame", { Position = UDim2.fromOffset(0, 46), Size = UDim2.new(0, sideW, 1, -46), BackgroundTransparency = 1, Parent = main })
+	local tabList = New("ScrollingFrame", {
+		Size = UDim2.new(1, 0, 1, -26), BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 0,
+		AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), Parent = side,
+	}, {
+		New("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }),
+		New("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 6), PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 6) }),
+	})
+	label(side, cfg.Footer or "", 10, Enum.Font.GothamMedium, "Dim", { Position = UDim2.new(0, 14, 1, -22), Size = UDim2.new(1, -20, 0, 14) })
+
+	-- separador vertical
+	local vline = New("Frame", { Position = UDim2.fromOffset(sideW, 56), Size = UDim2.new(0, 1, 1, -66), BorderSizePixel = 0, BackgroundTransparency = 0.3, Parent = main })
+	bind(vline, "BackgroundColor3", "Stroke")
+
+	-- conteúdo
+	local content = New("Frame", { Position = UDim2.fromOffset(sideW + 1, 46), Size = UDim2.new(1, -(sideW + 1), 1, -46), BackgroundTransparency = 1, ClipsDescendants = true, Parent = main })
+
+	----------------------------------------------------------------
+	-- Notificações
+	----------------------------------------------------------------
+	local notifHolder = New("Frame", {
+		Size = UDim2.new(0, 270, 1, -20), Position = UDim2.new(1, -14, 0, 10), AnchorPoint = Vector2.new(1, 0),
+		BackgroundTransparency = 1, Parent = gui,
+	}, {
+		New("UIListLayout", { Padding = UDim.new(0, 8), VerticalAlignment = Enum.VerticalAlignment.Bottom, HorizontalAlignment = Enum.HorizontalAlignment.Right, SortOrder = Enum.SortOrder.LayoutOrder }),
+	})
+	local nOrder = 0
+	function Window:Notify(n)
+		local colors = { Success = Color3.fromRGB(74, 222, 128), Error = Color3.fromRGB(248, 85, 98), Warn = Color3.fromRGB(250, 204, 21) }
+		local col = colors[n.Type or ""] or T.Accent
+		nOrder = nOrder + 1
+		local f = New("Frame", {
+			Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BorderSizePixel = 0,
+			LayoutOrder = nOrder, Parent = notifHolder,
+		})
+		bind(f, "BackgroundColor3", "Panel")
+		corner(f, 10)
+		local st = New("UIStroke", { Color = col, Thickness = 1.2, Transparency = 0.45, Parent = f })
+		local bar = New("Frame", { Size = UDim2.new(0, 3, 1, -16), Position = UDim2.fromOffset(8, 8), BackgroundColor3 = col, BorderSizePixel = 0, Parent = f })
+		corner(bar, 2)
+		local box = New("Frame", { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Parent = f }, {
+			New("UIPadding", { PaddingLeft = UDim.new(0, 20), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 9), PaddingBottom = UDim.new(0, 9) }),
+			New("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }),
+		})
+		label(box, n.Title or "Star Hub", 13, Enum.Font.GothamBold, "Text", { LayoutOrder = 1 })
+		label(box, n.Description or n.Content or "", 11, Enum.Font.GothamMedium, "Dim", {
+			LayoutOrder = 2, TextWrapped = true, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+		})
+		local ns = New("UIScale", { Scale = 0.85, Parent = f })
+		tw(ns, 0.2, { Scale = 1 }, Enum.EasingStyle.Back)
+		task.delay(n.Duration or 4, function()
+			if f.Parent then
+				tw(ns, 0.15, { Scale = 0.85 })
+				task.wait(0.16)
+				pcall(function() f:Destroy() end)
+			end
+		end)
+	end
+
+	----------------------------------------------------------------
+	-- Abrir / fechar
+	----------------------------------------------------------------
+	local open = true
+	function Window:SetOpen(v)
+		if v == open then return end
+		open = v
+		if v then
+			main.Visible = true
+			scale.Scale = 0.9
+			tw(scale, 0.22, { Scale = 1 }, Enum.EasingStyle.Back)
+		else
+			tw(scale, 0.14, { Scale = 0.9 })
+			task.delay(0.15, function() if not open then main.Visible = false end end)
+		end
+	end
+	function Window:Toggle() Window:SetOpen(not open) end
+	function Window:SetTheme(name) applyTheme(name) end
+	function Window:Destroy() pcall(function() gui:Destroy() end) end
+	btnMin.MouseButton1Click:Connect(function() Window:SetOpen(false) end)
+	btnClose.MouseButton1Click:Connect(function()
+		if _G.StarHubCleanup then _G.StarHubCleanup() else gui:Destroy() end
+	end)
+
+	-- botão flutuante com a imagem do hub
+	local fb = New("ImageButton", {
+		Name = "Floating", Size = UDim2.fromOffset(54, 54), Position = UDim2.fromScale(0.04, 0.45),
+		Image = LOGO, ScaleType = Enum.ScaleType.Crop, AutoButtonColor = false, BorderSizePixel = 0, Parent = gui,
+	})
+	bind(fb, "BackgroundColor3", "Item")
+	corner(fb, 27)
+	local fbs = stroke(fb, "Accent", 2, 0)
+	local fbScale = New("UIScale", { Scale = 1, Parent = fb })
+	fb.MouseEnter:Connect(function() tw(fbScale, 0.15, { Scale = 1.1 }) end)
+	fb.MouseLeave:Connect(function() tw(fbScale, 0.15, { Scale = 1 }) end)
+	makeDrag(fb, fb, function() Window:Toggle() end)
+	-- pulso suave na borda
 	task.spawn(function()
-		SetProps(Instance, {
-			Active = true,
-			AutoButtonColor = false
-		})
-		
-		local DragStart, StartPos, InputOn
-		
-		local function Update(Input)
-			local delta = Input.Position - DragStart
-			local Position = UDim2.new(StartPos.X.Scale, StartPos.X.Offset + delta.X / UIScale, StartPos.Y.Scale, StartPos.Y.Offset + delta.Y / UIScale)
-			-- Instance.Position = Position
-			CreateTween({Instance, "Position", Position, 0.35})
-		end
-		
-		Instance.MouseButton1Down:Connect(function()
-			InputOn = true
-		end)
-		
-		Instance.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-				StartPos = Instance.Position
-				DragStart = Input.Position
-				
-				while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do RunService.Heartbeat:Wait()
-					if InputOn then
-						Update(Input)
-					end
-				end
-				InputOn = false
-			end
-		end)
-	end)
-	return Instance
-end
-
-local function VerifyTheme(Theme)
-	for name,_ in pairs(redzlib.Themes) do
-		if name == Theme then
-			return true
-		end
-	end
-end
-
-local function SaveJson(FileName, save)
-	if writefile then
-		local json = HttpService:JSONEncode(save)
-		writefile(FileName, json)
-	end
-end
-
-local Theme = redzlib.Themes[redzlib.Save.Theme]
-
-local function AddEle(Name, Func)
-	redzlib.Elements[Name] = Func
-end
-
-local function Make(Ele, Instance, props, ...)
-	local Element = redzlib.Elements[Ele](Instance, props, ...)
-	return Element
-end
-
-AddEle("Corner", function(parent, CornerRadius)
-	local New = SetProps(Create("UICorner", parent, {
-		CornerRadius = CornerRadius or UDim.new(0, 7)
-	}), props)
-	return New
-end)
-
-AddEle("Stroke", function(parent, props, ...)
-	local args = {...}
-	local New = InsertTheme(SetProps(Create("UIStroke", parent, {
-		Color = args[1] or Theme["Color Stroke"],
-		Thickness = args[2] or 1,
-		ApplyStrokeMode = "Border"
-	}), props), "Stroke")
-	return New
-end)
-
-AddEle("Button", function(parent, props, ...)
-	local args = {...}
-	local New = InsertTheme(SetProps(Create("TextButton", parent, {
-		Text = "",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Theme["Color Hub 2"],
-		AutoButtonColor = false
-	}), props), "Frame")
-
-	local OriginalSize = New.Size
-	local IsMouseOver = false
-
-	New.MouseEnter:Connect(function()
-		IsMouseOver = true
-		New.BackgroundTransparency = 0.4
-		local St = New:FindFirstChildOfClass("UIStroke")
-		if St then CreateTween({St, "Color", Theme["Color Theme"], 0.2}) end
-	end)
-	
-	New.MouseLeave:Connect(function()
-		IsMouseOver = false
-		New.BackgroundTransparency = 0
-		local St = New:FindFirstChildOfClass("UIStroke")
-		if St then CreateTween({St, "Color", Theme["Color Stroke"], 0.2}) end
-	end)
-
-	New.MouseButton1Down:Connect(function()
-		CreateTween({New, "Size", OriginalSize - UDim2.fromOffset(4, 2), 0.1})
-		CreateTween({New, "BackgroundTransparency", 0.6, 0.1})
-	end)
-
-	New.MouseButton1Up:Connect(function()
-		CreateTween({New, "Size", OriginalSize, 0.15})
-		CreateTween({New, "BackgroundTransparency", IsMouseOver and 0.4 or 0, 0.15})
-	end)
-
-	if args[1] then
-		New.Activated:Connect(args[1])
-	end
-
-	return New
-end)
-AddEle("Gradient", function(parent, props, ...)
-	local args = {...}
-	local New = InsertTheme(SetProps(Create("UIGradient", parent, {
-		Color = Theme["Color Hub 1"]
-	}), props), "Gradient")
-	return New
-end)
-
-local function ButtonFrame(Instance, Title, Description, HolderSize)
-	local TitleL = InsertTheme(Create("TextLabel", {
-		Font = Enum.Font.GothamBold,
-		TextColor3 = Theme["Color Text"],
-		Size = UDim2.new(1, -20),
-		AutomaticSize = "Y",
-		Position = UDim2.new(0, 0, 0.5),
-		AnchorPoint = Vector2.new(0, 0.5),
-		BackgroundTransparency = 1,
-		TextTruncate = "AtEnd",
-		TextSize = 12,
-		TextXAlignment = "Left",
-		Text = "",
-		RichText = true
-	}), "Text")
-	
-	local DescL = InsertTheme(Create("TextLabel", {
-		Font = Enum.Font.GothamMedium,
-		TextColor3 = Theme["Color Dark Text"],
-		Size = UDim2.new(1, -20),
-		AutomaticSize = "Y",
-		Position = UDim2.new(0, 12, 0, 15),
-		BackgroundTransparency = 1,
-		TextWrapped = true,
-		TextSize = 10,
-		TextXAlignment = "Left",
-		Text = "",
-		RichText = true
-	}), "DarkText")
-
-	local Frame = Make("Button", Instance, {
-		Size = UDim2.new(1, 0, 0, 36),
-		AutomaticSize = "Y",
-		Name = "Option"
-	})Make("Corner", Frame, UDim.new(0, 8))Make("Stroke", Frame, {Transparency = 0.3})
-	
-	LabelHolder = Create("Frame", Frame, {
-		AutomaticSize = "Y",
-		BackgroundTransparency = 1,
-		Size = HolderSize,
-		Position = UDim2.new(0, 10, 0),
-		AnchorPoint = Vector2.new(0, 0)
-	}, {
-		Create("UIListLayout", {
-			SortOrder = "LayoutOrder",
-			VerticalAlignment = "Center",
-			Padding = UDim.new(0, 2)
-		}),
-		Create("UIPadding", {
-			PaddingBottom = UDim.new(0, 5),
-			PaddingTop = UDim.new(0, 5)
-		}),
-		TitleL,
-		DescL,
-	})
-	
-	local Label = {}
-	function Label:SetTitle(NewTitle)
-		if type(NewTitle) == "string" and NewTitle:gsub(" ", ""):len() > 0 then
-			TitleL.Text = NewTitle
-		end
-	end
-	function Label:SetDesc(NewDesc)
-		if type(NewDesc) == "string" and NewDesc:gsub(" ", ""):len() > 0 then
-			DescL.Visible = true
-			DescL.Text = NewDesc
-			LabelHolder.Position = UDim2.new(0, 10, 0)
-			LabelHolder.AnchorPoint = Vector2.new(0, 0)
-		else
-			DescL.Visible = false
-			DescL.Text = ""
-			LabelHolder.Position = UDim2.new(0, 10, 0.5)
-			LabelHolder.AnchorPoint = Vector2.new(0, 0.5)
-		end
-	end
-	
-	Label:SetTitle(Title)
-	Label:SetDesc(Description)
-	return Frame, Label
-end
-
-local function GetColor(Instance)
-	if Instance:IsA("Frame") then
-		return "BackgroundColor3"
-	elseif Instance:IsA("ImageLabel") then
-		return "ImageColor3"
-	elseif Instance:IsA("TextLabel") then
-		return "TextColor3"
-	elseif Instance:IsA("ScrollingFrame") then
-		return "ScrollBarImageColor3"
-	elseif Instance:IsA("UIStroke") then
-		return "Color"
-	end
-	return ""
-end
-
--- /////////// --
-function redzlib:GetIcon(index)
-	if type(index) ~= "string" or index:find("rbxassetid://") or #index == 0 then
-		return index
-	end
-	
-	local firstMatch = nil
-	index = string.lower(index):gsub("lucide", ""):gsub("-", "")
-	
-	for Name, Icon in pairs(self.Icons) do
-		Name = Name:gsub("lucide", ""):gsub("-", "")
-		if Name == index then
-			return Icon
-		elseif not firstMatch and Name:find(index, 1, true) then
-			firstMatch = Icon
-		end
-	end
-	
-	return firstMatch or index
-end
-
-function redzlib:SetTheme(NewTheme)
-	if not VerifyTheme(NewTheme) then return end
-	
-	redzlib.Save.Theme = NewTheme
-	SaveJson("StarHub.json", redzlib.Save)
-	Theme = redzlib.Themes[NewTheme]
-	
-	Connection:FireConnection("ThemeChanged", NewTheme)
-	table.foreach(redzlib.Instances, function(_,Val)
-		if Val.Type == "Gradient" then
-			Val.Instance.Color = Theme["Color Hub 1"]
-		elseif Val.Type == "Frame" then
-			Val.Instance.BackgroundColor3 = Theme["Color Hub 2"]
-		elseif Val.Type == "Stroke" then
-			Val.Instance[GetColor(Val.Instance)] = Theme["Color Stroke"]
-		elseif Val.Type == "Theme" then
-			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
-		elseif Val.Type == "Text" then
-			Val.Instance[GetColor(Val.Instance)] = Theme["Color Text"]
-		elseif Val.Type == "DarkText" then
-			Val.Instance[GetColor(Val.Instance)] = Theme["Color Dark Text"]
-		elseif Val.Type == "ScrollBar" then
-			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
+		while alive and gui.Parent do
+			tw(fbs, 1.2, { Transparency = 0.55 }, Enum.EasingStyle.Sine)
+			task.wait(1.2)
+			tw(fbs, 1.2, { Transparency = 0 }, Enum.EasingStyle.Sine)
+			task.wait(1.2)
 		end
 	end)
-end
 
-function redzlib:SetScale(NewScale)
-	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
-	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
-end
+	----------------------------------------------------------------
+	-- Abas
+	----------------------------------------------------------------
+	local tabs, current = {}, nil
 
-local NotificationContainer = Create("Frame", ScreenGui, {
-	Name = "NotificationContainer",
-	Size = UDim2.new(0, 280, 1, 0),
-	Position = UDim2.new(1, -300, 1, -20),
-	AnchorPoint = Vector2.new(0, 1),
-	BackgroundTransparency = 1,
-	ZIndex = 999
-}, {
-	Create("UIListLayout", {
-		SortOrder = "LayoutOrder",
-		Padding = UDim.new(0, 8),
-		VerticalAlignment = "Bottom"
-	})
-})
-
-function redzlib:Notify(Configs)
-	local Title = Configs[1] or Configs.Title or "Notification"
-	local Description = Configs[2] or Configs.Description or Configs.Text or ""
-	local Duration = Configs[3] or Configs.Duration or 5
-	local Type = Configs.Type or "Info"
-	local Image = Configs.Image or "rbxassetid://113449060491896"
-	
-	local Colors = {
-		Info = Color3.fromRGB(96, 196, 255),
-		Success = Color3.fromRGB(80, 220, 140),
-		Warning = Color3.fromRGB(255, 193, 7),
-		Error = Color3.fromRGB(255, 80, 90)
-	}
-	
-	local TypeColor = Colors[Type] or Colors.Info
-	
-	local NotificationFrame = Create("Frame", NotificationContainer, {
-		Size = UDim2.new(1, 0, 0, 45),
-		BackgroundColor3 = Color3.fromRGB(14, 15, 26),
-		BackgroundTransparency = 0,
-		BorderSizePixel = 0,
-		ClipsDescendants = true
-	})
-	
-	Make("Corner", NotificationFrame, UDim.new(0, 12))
-	Create("Frame", NotificationFrame, {
-		Size = UDim2.new(0, 3, 1, -16),
-		Position = UDim2.new(0, 0, 0, 8),
-		BackgroundColor3 = TypeColor,
-		BorderSizePixel = 0
-	})
-	
-	local NotificationStroke = Create("UIStroke", NotificationFrame, {
-		Color = TypeColor,
-		Transparency = 0.55,
-		Thickness = 1.5,
-		ApplyStrokeMode = "Border"
-	})
-	
-	local TitleLabel = Create("TextLabel", NotificationFrame, {
-		Size = UDim2.new(1, -50, 0, 16), 
-		Position = UDim2.new(0, 44, 0, 4),
-		BackgroundTransparency = 1,
-		Text = Title,
-		TextColor3 = Color3.fromRGB(255, 255, 255),
-		TextSize = 11,
-		Font = Enum.Font.GothamBold,
-		TextXAlignment = "Left",
-		TextTruncate = "AtEnd"
-	})
-	
-	local DescLabel = Create("TextLabel", NotificationFrame, {
-		Size = UDim2.new(1, -50, 0, 20), 
-		Position = UDim2.new(0, 44, 0, 15), 
-		BackgroundTransparency = 1,
-		Text = Description,
-		TextColor3 = Color3.fromRGB(180, 180, 180),
-		TextSize = 9,
-		Font = Enum.Font.Gotham,
-		TextXAlignment = "Left",
-		TextWrapped = true
-	})
-	
-	local Icon = Create("ImageLabel", NotificationFrame, {
-		Name = "NotificationIcon",
-		Size = UDim2.new(0, 32, 0, 32),
-		Position = UDim2.new(0, 6, 0.5, -20),
-		BackgroundTransparency = 1,
-		Image = Image,
-		ZIndex = 1000
-	})
-	
-	local CounterLabel = Create("TextLabel", NotificationFrame, {
-		Size = UDim2.new(0, 30, 0, 16),
-		Position = UDim2.new(1, -35, 0, 4),
-		BackgroundTransparency = 1,
-		Text = tostring(Duration),
-		TextColor3 = TypeColor,
-		TextSize = 10,
-		Font = Enum.Font.GothamBold,
-		TextXAlignment = "Right"
-	})
-	
-	local function RemoveNotification()
-		CreateTween({NotificationFrame, "Position", UDim2.new(1, 50, NotificationFrame.Position.Y.Scale, 0), 0.3})
-		CreateTween({NotificationFrame, "BackgroundTransparency", 1, 0.3})
-		CreateTween({NotificationStroke, "Transparency", 1, 0.3, true})
-		NotificationFrame:Destroy()
-	end
-	
-	NotificationFrame.Position = UDim2.new(1, 50, 0, 0)
-	CreateTween({NotificationFrame, "Position", UDim2.new(0, 0, 0, 0), 0.4})
-	
-	if Duration > 0 then
-		local timeLeft = Duration
-		local updateInterval = 0.1
-		local connection
-		
-		connection = task.spawn(function()
-			while timeLeft > 0 do
-				task.wait(updateInterval)
-				timeLeft = timeLeft - updateInterval
-				
-				if timeLeft <= 0 then
-					CounterLabel.Text = "0.0"
-					task.wait(0.1)
-					if NotificationFrame and NotificationFrame.Parent then
-						RemoveNotification()
-					end
-					break
-				else
-					CounterLabel.Text = string.format("%.1f", timeLeft)
-				end
-			end
-		end)
-	end
-	
-	local Notification = {}
-	function Notification:Remove()
-		RemoveNotification()
-	end
-	
-	return Notification
-end
-
-function redzlib:MakeWindow(Configs)
-	local WTitle = Configs[1] or Configs.Name or Configs.Title or "Star Hub"
-	local WMiniText = Configs[2] or Configs.SubTitle or "Underground War 2.0"
-	
-	Settings.ScriptFile = Configs[3] or Configs.SaveFolder or false
-	
-	local function LoadFile()
-		local File = Settings.ScriptFile
-		if type(File) ~= "string" then return end
-		if not readfile or not isfile then return end
-		local s, r = pcall(isfile, File)
-		
-		if s and r then
-			local s, _Flags = pcall(readfile, File)
-			
-			if s and type(_Flags) == "string" then
-				local s,r = pcall(function() return HttpService:JSONDecode(_Flags) end)
-				Flags = s and r or {}
-			end
-		end
-	end;LoadFile()
-	
-	local UISizeX, UISizeY = unpack(redzlib.Save.UISize)
-	local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
-		Size = UDim2.fromOffset(UISizeX, UISizeY),
-		Position = UDim2.new(0.5, -UISizeX/2, 0.5, -UISizeY/2),
-		BackgroundTransparency = 0.06,
-		Name = "Hub"
-}), "Main")
-	Make("Gradient", MainFrame, {
-		Rotation = 45
-	})MakeDrag(MainFrame)
-	local MainCorner = Make("Corner", MainFrame, UDim.new(0, 12))
-	InsertTheme(Create("UIStroke", MainFrame, {
-		Color = Theme["Color Theme"],
-		Thickness = 1.5,
-		Transparency = 0.45,
-		ApplyStrokeMode = "Border"
-	}), "Theme")
-	local Components = Create("Folder", MainFrame, {
-		Name = "Components"
-	})
-	
-	local DropdownHolder = Create("Folder", ScreenGui, {
-		Name = "Dropdown"
-	})
-	
-	local TopBar = Create("Frame", Components, {
-		Size = UDim2.new(1, 0, 0, 38),
-		BackgroundTransparency = 1,
-		Name = "Top Bar"
-	})
-	
-	InsertTheme(Create("Frame", Components, {
-		Size = UDim2.new(1, 0, 0, 1),
-		Position = UDim2.fromOffset(0, 38),
-		BackgroundColor3 = Theme["Color Theme"],
-		BackgroundTransparency = 0.7,
-		BorderSizePixel = 0,
-		Name = "TopLine"
-	}), "Theme")
-
-	local Title = InsertTheme(Create("TextLabel", TopBar, {
-		Position = UDim2.new(0, 15, 0.5),
-		AnchorPoint = Vector2.new(0, 0.5),
-		AutomaticSize = "XY",
-		Text = WTitle,
-		TextXAlignment = "Left",
-		TextSize = 15,
-		TextColor3 = Theme["Color Text"],
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
-		Name = "Title"
-	}, {
-		InsertTheme(Create("TextLabel", {
-			Size = UDim2.fromScale(0, 1),
-			AutomaticSize = "X",
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(1, 5, 0.9),
-			Text = WMiniText,
-			TextColor3 = Theme["Color Dark Greem"],
-			BackgroundTransparency = 1,
-			TextXAlignment = "Left",
-			TextYAlignment = "Bottom",
-			TextSize = 10,
-			Font = Enum.Font.GothamMedium,
-			Name = "SubTitle"
-		}), "DarkText")
-	}), "Text")
-	
-	local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
-		Size = UDim2.new(0, redzlib.Save.TabSize, 1, -TopBar.Size.Y.Offset),
-		ScrollBarImageColor3 = Theme["Color Theme"],
-		Position = UDim2.new(0, 0, 1, 0),
-		AnchorPoint = Vector2.new(0, 1),
-		ScrollBarThickness = 1.5,
-		BackgroundTransparency = 1,
-		ScrollBarImageTransparency = 0.2,
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = "Y",
-		ScrollingDirection = "Y",
-		BorderSizePixel = 0,
-		Name = "Tab Scroll"
-	}, {
-		Create("UIPadding", {
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-			PaddingTop = UDim.new(0, 10),
-			PaddingBottom = UDim.new(0, 10)
-		}), Create("UIListLayout", {
-			Padding = UDim.new(0, 5)
-		})
-	}), "ScrollBar")
-	
-	local Containers = Create("Frame", Components, {
-		Size = UDim2.new(1, -MainScroll.Size.X.Offset, 1, -TopBar.Size.Y.Offset),
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, 0, 1, 0),
-		BackgroundTransparency = 1,
-		ClipsDescendants = true,
-		Name = "Containers"
-	})
-
-	local ParticleContainer = Create("Frame", Containers, {
-		Size = UDim2.new(1, 0, 1, 0),
-		BackgroundTransparency = 1,
-		Name = "ThemeParticles",
-		ZIndex = -5,
-		ClipsDescendants = true
-	})
-	
-	local ParticleConfig = {
-		MaxParticles = 22,
-		SpawnRate = 0.16,
-		ParticleSize = {Min = 3, Max = 6},
-		ParticleSpeed = {Min = 12, Max = 22},
-		ParticleLifetime = 6
-	}
-
-local ActiveParticles = {}
-local LastSpawn = 0
-
-local function CreateCyberpunkParticle()
-	if #ActiveParticles >= ParticleConfig.MaxParticles then return end
-	
-	local containerSize = ParticleContainer.AbsoluteSize
-	local startX = math.random(10, containerSize.X - 10)
-	local startY = containerSize.Y + 20
-	
-	local size = math.random(ParticleConfig.ParticleSize.Min, ParticleConfig.ParticleSize.Max)
-	local speed = math.random(ParticleConfig.ParticleSpeed.Min, ParticleConfig.ParticleSpeed.Max)
-	
-	local particleColor = Theme["Color Theme"]
-	
-	local Particle = Create("Frame", ParticleContainer, {
-		Size = UDim2.fromOffset(size, size),
-		Position = UDim2.fromOffset(startX, startY),
-		BackgroundColor3 = particleColor,
-		BackgroundTransparency = 0.2,
-		BorderSizePixel = 0
-	})
-	
-	Create("UICorner", Particle, {
-		CornerRadius = UDim.new(0.5, 0)
-	})
-	
-	local Glow = Create("Frame", Particle, {
-		Size = UDim2.new(1, 6, 1, 6),
-		Position = UDim2.new(0.5, 0, 0.5, 0),
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = particleColor,
-		BackgroundTransparency = 0.7,
-		ZIndex = -1
-	})
-	
-	Create("UICorner", Glow, {
-		CornerRadius = UDim.new(0.5, 0)
-	})
-	
-	local ParticleData = {
-		Frame = Particle,
-		Glow = Glow,
-		StartTime = tick(),
-		Speed = speed,
-		Direction = Vector2.new(0, -speed),
-		OriginalColor = particleColor
-	}
-	
-	Particle.BackgroundTransparency = 1
-	Glow.BackgroundTransparency = 1
-	CreateTween({Particle, "BackgroundTransparency", 0.2, 0.8})
-	CreateTween({Glow, "BackgroundTransparency", 0.7, 0.8})
-	
-	table.insert(ActiveParticles, ParticleData)
-end
-
-local function UpdateCyberpunkParticles()
-	local containerSize = ParticleContainer.AbsoluteSize
-	
-	for i = #ActiveParticles, 1, -1 do
-		local particle = ActiveParticles[i]
-		local elapsed = tick() - particle.StartTime
-		if elapsed >= ParticleConfig.ParticleLifetime or 
-		   particle.Frame.Position.Y.Offset < -20 then
-
-			CreateTween({particle.Frame, "BackgroundTransparency", 1, 0.5})
-			CreateTween({particle.Glow, "BackgroundTransparency", 1, 0.5})
-			
-			task.spawn(function()
-				task.wait(0.5)
-				if particle.Frame and particle.Frame.Parent then
-					particle.Frame:Destroy()
-				end
-			end)
-			
-			table.remove(ActiveParticles, i)
-		else
-			local currentPos = particle.Frame.Position
-			local newY = currentPos.Y.Offset + particle.Direction.Y * 0.016
-			
-			particle.Frame.Position = UDim2.fromOffset(currentPos.X.Offset, newY)
-			local lifeRatio = elapsed / ParticleConfig.ParticleLifetime
-			if lifeRatio > 0.8 then
-				local fadeAlpha = 0.2 * (1 - ((lifeRatio - 0.8) / 0.2))
-				particle.Frame.BackgroundTransparency = math.max(1 - fadeAlpha, 0.95)
-			end
+	local function selectTab(t)
+		current = t
+		for _, o in ipairs(tabs) do
+			local sel = (o == t)
+			o.Page.Visible = sel
+			tw(o.Btn, 0.15, { BackgroundTransparency = sel and 0.82 or 1 })
+			tw(o.Ind, 0.15, { BackgroundTransparency = sel and 0 or 1 })
+			tw(o.Name, 0.15, { TextColor3 = sel and T.Text or T.Dim })
 		end
 	end
-end
+	refreshers[#refreshers + 1] = function() if current then selectTab(current) end end
 
-local function SpawnCyberpunkSystem()
-	if tick() - LastSpawn >= ParticleConfig.SpawnRate and MainFrame.Visible then
-		CreateCyberpunkParticle()
-		LastSpawn = tick()
-	end
-end
-
-
-	local ParticleConnection; ParticleConnection = RunService.Heartbeat:Connect(function() if not ScreenGui.Parent then ParticleConnection:Disconnect() return end
-		UpdateCyberpunkParticles()
-		SpawnCyberpunkSystem()
-	end)
-
-	local ControlSize1, ControlSize2 = MakeDrag(Create("ImageButton", MainFrame, {
-		Size = UDim2.new(0, 35, 0, 35),
-		Position = MainFrame.Size,
-		Active = true,
-		AnchorPoint = Vector2.new(0.8, 0.8),
-		BackgroundTransparency = 1,
-		Name = "Control Hub Size"
-	})), MakeDrag(Create("ImageButton", MainFrame, {
-		Size = UDim2.new(0, 20, 1, -30),
-		Position = UDim2.new(0, MainScroll.Size.X.Offset, 1, 0),
-		AnchorPoint = Vector2.new(0.5, 1),
-		Active = true,
-		BackgroundTransparency = 1,
-		Name = "Control Tab Size"
-	}))
-	
-	local function ControlSize()
-		local Pos1, Pos2 = ControlSize1.Position, ControlSize2.Position
-		ControlSize1.Position = UDim2.fromOffset(math.clamp(Pos1.X.Offset, 430, 1000), math.clamp(Pos1.Y.Offset, 200, 500))
-		ControlSize2.Position = UDim2.new(0, math.clamp(Pos2.X.Offset, 135, 250), 1, 0)
-		
-		MainScroll.Size = UDim2.new(0, ControlSize2.Position.X.Offset, 1, -TopBar.Size.Y.Offset)
-		Containers.Size = UDim2.new(1, -MainScroll.Size.X.Offset, 1, -TopBar.Size.Y.Offset)
-		MainFrame.Size = ControlSize1.Position
-	end
-	
-	ControlSize1:GetPropertyChangedSignal("Position"):Connect(ControlSize)
-	ControlSize2:GetPropertyChangedSignal("Position"):Connect(ControlSize)
-	
-	ConnectSave(ControlSize1, function()
-		if not Minimized then
-			redzlib.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
-			SaveJson("StarHub.json", redzlib.Save)
-		end
-	end)
-	
-	ConnectSave(ControlSize2, function()
-		redzlib.Save.TabSize = MainScroll.Size.X.Offset
-		SaveJson("StarHub.json", redzlib.Save)
-	end)
-	
-	local ButtonsFolder = Create("Folder", TopBar, {
-		Name = "Buttons"
-	})
-	
-	local CloseButton = Create("ImageButton", {
-		Size = UDim2.new(0, 16, 0, 16),
-		Position = UDim2.new(1, -12, 0.5),
-		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundTransparency = 1,
-		Image = "rbxassetid://10747384394",
-		AutoButtonColor = false,
-		Name = "Close"
-	})
-	
-	local MinimizeButton = SetProps(CloseButton:Clone(), {
-		Position = UDim2.new(1, -40, 0.5),
-		Image = "rbxassetid://10734896206",
-		Name = "Minimize"
-	})
-	
-	SetChildren(ButtonsFolder, {
-		CloseButton,
-		MinimizeButton
-	})
-	
-	local Minimized, SaveSize, WaitClick
-	local Window, FirstTab = {}, false
-	function Window:CloseBtn()
-		local Dialog = Window:Dialog({
-			Title = "Close",
-			Text = "Deseja realmente fechar o  Star Hub? Ele contém recursos essenciais e fechar agora pode interromper funções importantes, causar falhas ou perder suas configurações. Cuidado antes de prosseguir!",
-			Options = {
-				{"Confirm", function()
-					ScreenGui:Destroy()
-				end},
-				{"Cancel"}
-			}
-		})
-	end
-	function Window:MinimizeBtn()
-		if WaitClick then return end
-		WaitClick = true
-		
-		if Minimized then
-			MinimizeButton.Image = "rbxassetid://10734896206"
-			CreateTween({MainFrame, "Size", SaveSize, 0.25, true})
-			ControlSize1.Visible = true
-			ControlSize2.Visible = true
-			for _, particle in pairs(ActiveParticles) do
-				if particle.Frame and particle.Frame.Parent then
-					particle.Frame.Visible = true
-				end
-			end
-			Minimized = false
-		else
-			MinimizeButton.Image = "rbxassetid://10734924532"
-			SaveSize = MainFrame.Size
-			ControlSize1.Visible = false
-			ControlSize2.Visible = false
-			for _, particle in pairs(ActiveParticles) do
-				if particle.Frame and particle.Frame.Parent then
-					particle.Frame.Visible = false
-				end
-			end
-			CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, 38), 0.25, true})
-			Minimized = true
-		end
-		
-		WaitClick = false
-	end
-	function Window:Minimize()
-		MainFrame.Visible = not MainFrame.Visible
-	end
-	
-	function Window:SetThemeParticles(enabled)
-		if enabled then
-			if not ParticleConnection then
-				ParticleConnection = RunService.Heartbeat:Connect(function() if not ScreenGui.Parent then ParticleConnection:Disconnect() ParticleConnection = nil return end
-					UpdateCyberpunkParticles()
-					SpawnCyberpunkSystem()
-				end)
-			end
-			ParticleContainer.Visible = true
-		else
-			if ParticleConnection then
-				ParticleConnection:Disconnect()
-				ParticleConnection = nil
-			end
-			ParticleContainer.Visible = false
-		end
-	end
-
-
-	function Window:Minimize()
-		MainFrame.Visible = not MainFrame.Visible
-	end
-function Window:AddMinimizeButton(Configs)
-	local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-		Size = UDim2.fromOffset(60, 60),
-		Position = UDim2.fromScale(0.15, 0.15),
-		BackgroundTransparency = 1,
-		AutoButtonColor = false,
-		Image = "rbxassetid://114883288714962"
-	}))
-
-	local Stroke, Corner
-
-	if Configs.Corner then
-		Corner = Make("Corner", Button)
-		SetProps(Corner, Configs.Corner)
-	end
-
-	if Configs.Stroke then
-		Stroke = Make("Stroke", Button)
-		SetProps(Stroke, Configs.Stroke)
-	end
-
-	SetProps(Button, Configs.Button)
-
-	Button.Activated:Connect(Window.Minimize)
-
-	return {
-		Stroke = Stroke,
-		Corner = Corner,
-		Button = Button
-	}
-end
-	function Window:Set(Val1, Val2)
-		if type(Val1) == "string" and type(Val2) == "string" then
-			Title.Text = Val1
-			Title.SubTitle.Text = Val2
-		elseif type(Val1) == "string" then
-			Title.Text = Val1
-		end
-	end
-	function Window:Dialog(Configs)
-		if MainFrame:FindFirstChild("Dialog") then return end
-		if Minimized then
-			Window:MinimizeBtn()
-		end
-		
-		local DTitle = Configs[1] or Configs.Title or "Dialog"
-		local DText = Configs[2] or Configs.Text or "This is a Dialog"
-		local DOptions = Configs[3] or Configs.Options or {}
-		
-		local Frame = Create("Frame", {
-			Active = true,
-			Size = UDim2.fromOffset(250 * 1.08, 150 * 1.08),
-			Position = UDim2.fromScale(0.5, 0.5),
-			AnchorPoint = Vector2.new(0.5, 0.5)
-		}, {
-			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.GothamBold,
-				Size = UDim2.new(1, 0, 0, 20),
-				Text = DTitle,
-				TextXAlignment = "Left",
-				TextColor3 = Theme["Color Text"],
-				TextSize = 15,
-				Position = UDim2.fromOffset(15, 5),
-				BackgroundTransparency = 1
-			}), "Text"),
-			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.GothamMedium,
-				Size = UDim2.new(1, -25),
-				AutomaticSize = "Y",
-				Text = DText,
-				TextXAlignment = "Left",
-				TextColor3 = Theme["Color Dark Text"],
-				TextSize = 12,
-				Position = UDim2.fromOffset(15, 25),
-				BackgroundTransparency = 1,
-				TextWrapped = true
-			}), "DarkText")
-		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame)
-		
-		local ButtonsHolder = Create("Frame", Frame, {
-			Size = UDim2.fromScale(1, 0.35),
-			Position = UDim2.fromScale(0, 1),
-			AnchorPoint = Vector2.new(0, 1),
-			BackgroundColor3 = Theme["Color Hub 2"],
-			BackgroundTransparency = 1
-		}, {
-			Create("UIListLayout", {
-				Padding = UDim.new(0, 10),
-				VerticalAlignment = "Center",
-				FillDirection = "Horizontal",
-				HorizontalAlignment = "Center"
-			})
-		})
-		
-		local Screen = InsertTheme(Create("Frame", MainFrame, {
-			BackgroundTransparency = 0.6,
-			Active = true,
-			BackgroundColor3 = Theme["Color Hub 2"],
-			Size = UDim2.new(1, 0, 1, 0),
-			BackgroundColor3 = Theme["Color Stroke"],
-			Name = "Dialog"
-		}), "Stroke")
-		
-		MainCorner:Clone().Parent = Screen
-		Frame.Parent = Screen
-		CreateTween({Frame, "Size", UDim2.fromOffset(250, 150), 0.2})
-		CreateTween({Frame, "Transparency", 0, 0.15})
-		CreateTween({Screen, "Transparency", 0.3, 0.15})
-		
-		local ButtonCount, Dialog = 1, {}
-		function Dialog:Button(Configs)
-			local Name = Configs[1] or Configs.Name or Configs.Title or ""
-			local Callback = Configs[2] or Configs.Callback or function()end
-			
-			ButtonCount = ButtonCount + 1
-			local Button = Make("Button", ButtonsHolder)
-			Make("Corner", Button)
-			SetProps(Button, {
-				Text = Name,
-				Font = Enum.Font.GothamBold,
-				TextColor3 = Theme["Color Text"],
-				TextSize = 12
-			})
-			
-			for _,Button in pairs(ButtonsHolder:GetChildren()) do
-				if Button:IsA("TextButton") then
-					Button.Size = UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32)
-				end
-			end
-			Button.Activated:Connect(Dialog.Close)
-			Button.Activated:Connect(Callback)
-		end
-		function Dialog:Close()
-			CreateTween({Frame, "Size", UDim2.fromOffset(250 * 1.08, 150 * 1.08), 0.2})
-			CreateTween({Screen, "Transparency", 1, 0.15})
-			CreateTween({Frame, "Transparency", 1, 0.15, true})
-			Screen:Destroy()
-		end
-		table.foreach(DOptions, function(_,Button)
-			Dialog:Button(Button)
-		end)
-		return Dialog
-	end
-	function Window:SelectTab(TabSelect)
-		if type(TabSelect) == "number" then
-			redzlib.Tabs[TabSelect].func:Enable()
-		else
-			for _,Tab in pairs(redzlib.Tabs) do
-				if Tab.Cont == TabSelect.Cont then
-					Tab.func:Enable()
-				end
-			end
-		end
-	end
-	
-	local ContainerList = {}
-	function Window:MakeTab(paste, Configs)
-		if type(paste) == "table" then Configs = paste end
-		local TName = Configs[1] or Configs.Title or "Tab!"
-		local TIcon = Configs[2] or Configs.Icon or ""
-		
-		TIcon = redzlib:GetIcon(TIcon)
-		if not TIcon:find("rbxassetid://") or TIcon:gsub("rbxassetid://", ""):len() < 6 then
-			TIcon = false
-		end
-		
-		local TabSelect = Make("Button", MainScroll, {
-			Size = UDim2.new(1, 0, 0, 30)
-		})Make("Corner", TabSelect, UDim.new(0, 8))
-		
-		local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
-			Size = UDim2.new(1, TIcon and -25 or -15, 1),
-			Position = UDim2.fromOffset(TIcon and 25 or 15),
-			BackgroundTransparency = 1,
-			Font = Enum.Font.GothamBold,
-			Text = TName,
-			TextColor3 = Theme["Color Text"],
-			TextSize = 11,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextTransparency = (FirstTab and 0.3) or 0,
-			TextTruncate = "AtEnd"
-		}), "Text")
-		
-		local LabelIcon = InsertTheme(Create("ImageLabel", TabSelect, {
-			Position = UDim2.new(0, 8, 0.5),
-			Size = UDim2.new(0, 15, 0, 15),
-			AnchorPoint = Vector2.new(0, 0.5),
-			Image = TIcon or "",
-			BackgroundTransparency = 1,
-			ImageTransparency = (FirstTab and 0.3) or 0
-		}), "Text")
-		
-		local Selected = InsertTheme(Create("Frame", TabSelect, {
-			Size = FirstTab and UDim2.new(0, 4, 0, 4) or UDim2.new(0, 4, 0, 16),
-			Position = UDim2.new(0, 1, 0.5),
-			AnchorPoint = Vector2.new(0, 0.5),
-			BackgroundColor3 = Theme["Color Theme"],
-			BackgroundTransparency = FirstTab and 1 or 0
-		}), "Theme")Make("Corner", Selected, UDim.new(0.5, 0))
-		
-		local Container = InsertTheme(Create("ScrollingFrame", {
-			Size = UDim2.new(1, 0, 1, 0),
-			Position = UDim2.new(0, 0, 1),
-			AnchorPoint = Vector2.new(0, 1),
-			ScrollBarThickness = 1.5,
-			BackgroundTransparency = 1,
-			ScrollBarImageTransparency = 0.2,
-			ScrollBarImageColor3 = Theme["Color Theme"],
-			AutomaticCanvasSize = "Y",
-			ScrollingDirection = "Y",
-			BorderSizePixel = 0,
-			CanvasSize = UDim2.new(),
-			Name = ("Container %i [ %s ]"):format(#ContainerList + 1, TName)
-		}, {
-			Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 10),
-				PaddingRight = UDim.new(0, 10),
-				PaddingTop = UDim.new(0, 10),
-				PaddingBottom = UDim.new(0, 10)
-			}), Create("UIListLayout", {
-				Padding = UDim.new(0, 5)
-			})
-		}), "ScrollBar")
-		
-		table.insert(ContainerList, Container)
-		
-		if not FirstTab then Container.Parent = Containers end
-		
-		local function Tabs()
-			if Container.Parent then return end
-			for _,Frame in pairs(ContainerList) do
-				if Frame:IsA("ScrollingFrame") and Frame ~= Container then
-					Frame.Parent = nil
-				end
-			end
-			Container.Parent = Containers
-			Container.Size = UDim2.new(1, 0, 1, 150)
-			table.foreach(redzlib.Tabs, function(_,Tab)
-				if Tab.Cont ~= Container then
-					Tab.func:Disable()
-				end
-			end)
-			CreateTween({Container, "Size", UDim2.new(1, 0, 1, 0), 0.3})
-			CreateTween({LabelTitle, "TextTransparency", 0, 0.35})
-			CreateTween({LabelIcon, "ImageTransparency", 0, 0.35})
-			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 16), 0.35})
-			CreateTween({Selected, "BackgroundTransparency", 0, 0.35})
-		end
-		TabSelect.Activated:Connect(Tabs)
-		
-		FirstTab = true
+	function Window:MakeTab(tcfg)
 		local Tab = {}
-		table.insert(redzlib.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
-		Tab.Cont = Container
-		
-		function  Tab:Disable()
-			Container.Parent = nil
-			CreateTween({LabelTitle, "TextTransparency", 0.3, 0.35})
-			CreateTween({LabelIcon, "ImageTransparency", 0.3, 0.35})
-			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 4), 0.35})
-			CreateTween({Selected, "BackgroundTransparency", 1, 0.35})
+		local btn = New("TextButton", {
+			Size = UDim2.new(1, 0, 0, 34), Text = "", AutoButtonColor = false, BorderSizePixel = 0,
+			BackgroundTransparency = 1, LayoutOrder = #tabs + 1, Parent = tabList,
+		})
+		bind(btn, "BackgroundColor3", "Accent")
+		corner(btn, 8)
+		local ind = New("Frame", { Size = UDim2.fromOffset(3, 16), Position = UDim2.new(0, 0, 0.5, -8), BorderSizePixel = 0, BackgroundTransparency = 1, Parent = btn })
+		bind(ind, "BackgroundColor3", "Accent")
+		corner(ind, 2)
+		label(btn, tcfg.Icon or "•", 14, Enum.Font.GothamMedium, "Text", { Position = UDim2.fromOffset(10, 0), Size = UDim2.fromOffset(22, 34), TextXAlignment = Enum.TextXAlignment.Center })
+		local nm = label(btn, tcfg.Name or "Aba", 12, Enum.Font.GothamBold, "Dim", { Position = UDim2.fromOffset(36, 0), Size = UDim2.new(1, -40, 1, 0), TextTruncate = Enum.TextTruncate.AtEnd })
+		btn.MouseEnter:Connect(function() if current and current.Btn ~= btn then tw(btn, 0.12, { BackgroundTransparency = 0.93 }) end end)
+		btn.MouseLeave:Connect(function() if current and current.Btn ~= btn then tw(btn, 0.12, { BackgroundTransparency = 1 }) end end)
+
+		local page = New("ScrollingFrame", {
+			Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0, ScrollBarThickness = 3,
+			AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), Visible = false, Parent = content,
+		}, {
+			New("UIListLayout", { Padding = UDim.new(0, 7), SortOrder = Enum.SortOrder.LayoutOrder }),
+			New("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 12) }),
+		})
+		bind(page, "ScrollBarImageColor3", "Accent")
+
+		Tab.Page, Tab.Btn, Tab.Ind, Tab.Name = page, btn, ind, nm
+		tabs[#tabs + 1] = Tab
+		btn.MouseButton1Click:Connect(function() selectTab(Tab) end)
+		if #tabs == 1 then selectTab(Tab) end
+
+		local function newItem(h)
+			local f = New("Frame", { Size = UDim2.new(1, 0, 0, h), BorderSizePixel = 0, Parent = page })
+			bind(f, "BackgroundColor3", "Item")
+			corner(f, 9)
+			local st = stroke(f, "Stroke", 1, 0.35)
+			return f, st
 		end
-		function Tab:Enable()
-			Tabs()
+		local function hover(b, st)
+			b.MouseEnter:Connect(function() tw(st, 0.15, { Color = T.Accent, Transparency = 0.1 }) end)
+			b.MouseLeave:Connect(function() tw(st, 0.15, { Color = T.Stroke, Transparency = 0.35 }) end)
 		end
-		function Tab:Visible(Bool)
-			Funcs:ToggleVisible(TabSelect, Bool)
-			Funcs:ToggleParent(Container, Bool, Containers)
-		end
-		function Tab:Destroy() TabSelect:Destroy() Container:Destroy() end
-		
-		function Tab:AddSection(Configs)
-			local SectionName = type(Configs) == "string" and Configs or Configs[1] or Configs.Name or Configs.Title or Configs.Section
-			
-			local SectionFrame = Create("Frame", Container, {
-				Size = UDim2.new(1, 0, 0, 20),
-				BackgroundTransparency = 1,
-				Name = "Option"
-			})
-			
-			local SectionLabel = InsertTheme(Create("TextLabel", SectionFrame, {
-				Font = Enum.Font.GothamBold,
-				Text = SectionName,
-				TextColor3 = Theme["Color Dark Purple"],
-				Size = UDim2.new(1, -25, 1, 0),
-				Position = UDim2.new(0, 30),
-				BackgroundTransparency = 1,
-				TextTruncate = "AtEnd",
-				TextSize = 11,
-				TextXAlignment = "Left"
-			}), "Text")
-			
-			local Section = {}
-			table.insert(redzlib.Options, {type = "Section", Name = SectionName, func = Section})
-			function Section:Visible(Bool)
-				if Bool == nil then SectionFrame.Visible = not SectionFrame.Visible return end
-				SectionFrame.Visible = Bool
+		local function safe(cb, ...)
+			if cb then
+				local ok, err = pcall(cb, ...)
+				if not ok then warn("[Star Hub] " .. tostring(err)) end
 			end
-			function Section:Destroy()
-				SectionFrame:Destroy()
-			end
-			function Section:Set(New)
-				if New then
-					SectionLabel.Text = GetStr(New)
-				end
-			end
-			return Section
-		end
-		function Tab:AddParagraph(Configs)
-			local PName = Configs[1] or Configs.Title or "Paragraph"
-			local PDesc = Configs[2] or Configs.Text or ""
-			
-			local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
-			
-			local Paragraph = {}
-			function Paragraph:Visible(...) Funcs:ToggleVisible(Frame, ...) end
-			function Paragraph:Destroy() Frame:Destroy() end
-			function Paragraph:SetTitle(Val)
-				LabelFunc:SetTitle(GetStr(Val))
-			end
-			function Paragraph:SetDesc(Val)
-				LabelFunc:SetDesc(GetStr(Val))
-			end
-			function Paragraph:Set(Val1, Val2)
-				if Val1 and Val2 then
-					LabelFunc:SetTitle(GetStr(Val1))
-					LabelFunc:SetDesc(GetStr(Val2))
-				elseif Val1 then
-					LabelFunc:SetDesc(GetStr(Val1))
-				end
-			end
-			return Paragraph
-		end
-		function Tab:AddButton(Configs)
-			local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
-			local BDescription = Configs.Desc or Configs.Description or ""
-			local Callback = Funcs:GetCallback(Configs, 2)
-			
-			local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -20))
---Font 
-			local ButtonIcon = Create("ImageLabel", FButton, {
-				Size = UDim2.new(0, 14, 0, 14),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundTransparency = 1,
-				Image = "rbxassetid://132458316414144"
-			})
-			
-			FButton.Activated:Connect(function()
-				Funcs:FireCallback(Callback)
-			end)
-			
-			local Button = {}
-			function Button:Visible(...) Funcs:ToggleVisible(FButton, ...) end
-			function Button:Destroy() FButton:Destroy() end
-			function Button:Callback(...) Funcs:InsertCallback(Callback, ...) end
-			function Button:Set(Val1, Val2)
-				if type(Val1) == "string" and type(Val2) == "string" then
-					LabelFunc:SetTitle(Val1)
-					LabelFunc:SetDesc(Val2)
-				elseif type(Val1) == "string" then
-					LabelFunc:SetTitle(Val1)
-				elseif type(Val1) == "function" then
-					Callback = Val1
-				end
-			end
-			return Button
-		end
-		function Tab:AddToggle(Configs)
-			local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
-			local TDesc = Configs.Desc or Configs.Description or ""
-			local Callback = Funcs:GetCallback(Configs, 3)
-			local Flag = Configs[4] or Configs.Flag or false
-			local Default = Configs[2] or Configs.Default or false
-			if CheckFlag(Flag) then Default = GetFlag(Flag) end
-			
-			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
-			
-			local ToggleHolder = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 35, 0, 18),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
-			
-			local Slider = Create("Frame", ToggleHolder, {
-				BackgroundTransparency = 1,
-				Size = UDim2.new(0.8, 0, 0.8, 0),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5)
-			})
-			
-			local Toggle = InsertTheme(Create("Frame", Slider, {
-				Size = UDim2.new(0, 12, 0, 12),
-				Position = UDim2.new(0, 0, 0.5),
-				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Theme["Color Theme"]
-			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
-			
-			local WaitClick
-			local function SetToggle(Val)
-				if WaitClick then return end
-				
-				WaitClick, Default = true, Val
-				SetFlag(Flag, Default)
-				Funcs:FireCallback(Callback, Default)
-				if Default then
-					CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
-					CreateTween({Toggle, "BackgroundTransparency", 0, 0.25})
-					CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25, Wait or false})
-				else
-					CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
-					CreateTween({Toggle, "BackgroundTransparency", 0.8, 0.25})
-					CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25, Wait or false})
-				end
-				WaitClick = false
-			end;task.spawn(SetToggle, Default)
-			
-			Button.Activated:Connect(function()
-				SetToggle(not Default)
-			end)
-			
-			local Toggle = {}
-			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function Toggle:Destroy() Button:Destroy() end
-			function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
-			function Toggle:Set(Val1, Val2)
-				if type(Val1) == "string" and type(Val2) == "string" then
-					LabelFunc:SetTitle(Val1)
-					LabelFunc:SetDesc(Val2)
-				elseif type(Val1) == "string" then
-					LabelFunc:SetTitle(Val1, false, true)
-				elseif type(Val1) == "boolean" then
-					if WaitClick and Val2 then
-						repeat task.wait() until not WaitClick
-					end
-					task.spawn(SetToggle, Val1)
-				elseif type(Val1) == "function" then
-					Callback = Val1
-				end
-			end
-			return Toggle
-		end
-		function Tab:AddDropdown(Configs)
-			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
-			local DDesc = Configs.Desc or Configs.Description or ""
-			local DOptions = Configs[2] or Configs.Options or {}
-			local OpDefault = Configs[3] or Configs.Default or {}
-			local Flag = Configs[5] or Configs.Flag or false
-			local DMultiSelect = Configs.MultiSelect or false
-			local Callback = Funcs:GetCallback(Configs, 4)
-			
-			local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
-			
-			local SelectedFrame = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 150, 0, 18),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
-			
-			local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
-				Size = UDim2.new(0.85, 0, 0.85, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.GothamBold,
-				TextScaled = true,
-				TextColor3 = Theme["Color Text"],
-				Text = "..."
-			}), "Text")
-			
-			local Arrow = Create("ImageLabel", SelectedFrame, {
-				Size = UDim2.new(0, 15, 0, 15),
-				Position = UDim2.new(0, -5, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				Image = "rbxassetid://10709791523",
-				BackgroundTransparency = 1
-			})
-			
-			local NoClickFrame = Create("TextButton", DropdownHolder, {
-				Name = "AntiClick",
-				Size = UDim2.new(1, 0, 1, 0),
-				BackgroundTransparency = 1,
-				Visible = false,
-				Text = ""
-			})
-			
-			local DropFrame = Create("Frame", NoClickFrame, {
-				Size = UDim2.new(SelectedFrame.Size.X, 0, 0),
-				BackgroundTransparency = 0.1,
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				AnchorPoint = Vector2.new(0, 1),
-				Name = "DropdownFrame",
-				ClipsDescendants = true,
-				Active = true
-			})Make("Corner", DropFrame)Make("Stroke", DropFrame)Make("Gradient", DropFrame, {Rotation = 60})
-			
-			local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
-				ScrollBarImageColor3 = Theme["Color Theme"],
-				Size = UDim2.new(1, 0, 1, 0),
-				ScrollBarThickness = 1.5,
-				BackgroundTransparency = 1,
-				BorderSizePixel = 0,
-				CanvasSize = UDim2.new(),
-				ScrollingDirection = "Y",
-				AutomaticCanvasSize = "Y",
-				Active = true
-			}, {
-				Create("UIPadding", {
-					PaddingLeft = UDim.new(0, 8),
-					PaddingRight = UDim.new(0, 8),
-					PaddingTop = UDim.new(0, 5),
-					PaddingBottom = UDim.new(0, 5)
-				}), Create("UIListLayout", {
-					Padding = UDim.new(0, 4)
-				})
-			}), "ScrollBar")
-			
-			local ScrollSize, WaitClick = 5
-			local function Disable()
-				WaitClick = true
-				CreateTween({Arrow, "Rotation", 0, 0.2})
-				CreateTween({DropFrame, "Size", UDim2.new(0, 152, 0, 0), 0.2, true})
-				CreateTween({Arrow, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
-				Arrow.Image = "rbxassetid://10709791523"
-				NoClickFrame.Visible = false
-				WaitClick = false
-			end
-			
-			local function GetFrameSize()
-				return UDim2.fromOffset(152, ScrollSize)
-			end
-			
-			local function CalculateSize()
-				local Count = 0
-				for _,Frame in pairs(ScrollFrame:GetChildren()) do
-					if Frame:IsA("Frame") or Frame.Name == "Option" then
-						Count = Count + 1
-					end
-				end
-				ScrollSize = (math.clamp(Count, 0, 10) * 25) + 10
-				if NoClickFrame.Visible then
-					NoClickFrame.Visible = true
-					CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, true})
-				end
-			end
-			
-			local function Minimize()
-				if WaitClick then return end
-				WaitClick = true
-				if NoClickFrame.Visible then
-					Arrow.Image = "rbxassetid://10709791523"
-					CreateTween({Arrow, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
-					CreateTween({DropFrame, "Size", UDim2.new(0, 152, 0, 0), 0.2, true})
-					NoClickFrame.Visible = false
-				else
-					NoClickFrame.Visible = true
-					Arrow.Image = "rbxassetid://10709790948"
-					CreateTween({Arrow, "ImageColor3", Theme["Color Theme"], 0.2})
-					CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, true})
-				end
-				WaitClick = false
-			end
-			
-			local function CalculatePos()
-				local FramePos = SelectedFrame.AbsolutePosition
-				local ScreenSize = ScreenGui.AbsoluteSize
-				local ClampX = math.clamp((FramePos.X / UIScale), 0, ScreenSize.X / UIScale - DropFrame.Size.X.Offset)
-				local ClampY = math.clamp((FramePos.Y / UIScale) , 0, ScreenSize.Y / UIScale)
-				
-				local NewPos = UDim2.fromOffset(ClampX, ClampY)
-				local AnchorPoint = FramePos.Y > ScreenSize.Y / 1.4 and 1 or ScrollSize > 80 and 0.5 or 0
-				DropFrame.AnchorPoint = Vector2.new(0, AnchorPoint)
-				CreateTween({DropFrame, "Position", NewPos, 0.1})
-			end
-			
-			local AddNewOptions, GetOptions, AddOption, RemoveOption, Selected do
-				local Default = type(OpDefault) ~= "table" and {OpDefault} or OpDefault
-				local MultiSelect = DMultiSelect
-				local Options = {}
-				Selected = MultiSelect and {} or CheckFlag(Flag) and GetFlag(Flag) or Default[1]
-				
-				if MultiSelect then
-					for index, Value in pairs(CheckFlag(Flag) and GetFlag(Flag) or Default) do
-						if type(index) == "string" and (DOptions[index] or table.find(DOptions, index)) then
-							Selected[index] = Value
-						elseif DOptions[Value] then
-							Selected[Value] = true
-						end
-					end
-				end
-				
-				local function CallbackSelected()
-					SetFlag(Flag, MultiSelect and Selected or tostring(Selected))
-					Funcs:FireCallback(Callback, Selected)
-				end
-				
-				local function UpdateLabel()
-					if MultiSelect then
-						local list = {}
-						for index, Value in pairs(Selected) do
-							if Value then
-								table.insert(list, index)
-							end
-						end
-						ActiveLabel.Text = #list > 0 and table.concat(list, ", ") or "..."
-					else
-						ActiveLabel.Text = tostring(Selected or "...")
-					end
-				end
-				
-				local function UpdateSelected()
-					if MultiSelect then
-						for _,v in pairs(Options) do
-							local nodes, Stats = v.nodes, v.Stats
-							CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 0.8, 0.35})
-							CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(4, 12) or UDim2.fromOffset(4, 4), 0.35})
-							CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.4, 0.35})
-						end
-					else
-						for _,v in pairs(Options) do
-							local Slt = v.Value == Selected
-							local nodes = v.nodes
-							CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.35})
-							CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(4, 14) or UDim2.fromOffset(4, 4), 0.35})
-							CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.4, 0.35})
-						end
-					end
-					UpdateLabel()
-				end
-				
-				local function Select(Option)
-					if MultiSelect then
-						Option.Stats = not Option.Stats
-						Option.LastCB = tick()
-						
-						Selected[Option.Name] = Option.Stats
-						CallbackSelected()
-					else
-						Option.LastCB = tick()
-						
-						Selected = Option.Value
-						CallbackSelected()
-					end
-					UpdateSelected()
-				end
-				
-				AddOption = function(index, Value)
-					local Name = tostring(type(index) == "string" and index or Value)
-					
-					if Options[Name] then return end
-					Options[Name] = {
-						index = index,
-						Value = Value,
-						Name = Name,
-						Stats = false,
-						LastCB = 0
-					}
-					
-					if MultiSelect then
-						local Stats = Selected[Name]
-						Selected[Name] = Stats or false
-						Options[Name].Stats = Stats
-					end
-					
-					local Button = Make("Button", ScrollFrame, {
-						Name = "Option",
-						Size = UDim2.new(1, 0, 0, 21),
-						Position = UDim2.new(0, 0, 0.5),
-						AnchorPoint = Vector2.new(0, 0.5)
-					})Make("Corner", Button, UDim.new(0, 4))
-					
-					local IsSelected = InsertTheme(Create("Frame", Button, {
-						Position = UDim2.new(0, 1, 0.5),
-						Size = UDim2.new(0, 4, 0, 4),
-						BackgroundColor3 = Theme["Color Theme"],
-						BackgroundTransparency = 1,
-						AnchorPoint = Vector2.new(0, 0.5)
-					}), "Theme")Make("Corner", IsSelected, UDim.new(0.5, 0))
-					
-					local OptioneName = InsertTheme(Create("TextLabel", Button, {
-						Size = UDim2.new(1, 0, 1),
-						Position = UDim2.new(0, 10),
-						Text = Name,
-						TextColor3 = Theme["Color Text"],
-						Font = Enum.Font.FredokaOne, --GothamBold
-						TextXAlignment = "Left",
-						BackgroundTransparency = 1,
-						TextTransparency = 0.4
-					}), "Text")
-					
-					Button.Activated:Connect(function()
-						Select(Options[Name])
-					end)
-					
-					Options[Name].nodes = {Button, IsSelected, OptioneName}
-				end
-				
-				RemoveOption = function(index, Value)
-					local Name = tostring(type(index) == "string" and index or Value)
-					if Options[Name] then
-						if MultiSelect then Selected[Name] = nil else Selected = nil end
-						Options[Name].nodes[1]:Destroy()
-						table.clear(Options[Name])
-						Options[Name] = nil
-					end
-				end
-				
-				GetOptions = function()
-					return Options
-				end
-				
-				AddNewOptions = function(List, Clear)
-					if Clear then
-						table.foreach(Options, RemoveOption)
-					end
-					table.foreach(List, AddOption)
-					CallbackSelected()
-					UpdateSelected()
-				end
-				
-				table.foreach(DOptions, AddOption)
-				CallbackSelected()
-				UpdateSelected()
-			end
-			
-			Button.Activated:Connect(Minimize)
-			NoClickFrame.MouseButton1Down:Connect(Disable)
-			NoClickFrame.MouseButton1Click:Connect(Disable)
-			MainFrame:GetPropertyChangedSignal("Visible"):Connect(Disable)
-			SelectedFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(CalculatePos)
-			
-			Button.Activated:Connect(CalculateSize)
-			ScrollFrame.ChildAdded:Connect(CalculateSize)
-			ScrollFrame.ChildRemoved:Connect(CalculateSize)
-			CalculatePos()
-			CalculateSize()
-			
-			local Dropdown = {}
-			function Dropdown:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function Dropdown:Destroy() Button:Destroy() end
-			function Dropdown:Callback(...) Funcs:InsertCallback(Callback, ...)(Selected) end
-			
-			function Dropdown:Add(...)
-				local NewOptions = {...}
-				if type(NewOptions[1]) == "table" then
-					table.foreach(Option, function(_,Name)
-						AddOption(Name)
-					end)
-				else
-					table.foreach(NewOptions, function(_,Name)
-						AddOption(Name)
-					end)
-				end
-			end
-			function Dropdown:Remove(Option)
-				for index, Value in pairs(GetOptions()) do
-					if type(Option) == "number" and index == Option or Value.Name == "Option" then
-						RemoveOption(index, Value.Value)
-					end
-				end
-			end
-			function Dropdown:Select(Option)
-				if type(Option) == "string" then
-					for _,Val in pairs(Options) do
-						if Val.Name == Option then
-							Val.Active()
-						end
-					end
-				elseif type(Option) == "number" then
-					for ind,Val in pairs(Options) do
-						if ind == Option then
-							Val.Active()
-						end
-					end
-				end
-			end
-			function Dropdown:Set(Val1, Clear)
-				if type(Val1) == "table" then
-					AddNewOptions(Val1, not Clear)
-				elseif type(Val1) == "function" then
-					Callback = Val1
-				end
-			end
-			return Dropdown
-		end
-		function Tab:AddSlider(Configs)
-			local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
-			local SDesc = Configs.Desc or Configs.Description or ""
-			local Min = Configs[2] or Configs.MinValue or Configs.Min or 10
-			local Max = Configs[3] or Configs.MaxValue or Configs.Max or 100
-			local Increase = Configs[4] or Configs.Increase or 1
-			local Callback = Funcs:GetCallback(Configs, 6)
-			local Flag = Configs[7] or Configs.Flag or false
-			local Default = Configs[5] or Configs.Default or 25
-			if CheckFlag(Flag) then Default = GetFlag(Flag) end
-			Min, Max = Min / Increase, Max / Increase
-			
-			local Button, LabelFunc = ButtonFrame(Container, SName, SDesc, UDim2.new(1, -180))
-			
-			local SliderHolder = Create("TextButton", Button, {
-				Size = UDim2.new(0.45, 0, 1),
-				Position = UDim2.new(1),
-				AnchorPoint = Vector2.new(1, 0),
-				AutoButtonColor = false,
-				Text = "",
-				BackgroundTransparency = 1
-			})
-			
-			local SliderBar = InsertTheme(Create("Frame", SliderHolder, {
-				BackgroundColor3 = Theme["Color Stroke"],
-				Size = UDim2.new(1, -20, 0, 6),
-				Position = UDim2.new(0.5, 0, 0.5),
-				AnchorPoint = Vector2.new(0.5, 0.5)
-			}), "Stroke")Make("Corner", SliderBar)
-			
-			local Indicator = InsertTheme(Create("Frame", SliderBar, {
-				BackgroundColor3 = Theme["Color Theme"],
-				Size = UDim2.fromScale(0.3, 1),
-				BorderSizePixel = 0
-			}), "Theme")Make("Corner", Indicator)
-			
-			local SliderIcon = Create("Frame", SliderBar, {
-				Size = UDim2.new(0, 6, 0, 12),
-				BackgroundColor3 = Color3.fromRGB(220, 220, 220),
-				Position = UDim2.fromScale(0.3, 0.5),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				BackgroundTransparency = 0.2
-			})Make("Corner", SliderIcon)
-			
-			local LabelVal = InsertTheme(Create("TextLabel", SliderHolder, {
-				Size = UDim2.new(0, 14, 0, 14),
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(0, 0, 0.5),
-				BackgroundTransparency = 1,
-				TextColor3 = Theme["Color Text"],
-				Font = Enum.Font.FredokaOne,
-				TextSize = 12
-			}), "Text")
-			
-			local UIScale = Create("UIScale", LabelVal)
-			
-			local BaseMousePos = Create("Frame", SliderBar, {
-				Position = UDim2.new(0, 0, 0.5, 0),
-				Visible = false
-			})
-			
-			local function UpdateLabel(NewValue)
-				local Number = tonumber(NewValue * Increase)
-				Number = math.floor(Number * 100) / 100
-				
-				Default, LabelVal.Text = Number, tostring(Number)
-				Funcs:FireCallback(Callback, Default)
-			end
-			
-			local function ControlPos()
-				local MousePos = Player:GetMouse()
-				local APos = MousePos.X - BaseMousePos.AbsolutePosition.X
-				local ConfigureDpiPos = APos / SliderBar.AbsoluteSize.X
-				
-				SliderIcon.Position = UDim2.new(math.clamp(ConfigureDpiPos, 0, 1), 0, 0.5, 0)
-			end
-			
-			local function UpdateValues()
-				Indicator.Size = UDim2.new(SliderIcon.Position.X.Scale, 0, 1, 0)
-				local SliderPos = SliderIcon.Position.X.Scale
-				local NewValue = math.floor(((SliderPos * Max) / Max) * (Max - Min) + Min)
-				UpdateLabel(NewValue)
-			end
-			
-			SliderHolder.MouseButton1Down:Connect(function()
-				CreateTween({SliderIcon, "Transparency", 0, 0.3})
-				Container.ScrollingEnabled = false
-				while UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) do task.wait()
-					ControlPos()
-				end
-				CreateTween({SliderIcon, "Transparency", 0.2, 0.3})
-				Container.ScrollingEnabled = true
-				SetFlag(Flag, Default)
-			end)
-			
-			LabelVal:GetPropertyChangedSignal("Text"):Connect(function()
-				UIScale.Scale = 0.3
-				CreateTween({UIScale, "Scale", 1.2, 0.1})
-				CreateTween({LabelVal, "Rotation", math.random(-1, 1) * 5, 0.15, true})
-				CreateTween({UIScale, "Scale", 1, 0.2})
-				CreateTween({LabelVal, "Rotation", 0, 0.1})
-			end)
-			
-			function SetSlider(NewValue)
-				if type(NewValue) ~= "number" then return end
-				
-				local Min, Max = Min * Increase, Max * Increase
-				
-				local SliderPos = (NewValue - Min) / (Max - Min)
-				
-				SetFlag(Flag, NewValue)
-				CreateTween({ SliderIcon, "Position", UDim2.fromScale(math.clamp(SliderPos, 0, 1), 0.5), 0.3, true })
-			end;SetSlider(Default)
-			
-			SliderIcon:GetPropertyChangedSignal("Position"):Connect(UpdateValues)UpdateValues()
-			
-			local Slider = {}
-			function Slider:Set(NewVal1, NewVal2)
-				if NewVal1 and NewVal2 then
-					LabelFunc:SetTitle(NewVal1)
-					LabelFunc:SetDesc(NewVal2)
-				elseif type(NewVal1) == "string" then
-					LabelFunc:SetTitle(NewVal1)
-				elseif type(NewVal1) == "function" then
-					Callback = NewVal1
-				elseif type(NewVal1) == "number" then
-					SetSlider(NewVal1)
-				end
-			end
-			function Slider:Callback(...) Funcs:InsertCallback(Callback, ...)(tonumber(Default)) end
-			function Slider:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function Slider:Destroy() Button:Destroy() end
-			return Slider
-		end
-		function Tab:AddTextBox(Configs)
-			local TName = Configs[1] or Configs.Name or Configs.Title or "Text Box"
-			local TDesc = Configs.Desc or Configs.Description or ""
-			local TDefault = Configs[2] or Configs.Default or ""
-			local TPlaceholderText = Configs[5] or Configs.PlaceholderText or "Input"
-			local TClearText = Configs[3] or Configs.ClearText or false
-			local Callback = Funcs:GetCallback(Configs, 4)
-			
-			if type(TDefault) ~= "string" or TDefault:gsub(" ", ""):len() < 1 then
-				TDefault = false
-			end
-			
-			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
-			
-			local SelectedFrame = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 150, 0, 18),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
-			
-			local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {
-				Size = UDim2.new(0.85, 0, 0.85, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.GothamBold,
-				TextScaled = true,
-				TextColor3 = Theme["Color Text"],
-				ClearTextOnFocus = TClearText,
-				PlaceholderText = TPlaceholderText,
-				Text = ""
-			}), "Text")
-			
-			local Pencil = Create("ImageLabel", SelectedFrame, {
-				Size = UDim2.new(0, 12, 0, 12),
-				Position = UDim2.new(0, -5, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				Image = "rbxassetid://15637081879",
-				BackgroundTransparency = 1
-			})
-			
-			local TextBox = {}
-			local function Input()
-				local Text = TextBoxInput.Text
-				if Text:gsub(" ", ""):len() > 0 then
-					if TextBox.OnChanging then Text = TextBox.OnChanging(Text) or Text end
-					Funcs:FireCallback(Callback, Text)
-					TextBoxInput.Text = Text
-				end
-			end
-			
-			TextBoxInput.FocusLost:Connect(Input)Input()
-			
-			TextBoxInput.FocusLost:Connect(function()
-				CreateTween({Pencil, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
-			end)
-			TextBoxInput.Focused:Connect(function()
-				CreateTween({Pencil, "ImageColor3", Theme["Color Theme"], 0.2})
-			end)
-			
-			TextBox.OnChanging = false
-			function TextBox:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function TextBox:Destroy() Button:Destroy() end
-			return TextBox
 		end
 
-		--[[function Tab:AddDiscordInvite(Configs)
-			local Title = Configs[1] or Configs.Name or Configs.Title or "Discord"
-			local Desc = Configs.Desc or Configs.Description or ""
-			local Logo = Configs[2] or Configs.Logo or ""
-			local Invite = Configs[3] or Configs.Invite or ""
-			
-			local InviteHolder = Create("Frame", Container, {
-				Size = UDim2.new(1, 0, 0, 80),
-				Name = "Option",
-				BackgroundTransparency = 1
+		function Tab:AddSection(text)
+			local l = label(page, string.upper(text), 11, Enum.Font.GothamBold, "Accent", { Size = UDim2.new(1, 0, 0, 20) })
+			New("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingTop = UDim.new(0, 4), Parent = l })
+			return l
+		end
+
+		function Tab:AddParagraph(pcfg)
+			local f = New("Frame", { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BorderSizePixel = 0, Parent = page }, {
+				New("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 9), PaddingBottom = UDim.new(0, 10) }),
+				New("UIListLayout", { Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder }),
 			})
-			
-			local InviteLabel = Create("TextLabel", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 15),
-				Position = UDim2.new(0, 5),
-				TextColor3 = Color3.fromRGB(40, 150, 255),
-				Font = Enum.Font.GothamBold,
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Invite
+			bind(f, "BackgroundColor3", "Item")
+			corner(f, 9)
+			stroke(f, "Stroke", 1, 0.35)
+			local a = label(f, pcfg[1] or pcfg.Title or "", 12, Enum.Font.GothamBold, "Text", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 16) })
+			local b = label(f, pcfg[2] or pcfg.Text or "", 11, Enum.Font.GothamMedium, "Dim", {
+				LayoutOrder = 2, TextWrapped = true, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, TextYAlignment = Enum.TextYAlignment.Top,
 			})
-			
-			local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 65),
-				AnchorPoint = Vector2.new(0, 1),
-				Position = UDim2.new(0, 0, 1),
-				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Frame")Make("Corner", FrameHolder)
-			
-			local ImageLabel = Create("ImageLabel", FrameHolder, {
-				Size = UDim2.new(0, 30, 0, 30),
-				Position = UDim2.new(0, 7, 0, 7),
-				Image = Logo,
-				BackgroundTransparency = 1
-			})Make("Corner", ImageLabel, UDim.new(0, 4))Make("Stroke", ImageLabel)
-			
-			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 15),
-				Position = UDim2.new(0, 44, 0, 7),
-				Font = Enum.Font.GothamBold,
-				TextColor3 = Theme["Color Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Title
-			}), "Text")
-			
-			local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 0),
-				Position = UDim2.new(0, 44, 0, 22),
-				TextWrapped = "Y",
-				AutomaticSize = "Y",
-				Font = Enum.Font.Gotham,
-				TextColor3 = Theme["Color Dark Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 8,
-				Text = Desc
-			}), "DarkText")
-			
-			local JoinButton = Create("TextButton", FrameHolder, {
-				Size = UDim2.new(1, -14, 0, 16),
-				AnchorPoint = Vector2.new(0.5, 1),
-				Position = UDim2.new(0.5, 0, 1, -7),
-				Text = "Join",
-				Font = Enum.Font.GothamBold,
-				TextSize = 12,
-				TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-			})Make("Corner", JoinButton, UDim.new(0, 5))
-			
-			local ClickDelay
-			JoinButton.Activated:Connect(function()
-				setclipboard(Invite)
-				if ClickDelay then return end
-				
-				ClickDelay = true
-				SetProps(JoinButton, {
-					Text = "Copied to Clipboard",
-					BackgroundColor3 = Color3.fromRGB(100, 100, 100),
-					TextColor3 = Color3.fromRGB(150, 150, 150)
-				})task.wait(5)
-				SetProps(JoinButton, {
-					Text = "Join",
-					BackgroundColor3 = Color3.fromRGB(50, 150, 50),
-					TextColor3 = Color3.fromRGB(220, 220, 220)
-				})ClickDelay = false
+			local obj = {}
+			function obj:Set(t1, t2) if t1 then a.Text = t1 end if t2 then b.Text = t2 end end
+			return obj
+		end
+
+		function Tab:AddButton(bcfg)
+			local hasDesc = bcfg.Desc and bcfg.Desc ~= ""
+			local item, st = newItem(hasDesc and 46 or 36)
+			local nameL = label(item, bcfg.Name, 12, Enum.Font.GothamBold, "Text", { Position = UDim2.fromOffset(12, hasDesc and 6 or 0), Size = UDim2.new(1, -44, 0, hasDesc and 16 or 36), TextTruncate = Enum.TextTruncate.AtEnd })
+			local descL
+			if hasDesc then
+				descL = label(item, bcfg.Desc, 10, Enum.Font.GothamMedium, "Dim", { Position = UDim2.fromOffset(12, 24), Size = UDim2.new(1, -44, 0, 14), TextTruncate = Enum.TextTruncate.AtEnd })
+			end
+			label(item, "›", 20, Enum.Font.GothamBold, "Accent", { Position = UDim2.new(1, -28, 0, 0), Size = UDim2.fromOffset(18, hasDesc and 46 or 36), TextXAlignment = Enum.TextXAlignment.Center })
+			local click = New("TextButton", { Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "", Parent = item })
+			hover(click, st)
+			click.MouseButton1Click:Connect(function()
+				tw(item, 0.08, { BackgroundColor3 = T.Stroke })
+				task.delay(0.1, function() tw(item, 0.15, { BackgroundColor3 = T.Item }) end)
+				safe(bcfg.Callback)
 			end)
-			
-			local DiscordInvite = {}
-			function DiscordInvite:Destroy() InviteHolder:Destroy() end
-			function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
-			return DiscordInvite
-		end]] --777
+			local obj = {}
+			function obj:Set(name, desc)
+				if name then nameL.Text = name end
+				if desc and descL then descL.Text = desc end
+			end
+			return obj
+		end
+
+		function Tab:AddToggle(tcfg2)
+			local hasDesc = tcfg2.Desc and tcfg2.Desc ~= ""
+			local h = hasDesc and 46 or 36
+			local item, st = newItem(h)
+			label(item, tcfg2.Name, 12, Enum.Font.GothamBold, "Text", { Position = UDim2.fromOffset(12, hasDesc and 6 or 0), Size = UDim2.new(1, -70, 0, hasDesc and 16 or 36), TextTruncate = Enum.TextTruncate.AtEnd })
+			if hasDesc then
+				label(item, tcfg2.Desc, 10, Enum.Font.GothamMedium, "Dim", { Position = UDim2.fromOffset(12, 24), Size = UDim2.new(1, -70, 0, 14), TextTruncate = Enum.TextTruncate.AtEnd })
+			end
+			local track_ = New("Frame", { Size = UDim2.fromOffset(40, 20), Position = UDim2.new(1, -52, 0.5, -10), BorderSizePixel = 0, Parent = item })
+			corner(track_, 10)
+			local knob = New("Frame", { Size = UDim2.fromOffset(14, 14), Position = UDim2.fromOffset(3, 3), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Parent = track_ })
+			corner(knob, 7)
+			local obj = { Value = false }
+			local function paint(animate)
+				local on = obj.Value
+				local col = on and T.Accent or T.Stroke
+				local pos = on and UDim2.fromOffset(23, 3) or UDim2.fromOffset(3, 3)
+				if animate then
+					tw(track_, 0.15, { BackgroundColor3 = col })
+					tw(knob, 0.15, { Position = pos })
+				else
+					track_.BackgroundColor3 = col
+					knob.Position = pos
+				end
+			end
+			refreshers[#refreshers + 1] = function() paint(false) end
+			function obj:Set(v, silent)
+				v = v and true or false
+				if v == obj.Value then return end
+				obj.Value = v
+				paint(true)
+				if not silent then safe(tcfg2.Callback, v) end
+			end
+			local click = New("TextButton", { Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, Text = "", Parent = item })
+			hover(click, st)
+			click.MouseButton1Click:Connect(function() obj:Set(not obj.Value) end)
+			if tcfg2.Default then
+				obj.Value = true
+				paint(false)
+				safe(tcfg2.Callback, true)
+			else
+				paint(false)
+			end
+			return obj
+		end
+
+		function Tab:AddSlider(scfg)
+			local min, max, inc = scfg.Min or 0, scfg.Max or 100, scfg.Increase or scfg.Increment or 1
+			local value = math.clamp(scfg.Default or min, min, max)
+			local item, st = newItem(54)
+			label(item, scfg.Name, 12, Enum.Font.GothamBold, "Text", { Position = UDim2.fromOffset(12, 7), Size = UDim2.new(1, -90, 0, 16), TextTruncate = Enum.TextTruncate.AtEnd })
+			local valL = label(item, "", 12, Enum.Font.GothamBold, "Accent", { Position = UDim2.new(1, -78, 0, 7), Size = UDim2.fromOffset(66, 16), TextXAlignment = Enum.TextXAlignment.Right })
+			local trackF = New("Frame", { Position = UDim2.new(0, 12, 0, 36), Size = UDim2.new(1, -24, 0, 6), BorderSizePixel = 0, Parent = item })
+			bind(trackF, "BackgroundColor3", "Stroke")
+			corner(trackF, 3)
+			local fill = New("Frame", { Size = UDim2.new(0, 0, 1, 0), BorderSizePixel = 0, Parent = trackF })
+			bind(fill, "BackgroundColor3", "Accent")
+			corner(fill, 3)
+			local fg = New("UIGradient", { Parent = fill })
+			local knob = New("Frame", { Size = UDim2.fromOffset(14, 14), AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0, 0, 0.5, 0), BackgroundColor3 = Color3.new(1, 1, 1), BorderSizePixel = 0, Parent = trackF })
+			corner(knob, 7)
+			local obj = { Value = value }
+			local function fmt(v) return tostring(math.floor(v * 100 + 0.5) / 100) end
+			local function render()
+				local a = (max == min) and 0 or (obj.Value - min) / (max - min)
+				fill.Size = UDim2.new(a, 0, 1, 0)
+				knob.Position = UDim2.new(a, 0, 0.5, 0)
+				valL.Text = fmt(obj.Value) .. (scfg.Suffix or "")
+				fg.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, T.Accent), ColorSequenceKeypoint.new(1, T.Accent2) })
+			end
+			refreshers[#refreshers + 1] = render
+			function obj:Set(v, silent)
+				v = math.clamp(math.floor(v / inc + 0.5) * inc, min, max)
+				if v == obj.Value then return end
+				obj.Value = v
+				render()
+				if not silent then safe(scfg.Callback, v) end
+			end
+			render()
+			local hit = New("TextButton", { Position = UDim2.new(0, 0, 0, 24), Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, Text = "", Parent = item })
+			hover(hit, st)
+			local dragging = false
+			local function fromX(x)
+				local a = math.clamp((x - trackF.AbsolutePosition.X) / math.max(trackF.AbsoluteSize.X, 1), 0, 1)
+				obj:Set(min + (max - min) * a)
+			end
+			hit.InputBegan:Connect(function(i)
+				if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+					dragging = true
+					page.ScrollingEnabled = false
+					fromX(i.Position.X)
+				end
+			end)
+			track(UserInputService.InputChanged:Connect(function(i)
+				if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+					fromX(i.Position.X)
+				end
+			end))
+			track(UserInputService.InputEnded:Connect(function(i)
+				if dragging and (i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch) then
+					dragging = false
+					page.ScrollingEnabled = true
+				end
+			end))
+			return obj
+		end
+
+		function Tab:AddDropdown(dcfg)
+			local opts = dcfg.Options or {}
+			local obj = { Value = dcfg.Default }
+			local item, st = newItem(40)
+			item.ClipsDescendants = true
+			label(item, dcfg.Name, 12, Enum.Font.GothamBold, "Text", { Position = UDim2.fromOffset(12, 0), Size = UDim2.new(0.5, -12, 0, 40), TextTruncate = Enum.TextTruncate.AtEnd })
+			local valL = label(item, "", 11, Enum.Font.GothamBold, "Accent", { Position = UDim2.new(0.4, 0, 0, 0), Size = UDim2.new(0.6, -30, 0, 40), TextXAlignment = Enum.TextXAlignment.Right, TextTruncate = Enum.TextTruncate.AtEnd })
+			local arrow = label(item, "▾", 14, Enum.Font.GothamBold, "Dim", { Position = UDim2.new(1, -26, 0, 0), Size = UDim2.fromOffset(16, 40), TextXAlignment = Enum.TextXAlignment.Center })
+			local head = New("TextButton", { Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Text = "", Parent = item })
+			hover(head, st)
+			local list = New("ScrollingFrame", {
+				Position = UDim2.fromOffset(8, 44), Size = UDim2.new(1, -16, 0, 0), BackgroundTransparency = 1, BorderSizePixel = 0,
+				ScrollBarThickness = 2, AutomaticCanvasSize = Enum.AutomaticSize.Y, CanvasSize = UDim2.new(), Parent = item,
+			}, { New("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }) })
+			local expanded = false
+			local function listH() return math.max(math.min(#opts, 5), 1) * 28 end
+			local function paintValue() valL.Text = obj.Value ~= nil and tostring(obj.Value) or "—" end
+			local function render()
+				for _, c in ipairs(list:GetChildren()) do if c:IsA("TextButton") then c:Destroy() end end
+				for i, o in ipairs(opts) do
+					local b = New("TextButton", {
+						Size = UDim2.new(1, -4, 0, 26), BorderSizePixel = 0, AutoButtonColor = false, Text = tostring(o),
+						TextSize = 11, Font = Enum.Font.GothamMedium, LayoutOrder = i, Parent = list,
+					})
+					corner(b, 6)
+					local sel = (o == obj.Value)
+					b.BackgroundColor3 = T.Stroke
+					b.BackgroundTransparency = sel and 0.4 or 1
+					b.TextColor3 = sel and T.Accent or T.Text
+					b.MouseButton1Click:Connect(function()
+						obj.Value = o
+						paintValue()
+						render()
+						safe(dcfg.Callback, o)
+					end)
+				end
+				list.Size = UDim2.new(1, -16, 0, listH())
+				if expanded then tw(item, 0.18, { Size = UDim2.new(1, 0, 0, 40 + 8 + listH() + 6) }) end
+			end
+			refreshers[#refreshers + 1] = render
+			head.MouseButton1Click:Connect(function()
+				expanded = not expanded
+				arrow.Text = expanded and "▴" or "▾"
+				if expanded then render() else tw(item, 0.15, { Size = UDim2.new(1, 0, 0, 40) }) end
+			end)
+			function obj:Set(v, silent) obj.Value = v paintValue() render() if not silent then safe(dcfg.Callback, v) end end
+			function obj:Refresh(newOpts, keep)
+				opts = newOpts or {}
+				if not keep then obj.Value = nil end
+				paintValue()
+				render()
+			end
+			paintValue()
+			render()
+			return obj
+		end
+
 		return Tab
 	end
-	
-	CloseButton.Activated:Connect(Window.CloseBtn)
-	MinimizeButton.Activated:Connect(Window.MinimizeBtn)
 
+	function Window:SelectFirst() if tabs[1] then selectTab(tabs[1]) end end
 	return Window
 end
+
+UI.Themes = Themes
 
 
 ----------------------------------------------------------------------
 -- STAR HUB  (funções + abas)
 ----------------------------------------------------------------------
-local VERSION = "v3.1"
+local VERSION = "v4.0"
 local GAME_NAME = "Underground War 2.0"
 local TOGGLE_KEYS = { [Enum.KeyCode.B] = true, [Enum.KeyCode.RightShift] = true }
+local UIS = UserInputService
 
--- Scripts de cada função. Troque as URLs aqui se quiser usar cópias suas.
+local Window = UI:MakeWindow({ Title = "Star Hub", SubTitle = GAME_NAME, Footer = "Star Hub " .. VERSION })
+local function notify(title, desc, kind, dur)
+	Window:Notify({ Title = title, Description = desc, Type = kind, Duration = dur or 3 })
+end
+
+local function getChar() return LP.Character end
+local function getHum() local c = LP.Character return c and c:FindFirstChildOfClass("Humanoid") end
+local function getRoot() local c = LP.Character return c and c:FindFirstChild("HumanoidRootPart") end
+
+local activeCount = 0
+local function tog(tab, name, desc, fn, default)
+	return tab:AddToggle({
+		Name = name, Desc = desc, Default = default,
+		Callback = function(v)
+			activeCount = activeCount + (v and 1 or -1)
+			fn(v)
+		end,
+	})
+end
+
+----------------------------------------------------------------------
+-- KILL AURA / ALCANCE DA ESPADA  (embutida e corrigida)
+--
+-- O que foi corrigido em relação à versão antiga:
+--  * Loop em Heartbeat (RenderStepped para de rodar com a janela minimizada/sem foco)
+--  * Watchdog: se o loop morrer por qualquer motivo, ele é religado sozinho
+--  * Cada ciclo roda dentro de pcall: um erro não derruba mais o loop inteiro
+--  * Teleporte de volta SEMPRE acontece (antes um erro deixava você preso no inimigo)
+--  * Intervalo entre ataques (antes spammava firetouchinterest todo frame, o que
+--    estoura o limite de eventos e pode ser ignorado/derrubado pelo servidor)
+--  * Escolha da parte da espada: usa a parte que tem TouchInterest (hitbox real),
+--    revalida se ela sumir/trocar, e não pega mais uma "Part" qualquer
+--  * Auto-golpe (Tool:Activate) — muitos servidores só contam o dano durante o swing
+--  * Atinge várias partes do inimigo (raiz, cabeça, tronco) e vários alvos por ciclo
+--  * Pula inimigos mortos, com ForceField ou do seu time (opcional)
+--  * Equipar espada automático ao respawnar (opcional)
+--  * Recarregar o script limpa a instância antiga (antes empilhava loops)
+--  * Painel de status para você ver exatamente onde ela para (se parar)
+----------------------------------------------------------------------
+local KA = {
+	Enabled = false, Range = 18, Teleport = true, AutoSwing = true, TeamCheck = true,
+	MaxTargets = 4, Interval = 0.06, Highlight = true, AutoEquip = false, Priority = "Mais perto",
+	Hits = 0, LastHit = 0, Targets = 0, Errors = 0, Restarts = 0, LastErr = "-", Status = "desligada",
+}
+local ftouch = firetouchinterest
+local partCache = { tool = nil, parts = {}, t = 0 }
+local indicator, hue = nil, 0
+local lastTick, lastAttack, lastSwing, lastEquip = os.clock(), 0, 0, 0
+
+local function killIndicator()
+	if indicator then pcall(function() indicator:Destroy() end) indicator = nil end
+end
+
+local function getToolParts(tool)
+	local now = os.clock()
+	if partCache.tool == tool and now - partCache.t < 1 and #partCache.parts > 0 then
+		local ok = true
+		for _, p in ipairs(partCache.parts) do if not p.Parent then ok = false break end end
+		if ok then return partCache.parts end
+	end
+	local all, touchy = {}, {}
+	for _, d in ipairs(tool:GetDescendants()) do
+		if d:IsA("BasePart") then
+			all[#all + 1] = d
+			if d:FindFirstChildWhichIsA("TouchTransmitter") then touchy[#touchy + 1] = d end
+		end
+	end
+	local use = touchy
+	if #use == 0 then
+		local h = tool:FindFirstChild("Handle") or tool:FindFirstChild("Blade")
+		if h and h:IsA("BasePart") then use = { h } else use = all end
+	end
+	while #use > 3 do table.remove(use) end
+	partCache = { tool = tool, parts = use, t = now }
+	return use
+end
+
+local function isEnemy(plr)
+	if plr == LP then return false end
+	if KA.TeamCheck and plr.Team ~= nil and LP.Team ~= nil and plr.Team == LP.Team then return false end
+	return true
+end
+
+local function collectTargets(myRoot)
+	local list = {}
+	local myPos = myRoot.Position
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if isEnemy(plr) then
+			local ch = plr.Character
+			local r = ch and ch:FindFirstChild("HumanoidRootPart")
+			local h = ch and ch:FindFirstChildOfClass("Humanoid")
+			if r and h and h.Health > 0 and not ch:FindFirstChildOfClass("ForceField") then
+				local d = (myPos - r.Position).Magnitude
+				if d <= KA.Range then
+					list[#list + 1] = { ch = ch, root = r, hum = h, dist = d }
+				end
+			end
+		end
+	end
+	if KA.Priority == "Menos vida" then
+		table.sort(list, function(a, b) return a.hum.Health < b.hum.Health end)
+	else
+		table.sort(list, function(a, b) return a.dist < b.dist end)
+	end
+	while #list > KA.MaxTargets do table.remove(list) end
+	return list
+end
+
+local function hitTarget(parts, tgt, myRoot)
+	local targetParts = { tgt.root }
+	local head = tgt.ch:FindFirstChild("Head")
+	if head then targetParts[#targetParts + 1] = head end
+	local torso = tgt.ch:FindFirstChild("UpperTorso") or tgt.ch:FindFirstChild("Torso")
+	if torso then targetParts[#targetParts + 1] = torso end
+
+	local origin = myRoot.CFrame
+	local moved = false
+	if KA.Teleport then
+		moved = pcall(function() myRoot.CFrame = tgt.root.CFrame * CFrame.new(0, 0, 2) end)
+	end
+	local ok, err = pcall(function()
+		for _, sp in ipairs(parts) do
+			for _, tp in ipairs(targetParts) do
+				ftouch(sp, tp, 0)
+				ftouch(sp, tp, 1)
+			end
+		end
+	end)
+	if moved then pcall(function() myRoot.CFrame = origin end) end -- volta SEMPRE
+	if not ok then
+		KA.Errors = KA.Errors + 1
+		KA.LastErr = tostring(err):sub(1, 60)
+	else
+		KA.Hits = KA.Hits + 1
+		KA.LastHit = os.clock()
+	end
+end
+
+local function kaStep()
+	local ch = LP.Character
+	local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+	local myRoot = ch and ch:FindFirstChild("HumanoidRootPart")
+	if not hum or not myRoot or hum.Health <= 0 then KA.Status = "aguardando respawn" killIndicator() return end
+
+	local tool = ch:FindFirstChildOfClass("Tool")
+	if not tool then
+		killIndicator()
+		KA.Status = "sem espada equipada"
+		if KA.AutoEquip and os.clock() - lastEquip > 1 then
+			lastEquip = os.clock()
+			local bp = LP:FindFirstChildOfClass("Backpack")
+			local t = bp and bp:FindFirstChildOfClass("Tool")
+			if t then pcall(function() hum:EquipTool(t) end) end
+		end
+		return
+	end
+
+	local parts = getToolParts(tool)
+	if #parts == 0 then KA.Status = "espada sem hitbox" killIndicator() return end
+
+	if KA.Highlight then
+		if not indicator or indicator.Adornee ~= parts[1] or not indicator.Parent then
+			killIndicator()
+			pcall(function()
+				indicator = Instance.new("SelectionBox")
+				indicator.Adornee = parts[1]
+				indicator.LineThickness = 0.03
+				indicator.Parent = parts[1]
+			end)
+		end
+		if indicator then
+			hue = (hue + 0.012) % 1
+			indicator.Color3 = Color3.fromHSV(hue, 1, 1)
+		end
+	else
+		killIndicator()
+	end
+
+	local targets = collectTargets(myRoot)
+	KA.Targets = #targets
+	if #targets == 0 then KA.Status = "ligada — sem alvos no alcance" return end
+	KA.Status = "atacando"
+
+	if KA.AutoSwing and os.clock() - lastSwing > 0.25 then
+		lastSwing = os.clock()
+		pcall(function() tool:Activate() end)
+	end
+	for _, tgt in ipairs(targets) do hitTarget(parts, tgt, myRoot) end
+end
+
+local kaConn
+local function kaOnHeartbeat()
+	lastTick = os.clock()
+	if not KA.Enabled or not alive then return end
+	if lastTick - lastAttack < KA.Interval then return end
+	lastAttack = lastTick
+	local ok, err = pcall(kaStep)
+	if not ok then
+		KA.Errors = KA.Errors + 1
+		KA.LastErr = tostring(err):sub(1, 60)
+	end
+end
+local function kaConnect()
+	if kaConn then pcall(function() kaConn:Disconnect() end) end
+	kaConn = RunService.Heartbeat:Connect(kaOnHeartbeat)
+	lastTick = os.clock()
+end
+kaConnect()
+onCleanup(function() KA.Enabled = false if kaConn then kaConn:Disconnect() end killIndicator() end)
+
+-- watchdog: religa o loop se ele parar de rodar
+task.spawn(function()
+	while alive do
+		task.wait(1)
+		if os.clock() - lastTick > 2 then
+			KA.Restarts = KA.Restarts + 1
+			kaConnect()
+		end
+	end
+end)
+
+track(LP.CharacterAdded:Connect(function()
+	partCache = { tool = nil, parts = {}, t = 0 }
+	killIndicator()
+end))
+
+----------------------------------------------------------------------
+-- HITBOX
+----------------------------------------------------------------------
+local HB = { Enabled = false, Size = 8 }
+local hbOrig = setmetatable({}, { __mode = "k" })
+local function hbRestore()
+	for r, o in pairs(hbOrig) do
+		if r.Parent then pcall(function() r.Size, r.Transparency, r.CanCollide = o[1], o[2], o[3] end) end
+		hbOrig[r] = nil
+	end
+end
+
+----------------------------------------------------------------------
+-- MOVIMENTO / VISUAL / UTILIDADES  (estado)
+----------------------------------------------------------------------
+local S = {
+	InfJump = false, Fly = false, FlySpeed = 60, JumpOn = false, JumpPower = 90, Bhop = false,
+	AntiVoid = false, AntiRagdoll = false, Fullbright = false, NoFog = false, FovOn = false, Fov = 90,
+	Zoom = false, AntiAFK = true,
+}
+local flyBV, flyBG
+local safePos, lastSafe = nil, 0
+local lightOrig, zoomOrig, atmoOrig = nil, nil, {}
+
+local function flyCleanup()
+	if flyBV then pcall(function() flyBV:Destroy() end) flyBV = nil end
+	if flyBG then pcall(function() flyBG:Destroy() end) flyBG = nil end
+	local h = getHum()
+	if h then pcall(function() h.PlatformStand = false end) end
+end
+
+local function flyStep()
+	local r, h = getRoot(), getHum()
+	if not r or not h then return end
+	if not flyBV or flyBV.Parent ~= r then
+		if flyBV then flyBV:Destroy() end
+		if flyBG then flyBG:Destroy() end
+		flyBV = Instance.new("BodyVelocity")
+		flyBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+		flyBV.Velocity = Vector3.zero
+		flyBV.Parent = r
+		flyBG = Instance.new("BodyGyro")
+		flyBG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+		flyBG.P = 9e4
+		flyBG.CFrame = r.CFrame
+		flyBG.Parent = r
+	end
+	h.PlatformStand = true
+	local c = cam().CFrame
+	local look = Vector3.new(c.LookVector.X, 0, c.LookVector.Z)
+	local right = Vector3.new(c.RightVector.X, 0, c.RightVector.Z)
+	local m = h.MoveDirection
+	local dir = Vector3.zero
+	if look.Magnitude > 0.01 and right.Magnitude > 0.01 then
+		dir = c.LookVector * m:Dot(look.Unit) + c.RightVector * m:Dot(right.Unit)
+	end
+	local up = 0
+	if UIS:IsKeyDown(Enum.KeyCode.Space) then up = 1
+	elseif UIS:IsKeyDown(Enum.KeyCode.LeftControl) or UIS:IsKeyDown(Enum.KeyCode.LeftShift) then up = -1 end
+	flyBV.Velocity = dir * S.FlySpeed + Vector3.new(0, up * S.FlySpeed, 0)
+	flyBG.CFrame = c
+end
+
+local function applyAntiRagdoll(on)
+	local h = getHum()
+	if not h then return end
+	for _, st in ipairs({ Enum.HumanoidStateType.FallingDown, Enum.HumanoidStateType.Ragdoll, Enum.HumanoidStateType.PlatformStanding }) do
+		pcall(function() h:SetStateEnabled(st, not on) end)
+	end
+end
+
+local function saveLighting()
+	if lightOrig then return end
+	lightOrig = {
+		Brightness = Lighting.Brightness, ClockTime = Lighting.ClockTime, FogEnd = Lighting.FogEnd, FogStart = Lighting.FogStart,
+		GlobalShadows = Lighting.GlobalShadows, Ambient = Lighting.Ambient, OutdoorAmbient = Lighting.OutdoorAmbient,
+	}
+end
+local function restoreLighting(keys)
+	if not lightOrig then return end
+	for _, k in ipairs(keys) do pcall(function() Lighting[k] = lightOrig[k] end) end
+end
+
+local fovOrig
+local lastRecord = 0
+track(RunService.Heartbeat:Connect(function(dt)
+	if not alive then return end
+	local h, r = getHum(), getRoot()
+
+	if S.JumpOn and h then
+		pcall(function() h.UseJumpPower = true h.JumpPower = S.JumpPower end)
+	end
+	if S.Bhop and h and UIS:IsKeyDown(Enum.KeyCode.Space) and h.FloorMaterial ~= Enum.Material.Air then
+		h:ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+	if S.AntiVoid and r and h then
+		local now = os.clock()
+		if h.FloorMaterial ~= Enum.Material.Air and now - lastSafe > 0.5 then
+			lastSafe = now
+			safePos = r.CFrame + Vector3.new(0, 3, 0)
+		end
+		if safePos and r.Position.Y < workspace.FallenPartsDestroyHeight + 120 then
+			r.AssemblyLinearVelocity = Vector3.zero
+			r.CFrame = safePos
+		end
+	end
+	if S.Fullbright then
+		Lighting.Brightness = 2
+		Lighting.GlobalShadows = false
+		Lighting.Ambient = Color3.fromRGB(190, 190, 190)
+		Lighting.OutdoorAmbient = Color3.fromRGB(190, 190, 190)
+	end
+	if S.NoFog then
+		Lighting.FogEnd = 1e6
+		Lighting.FogStart = 1e6
+	end
+	if HB.Enabled then
+		local now = os.clock()
+		if now - lastRecord > 0.25 then
+			lastRecord = now
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= LP and plr.Character then
+					local rr = plr.Character:FindFirstChild("HumanoidRootPart")
+					if rr then
+						if not hbOrig[rr] then hbOrig[rr] = { rr.Size, rr.Transparency, rr.CanCollide } end
+						pcall(function()
+							rr.Size = Vector3.new(HB.Size, HB.Size, HB.Size)
+							rr.Transparency = 0.8
+							rr.CanCollide = false
+						end)
+					end
+				end
+			end
+		end
+	end
+end))
+
+track(RunService.RenderStepped:Connect(function()
+	if not alive then return end
+	if S.Fly then pcall(flyStep) end
+	if S.FovOn and cam() then cam().FieldOfView = S.Fov end
+end))
+
+track(UIS.JumpRequest:Connect(function()
+	if S.InfJump then
+		local h = getHum()
+		if h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
+	end
+end))
+
+track(LP.Idled:Connect(function()
+	if S.AntiAFK then
+		pcall(function()
+			local vu = game:GetService("VirtualUser")
+			vu:CaptureController()
+			vu:ClickButton2(Vector2.new())
+		end)
+	end
+end))
+
+track(LP.CharacterAdded:Connect(function()
+	task.wait(0.6)
+	if S.AntiRagdoll then applyAntiRagdoll(true) end
+	if S.Fly then flyCleanup() end
+end))
+
+onCleanup(function()
+	S.Fly, S.InfJump, S.Fullbright, S.NoFog, S.FovOn = false, false, false, false, false
+	flyCleanup()
+	hbRestore()
+	restoreLighting({ "Brightness", "ClockTime", "FogEnd", "FogStart", "GlobalShadows", "Ambient", "OutdoorAmbient" })
+	if zoomOrig then pcall(function() LP.CameraMaxZoomDistance = zoomOrig end) end
+	pcall(function() workspace.Gravity = 196.2 end)
+	if S.AntiRagdoll then applyAntiRagdoll(false) end
+	if fovOrig and cam() then cam().FieldOfView = fovOrig end
+end)
+
+----------------------------------------------------------------------
+-- Carregador dos scripts externos (as funções que ainda não foram embutidas)
+----------------------------------------------------------------------
 local FEATURES = {
 	Combat = {
-		{ name = "Alcance da espada", desc = "Aumenta o alcance dos golpes", url = "https://raw.githubusercontent.com/jazwan/Hello-Saif_Ghazwan/refs/heads/main/Hello-Saif.lua" },
 		{ name = "Ataque orbital", desc = "Ataque orbital", url = "https://raw.githubusercontent.com/jazwan/jazwan_sudden-transfer-/refs/heads/main/jazwan_to" },
 		{ name = "Aimbot", desc = "Mira automática", url = "https://raw.githubusercontent.com/jazwan/Aimbot2/refs/heads/main/Aimbot2_Ghazwan%20.txt" },
 	},
@@ -2324,9 +1030,6 @@ local FEATURES = {
 	},
 }
 
-----------------------------------------------------------------------
--- Carregador: tenta 3x, não trava a interface e mostra sucesso/erro de verdade
-----------------------------------------------------------------------
 local sourceCache, loadedCount = {}, 0
 
 local function fetchSource(url)
@@ -2362,213 +1065,342 @@ local function runFeature(feat, btn)
 		end
 		feat.busy = false
 		if ok then
-			if not feat.loaded then
-				feat.loaded = true
-				loadedCount = loadedCount + 1
-			end
+			if not feat.loaded then feat.loaded = true loadedCount = loadedCount + 1 end
 			btn:Set(feat.name, "Carregado ✓  (toque para executar de novo)")
-			redzlib:Notify({ Title = feat.name, Description = "Executado com sucesso", Duration = 3, Type = "Success" })
+			notify(feat.name, "Executado com sucesso", "Success")
 		else
 			btn:Set(feat.name, "Falhou — toque para tentar de novo")
-			redzlib:Notify({ Title = feat.name, Description = tostring(msg):sub(1, 80), Duration = 5, Type = "Error" })
+			notify(feat.name, tostring(msg):sub(1, 80), "Error", 5)
 		end
 	end)
 end
 
-local function addFeatureTab(tab, list, withLoadAll)
-	local buttons = {}
-	if withLoadAll then
-		tab:AddSection("Ações")
-		tab:AddButton({
-			Name = "Carregar tudo",
-			Desc = "Executa todas as funções desta aba, uma por vez",
-			Callback = function()
-				task.spawn(function()
-					for _, pair in ipairs(buttons) do
-						if not pair[1].loaded then
-							runFeature(pair[1], pair[2])
-							task.wait(0.35)
-						end
-					end
-				end)
-			end,
-		})
-		tab:AddSection("Funções")
-	end
+local function addExternal(tab, list, title)
+	tab:AddSection(title or "Scripts externos")
 	for _, feat in ipairs(list) do
 		local btn
-		btn = tab:AddButton({
-			Name = feat.name,
-			Desc = feat.desc,
-			Callback = function() runFeature(feat, btn) end,
-		})
-		buttons[#buttons + 1] = { feat, btn }
+		btn = tab:AddButton({ Name = feat.name, Desc = feat.desc, Callback = function() runFeature(feat, btn) end })
 	end
 end
 
 ----------------------------------------------------------------------
--- Janela
+-- ABA: Início
 ----------------------------------------------------------------------
-local Window = redzlib:MakeWindow({ "Star Hub", GAME_NAME })
-
--- botão flutuante (abre/fecha o hub): mesma imagem da sua UI
-local Floating = Window:AddMinimizeButton({
-	Button = {
-		Size = UDim2.fromOffset(54, 54),
-		Position = UDim2.fromScale(0.04, 0.45),
-		Image = "rbxassetid://114883288714962",
-		ScaleType = Enum.ScaleType.Crop,
-		BackgroundTransparency = 0,
-		BackgroundColor3 = Theme["Color Hub 2"],
-	},
-	Corner = { CornerRadius = UDim.new(1, 0) },
-	Stroke = { Color = Theme["Color Theme"], Thickness = 2 },
-})
+local Home = Window:MakeTab({ Name = "Início", Icon = "🏠" })
+local fpsLbl, pingLbl, activeLbl
 do
-	local fb = Floating.Button
-	local baseSize = fb.Size
-	fb.MouseEnter:Connect(function() CreateTween({ fb, "Size", UDim2.fromOffset(60, 60), 0.2 }) end)
-	fb.MouseLeave:Connect(function() CreateTween({ fb, "Size", baseSize, 0.2 }) end)
-	-- a borda acompanha a cor do tema
-	for _, v in ipairs(redzlib.Instances) do
-		if v.Instance == Floating.Stroke then v.Type = "Theme" end
-	end
-end
+	local page = Home.Page
+	local hero = New("Frame", { Size = UDim2.new(1, 0, 0, 92), BorderSizePixel = 0, Parent = page })
+	UI.Bind(hero, "BackgroundColor3", "Item")
+	UI.Corner(hero, 12)
+	UI.Stroke(hero, "Stroke", 1, 0.25)
+	local hg = New("UIGradient", { Rotation = 25, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 0.35) }), Parent = hero })
 
--- Início
-local Home = Window:MakeTab({ "Início", "home" })
-local fpsLbl, pingLbl, loadedLbl
-do
-	local hero = InsertTheme(Create("Frame", Home.Cont, {
-		Size = UDim2.new(1, 0, 0, 84),
-		BackgroundColor3 = Theme["Color Hub 2"],
-		Name = "Option",
-	}), "Frame")
-	Make("Corner", hero, UDim.new(0, 10))
-	Make("Stroke", hero, { Transparency = 0.25 })
-
-	local avatar = Create("ImageLabel", hero, {
-		Size = UDim2.fromOffset(56, 56),
-		Position = UDim2.new(0, 14, 0.5, 0),
-		AnchorPoint = Vector2.new(0, 0.5),
-		BackgroundColor3 = Theme["Color Stroke"],
-		Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150",
+	local avatar = New("ImageLabel", {
+		Size = UDim2.fromOffset(62, 62), Position = UDim2.new(0, 16, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5),
+		Image = "rbxthumb://type=AvatarHeadShot&id=" .. LP.UserId .. "&w=150&h=150", Parent = hero,
 	})
-	Make("Corner", avatar, UDim.new(1, 0))
-	InsertTheme(Create("UIStroke", avatar, {
-		Color = Theme["Color Theme"], Thickness = 2, ApplyStrokeMode = "Border",
-	}), "Theme")
+	UI.Bind(avatar, "BackgroundColor3", "Stroke")
+	UI.Corner(avatar, 31)
+	UI.Stroke(avatar, "Accent", 2, 0)
 
-	InsertTheme(Create("TextLabel", hero, {
-		Text = "Bem-vindo, " .. Player.DisplayName,
-		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Theme["Color Text"],
-		BackgroundTransparency = 1, TextXAlignment = "Left", TextTruncate = "AtEnd",
-		Position = UDim2.new(0, 82, 0, 15), Size = UDim2.new(1, -96, 0, 20),
-	}), "Text")
-	InsertTheme(Create("TextLabel", hero, {
-		Text = "@" .. Player.Name .. "  •  " .. GAME_NAME,
-		Font = Enum.Font.GothamMedium, TextSize = 11, TextColor3 = Theme["Color Dark Text"],
-		BackgroundTransparency = 1, TextXAlignment = "Left", TextTruncate = "AtEnd",
-		Position = UDim2.new(0, 82, 0, 37), Size = UDim2.new(1, -96, 0, 16),
-	}), "DarkText")
+	UI.Label(hero, "Bem-vindo, " .. LP.DisplayName, 16, Enum.Font.GothamBold, "Text", { Position = UDim2.fromOffset(92, 16), Size = UDim2.new(1, -106, 0, 20), TextTruncate = Enum.TextTruncate.AtEnd })
+	UI.Label(hero, "@" .. LP.Name .. "  •  " .. GAME_NAME, 11, Enum.Font.GothamMedium, "Dim", { Position = UDim2.fromOffset(92, 38), Size = UDim2.new(1, -106, 0, 16), TextTruncate = Enum.TextTruncate.AtEnd })
+	local pill = New("Frame", { Position = UDim2.fromOffset(92, 62), Size = UDim2.fromOffset(52, 18), BackgroundTransparency = 0.8, BorderSizePixel = 0, Parent = hero })
+	UI.Bind(pill, "BackgroundColor3", "Accent")
+	UI.Corner(pill, 9)
+	UI.Label(pill, VERSION, 10, Enum.Font.GothamBold, "Accent", { Size = UDim2.new(1, 0, 1, 0), TextXAlignment = Enum.TextXAlignment.Center })
 
-	local pill = InsertTheme(Create("Frame", hero, {
-		Position = UDim2.new(0, 82, 0, 58), Size = UDim2.fromOffset(46, 16),
-		BackgroundColor3 = Theme["Color Theme"], BackgroundTransparency = 0.78, BorderSizePixel = 0,
-	}), "Theme")
-	Make("Corner", pill, UDim.new(1, 0))
-	InsertTheme(Create("TextLabel", pill, {
-		Text = VERSION, Font = Enum.Font.GothamBold, TextSize = 10, TextColor3 = Theme["Color Theme"],
-		BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0),
-	}), "Theme")
-
-	local row = Create("Frame", Home.Cont, {
-		Size = UDim2.new(1, 0, 0, 58), BackgroundTransparency = 1, Name = "Option",
-	}, {
-		Create("UIListLayout", { FillDirection = "Horizontal", Padding = UDim.new(0, 8), SortOrder = "LayoutOrder" }),
+	local row = New("Frame", { Size = UDim2.new(1, 0, 0, 62), BackgroundTransparency = 1, Parent = page }, {
+		New("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }),
 	})
-	local function Tile(order, caption)
-		local tile = InsertTheme(Create("Frame", row, {
-			Size = UDim2.new(1 / 3, -6, 1, 0), BackgroundColor3 = Theme["Color Hub 2"], LayoutOrder = order,
-		}), "Frame")
-		Make("Corner", tile, UDim.new(0, 10))
-		Make("Stroke", tile, { Transparency = 0.3 })
-		local value = InsertTheme(Create("TextLabel", tile, {
-			Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 9), BackgroundTransparency = 1,
-			Font = Enum.Font.GothamBold, TextSize = 17, TextColor3 = Theme["Color Text"], Text = "--",
-		}), "Text")
-		InsertTheme(Create("TextLabel", tile, {
-			Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromOffset(0, 34), BackgroundTransparency = 1,
-			Font = Enum.Font.GothamMedium, TextSize = 10, TextColor3 = Theme["Color Dark Text"], Text = caption,
-		}), "DarkText")
-		return value
+	local function tile(order, caption)
+		local t = New("Frame", { Size = UDim2.new(1 / 3, -6, 1, 0), BorderSizePixel = 0, LayoutOrder = order, Parent = row })
+		UI.Bind(t, "BackgroundColor3", "Item")
+		UI.Corner(t, 10)
+		UI.Stroke(t, "Stroke", 1, 0.3)
+		local v = UI.Label(t, "--", 18, Enum.Font.GothamBold, "Text", { Position = UDim2.fromOffset(0, 10), Size = UDim2.new(1, 0, 0, 24), TextXAlignment = Enum.TextXAlignment.Center })
+		UI.Label(t, caption, 10, Enum.Font.GothamMedium, "Dim", { Position = UDim2.fromOffset(0, 38), Size = UDim2.new(1, 0, 0, 14), TextXAlignment = Enum.TextXAlignment.Center })
+		return v
 	end
-	fpsLbl = Tile(1, "FPS")
-	pingLbl = Tile(2, "PING")
-	loadedLbl = Tile(3, "FUNÇÕES ATIVAS")
+	fpsLbl, pingLbl, activeLbl = tile(1, "FPS"), tile(2, "PING"), tile(3, "FUNÇÕES ATIVAS")
 end
 Home:AddSection("Atalhos")
-Home:AddParagraph({ "B ou RightShift", "Mostra e esconde o hub. A estrela flutuante também abre e fecha, e o botão — encolhe a janela." })
+Home:AddParagraph({ "B ou RightShift", "Mostra e esconde o hub. A estrela flutuante também abre e fecha (e dá pra arrastar), e o botão – esconde a janela." })
+Home:AddSection("Novidades da v4.0")
+Home:AddParagraph({ "Kill Aura reescrita", "Agora embutida no hub, com watchdog que religa sozinha, intervalo entre ataques, auto-golpe e painel de status. Veja na aba Combate." })
+Home:AddParagraph({ "Novas funções", "Pulo infinito, voo, hitbox, anti-void, anti-ragdoll, fullbright, FOV, teleporte e espectar jogadores, anti-AFK, server hop e mais." })
 
--- Funções
-addFeatureTab(Window:MakeTab({ "Combate", "flame" }), FEATURES.Combat, true)
-addFeatureTab(Window:MakeTab({ "Visual", "eye" }), FEATURES.Visual, true)
-addFeatureTab(Window:MakeTab({ "Movimento", "car" }), FEATURES.Movement, true)
-addFeatureTab(Window:MakeTab({ "Teleportes", "anchor" }), FEATURES.Teleports, false)
-
--- Ajustes
-local Config = Window:MakeTab({ "Ajustes", "settings" })
-Config:AddSection("Aparência")
-for _, t in ipairs({
-	{ "Star", "Star (padrão)" }, { "Ocean", "Oceano" }, { "Rose", "Rosa" },
-	{ "Red", "Vermelho" }, { "Dark", "Escuro" }, { "Darker", "Mais escuro" },
-}) do
-	Config:AddButton({
-		Name = "Tema: " .. t[2],
-		Desc = "Muda as cores do hub",
-		Callback = function() redzlib:SetTheme(t[1]) end,
-	})
+----------------------------------------------------------------------
+-- ABA: Combate
+----------------------------------------------------------------------
+local Combat = Window:MakeTab({ Name = "Combate", Icon = "⚔️" })
+Combat:AddSection("Kill Aura / Alcance da espada")
+if not ftouch then
+	Combat:AddParagraph({ "Atenção", "Seu executor não tem firetouchinterest. A Kill Aura precisa dele para funcionar." })
 end
-Config:AddToggle({
-	Name = "Partículas",
-	Desc = "Efeito de partículas no fundo",
-	Default = true,
-	Callback = function(v) Window:SetThemeParticles(v) end,
-})
-Config:AddSection("Dica")
-Config:AddParagraph({ "Redimensionar", "Arraste o canto inferior direito da janela para mudar o tamanho e a borda entre abas e conteúdo para ajustar a barra lateral." })
+tog(Combat, "Kill Aura", "Acerta inimigos no alcance sem precisar mirar", function(v)
+	KA.Enabled = v
+	if v and not ftouch then
+		notify("Kill Aura", "Executor sem firetouchinterest", "Error", 5)
+	end
+	if not v then killIndicator() KA.Status = "desligada" end
+end)
+Combat:AddSlider({ Name = "Alcance", Min = 1, Max = 60, Default = 18, Increase = 1, Suffix = " studs", Callback = function(v) KA.Range = v end })
+Combat:AddDropdown({ Name = "Prioridade do alvo", Options = { "Mais perto", "Menos vida" }, Default = "Mais perto", Callback = function(v) KA.Priority = v end })
+Combat:AddSlider({ Name = "Máximo de alvos por ciclo", Min = 1, Max = 10, Default = 4, Increase = 1, Callback = function(v) KA.MaxTargets = v end })
+Combat:AddSlider({ Name = "Intervalo entre ataques", Min = 20, Max = 400, Default = 60, Increase = 10, Suffix = " ms", Callback = function(v) KA.Interval = v / 1000 end })
+Combat:AddToggle({ Name = "Teleportar até o alvo ao bater", Desc = "Ajuda quando o servidor confere a distância", Default = true, Callback = function(v) KA.Teleport = v end })
+Combat:AddToggle({ Name = "Auto-golpe", Desc = "Balança a espada sozinho (Tool:Activate)", Default = true, Callback = function(v) KA.AutoSwing = v end })
+Combat:AddToggle({ Name = "Ignorar meu time", Default = true, Callback = function(v) KA.TeamCheck = v end })
+Combat:AddToggle({ Name = "Equipar espada automaticamente", Desc = "Pega a primeira ferramenta da mochila ao respawnar", Default = false, Callback = function(v) KA.AutoEquip = v end })
+Combat:AddToggle({ Name = "Destacar a espada", Desc = "Contorno colorido na hitbox", Default = true, Callback = function(v) KA.Highlight = v if not v then killIndicator() end end })
+local kaPanel = Combat:AddParagraph({ "Status da Kill Aura", "desligada" })
+
+Combat:AddSection("Hitbox")
+tog(Combat, "Aumentar hitbox dos inimigos", "Deixa os inimigos mais fáceis de acertar", function(v)
+	HB.Enabled = v
+	if not v then hbRestore() end
+end)
+Combat:AddSlider({ Name = "Tamanho da hitbox", Min = 2, Max = 30, Default = 8, Increase = 1, Callback = function(v) HB.Size = v end })
+addExternal(Combat, FEATURES.Combat, "Scripts externos")
+
+----------------------------------------------------------------------
+-- ABA: Movimento
+----------------------------------------------------------------------
+local Move = Window:MakeTab({ Name = "Movimento", Icon = "🏃" })
+Move:AddSection("Novas funções")
+tog(Move, "Pulo infinito", "Pule quantas vezes quiser no ar", function(v) S.InfJump = v end)
+tog(Move, "Voar", "WASD / analógico + Espaço sobe, Ctrl desce", function(v)
+	S.Fly = v
+	if not v then flyCleanup() end
+end)
+Move:AddSlider({ Name = "Velocidade do voo", Min = 10, Max = 200, Default = 60, Increase = 5, Callback = function(v) S.FlySpeed = v end })
+tog(Move, "Força do pulo personalizada", nil, function(v)
+	S.JumpOn = v
+	if not v then local h = getHum() if h then pcall(function() h.JumpPower = 50 end) end end
+end)
+Move:AddSlider({ Name = "Força do pulo", Min = 30, Max = 300, Default = 90, Increase = 5, Callback = function(v) S.JumpPower = v end })
+Move:AddSlider({ Name = "Gravidade", Min = 10, Max = 400, Default = 196, Increase = 2, Callback = function(v) workspace.Gravity = v end })
+Move:AddButton({ Name = "Restaurar gravidade", Callback = function() workspace.Gravity = 196.2 notify("Gravidade", "Valor padrão restaurado", "Success") end })
+tog(Move, "Bunny hop", "Segure Espaço para pular sem parar", function(v) S.Bhop = v end)
+tog(Move, "Anti-void", "Te devolve ao último chão seguro se você cair do mapa", function(v) S.AntiVoid = v end)
+tog(Move, "Anti-ragdoll", "Impede o personagem de cair/ficar mole", function(v)
+	S.AntiRagdoll = v
+	applyAntiRagdoll(v)
+end)
+addExternal(Move, FEATURES.Movement, "Scripts externos")
+
+----------------------------------------------------------------------
+-- ABA: Visual
+----------------------------------------------------------------------
+local Vis = Window:MakeTab({ Name = "Visual", Icon = "👁" })
+Vis:AddSection("Novas funções")
+tog(Vis, "Fullbright", "Tudo iluminado, sem sombras", function(v)
+	if v then saveLighting() end
+	S.Fullbright = v
+	if not v then restoreLighting({ "Brightness", "GlobalShadows", "Ambient", "OutdoorAmbient" }) end
+end)
+tog(Vis, "Sem neblina", nil, function(v)
+	if v then saveLighting() end
+	S.NoFog = v
+	if not v then restoreLighting({ "FogEnd", "FogStart" }) end
+end)
+Vis:AddSlider({ Name = "Hora do dia", Min = 0, Max = 24, Default = 14, Increase = 0.5, Callback = function(v) saveLighting() Lighting.ClockTime = v end })
+tog(Vis, "FOV personalizado", nil, function(v)
+	if v and cam() then fovOrig = fovOrig or cam().FieldOfView end
+	S.FovOn = v
+	if not v and cam() and fovOrig then cam().FieldOfView = fovOrig end
+end)
+Vis:AddSlider({ Name = "Campo de visão (FOV)", Min = 40, Max = 120, Default = 90, Increase = 1, Callback = function(v) S.Fov = v end })
+tog(Vis, "Zoom ilimitado da câmera", "Afaste ou aproxime a câmera sem limite", function(v)
+	zoomOrig = zoomOrig or LP.CameraMaxZoomDistance
+	S.Zoom = v
+	pcall(function()
+		LP.CameraMaxZoomDistance = v and 9999 or zoomOrig
+		LP.CameraMinZoomDistance = v and 0.5 or 0.5
+	end)
+end)
+local crosshair
+tog(Vis, "Mira central (crosshair)", nil, function(v)
+	if crosshair then crosshair:Destroy() crosshair = nil end
+	if v then
+		crosshair = New("Frame", { Size = UDim2.fromOffset(24, 24), Position = UDim2.fromScale(0.5, 0.5), AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, Parent = Window.Gui })
+		local function bar(sz, pos)
+			local b = New("Frame", { Size = sz, Position = pos, BorderSizePixel = 0, Parent = crosshair })
+			UI.Bind(b, "BackgroundColor3", "Accent")
+		end
+		bar(UDim2.fromOffset(2, 8), UDim2.fromOffset(11, 0))
+		bar(UDim2.fromOffset(2, 8), UDim2.fromOffset(11, 16))
+		bar(UDim2.fromOffset(8, 2), UDim2.fromOffset(0, 11))
+		bar(UDim2.fromOffset(8, 2), UDim2.fromOffset(16, 11))
+	end
+end)
+addExternal(Vis, FEATURES.Visual, "Scripts externos")
+
+----------------------------------------------------------------------
+-- ABA: Jogadores
+----------------------------------------------------------------------
+local PlayersTab = Window:MakeTab({ Name = "Jogadores", Icon = "👥" })
+local selectedName
+local function playerNames()
+	local t = {}
+	for _, p in ipairs(Players:GetPlayers()) do if p ~= LP then t[#t + 1] = p.Name end end
+	table.sort(t)
+	return t
+end
+PlayersTab:AddSection("Alvo")
+local playerDD = PlayersTab:AddDropdown({ Name = "Jogador", Options = playerNames(), Callback = function(v) selectedName = v end })
+local function refreshPlayers()
+	local names = playerNames()
+	local keep = false
+	for _, n in ipairs(names) do if n == selectedName then keep = true end end
+	if not keep then selectedName = nil end
+	playerDD:Refresh(names, keep)
+end
+track(Players.PlayerAdded:Connect(function() task.wait(0.3) refreshPlayers() end))
+track(Players.PlayerRemoving:Connect(function() task.delay(0.3, refreshPlayers) end))
+PlayersTab:AddButton({ Name = "Atualizar lista", Callback = refreshPlayers })
+PlayersTab:AddSection("Ações")
+local function selectedPlayer()
+	local p = selectedName and Players:FindFirstChild(selectedName)
+	if not p then notify("Jogadores", "Escolha um jogador primeiro", "Warn") end
+	return p
+end
+PlayersTab:AddButton({ Name = "Teleportar até o jogador", Callback = function()
+	local p = selectedPlayer()
+	local r, tr = getRoot(), p and p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+	if p and r and tr then r.CFrame = tr.CFrame * CFrame.new(0, 0, 3) notify("Teleporte", "Você foi até " .. p.Name, "Success")
+	elseif p then notify("Jogadores", "Esse jogador não está com personagem agora", "Warn") end
+end })
+PlayersTab:AddButton({ Name = "Assistir jogador", Desc = "A câmera segue o jogador escolhido", Callback = function()
+	local p = selectedPlayer()
+	local h = p and p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+	if h and cam() then cam().CameraSubject = h notify("Câmera", "Assistindo " .. p.Name, "Success") end
+end })
+PlayersTab:AddButton({ Name = "Parar de assistir", Callback = function()
+	local h = getHum()
+	if h and cam() then cam().CameraSubject = h end
+end })
+onCleanup(function() local h = getHum() if h and cam() then cam().CameraSubject = h end end)
+
+----------------------------------------------------------------------
+-- ABA: Teleportes
+----------------------------------------------------------------------
+local Tele = Window:MakeTab({ Name = "Teleportes", Icon = "📍" })
+local savedPos
+Tele:AddSection("Posições")
+Tele:AddButton({ Name = "Salvar minha posição", Callback = function()
+	local r = getRoot()
+	if r then savedPos = r.CFrame notify("Posição", "Posição salva", "Success") end
+end })
+Tele:AddButton({ Name = "Voltar para a posição salva", Callback = function()
+	local r = getRoot()
+	if r and savedPos then r.CFrame = savedPos notify("Posição", "Teleportado", "Success")
+	else notify("Posição", "Nenhuma posição salva", "Warn") end
+end })
+Tele:AddButton({ Name = "Copiar minhas coordenadas", Callback = function()
+	local r = getRoot()
+	if r and setclipboard then
+		local p = r.Position
+		setclipboard(string.format("%.1f, %.1f, %.1f", p.X, p.Y, p.Z))
+		notify("Coordenadas", "Copiadas", "Success")
+	else notify("Coordenadas", "Seu executor não tem setclipboard", "Warn") end
+end })
+addExternal(Tele, FEATURES.Teleports, "Locais do mapa")
+
+----------------------------------------------------------------------
+-- ABA: Utilidades
+----------------------------------------------------------------------
+local Util = Window:MakeTab({ Name = "Utilidades", Icon = "🧰" })
+Util:AddSection("Conta e servidor")
+Util:AddToggle({ Name = "Anti-AFK", Desc = "Evita ser expulso por ficar parado", Default = true, Callback = function(v) S.AntiAFK = v end })
+Util:AddButton({ Name = "Reentrar no servidor", Callback = function()
+	pcall(function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, LP) end)
+end })
+Util:AddButton({ Name = "Trocar de servidor", Desc = "Procura um servidor com vaga", Callback = function()
+	task.spawn(function()
+		local ok, data = pcall(function()
+			local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+			return game:GetService("HttpService"):JSONDecode(game:HttpGet(url))
+		end)
+		if not ok or type(data) ~= "table" or not data.data then
+			notify("Servidor", "Não consegui listar servidores", "Error")
+			return
+		end
+		for _, s in ipairs(data.data) do
+			if s.id ~= game.JobId and s.playing and s.maxPlayers and s.playing < s.maxPlayers then
+				notify("Servidor", "Entrando em outro servidor…", "Success")
+				pcall(function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, s.id, LP) end)
+				return
+			end
+		end
+		notify("Servidor", "Nenhum servidor com vaga encontrado", "Warn")
+	end)
+end })
+Util:AddSection("Desempenho")
+Util:AddButton({ Name = "Impulso de FPS", Desc = "Reduz qualidade, sombras e efeitos", Callback = function()
+	pcall(function() settings().Rendering.QualityLevel = Enum.QualityLevel.Level01 end)
+	pcall(function() Lighting.GlobalShadows = false end)
+	local n = 0
+	for _, d in ipairs(workspace:GetDescendants()) do
+		if d:IsA("ParticleEmitter") or d:IsA("Trail") or d:IsA("Smoke") or d:IsA("Fire") or d:IsA("Sparkles") then
+			pcall(function() d.Enabled = false end)
+			n = n + 1
+		end
+	end
+	for _, e in ipairs(Lighting:GetChildren()) do
+		if e:IsA("BlurEffect") or e:IsA("SunRaysEffect") or e:IsA("BloomEffect") or e:IsA("DepthOfFieldEffect") then
+			pcall(function() e.Enabled = false end)
+		end
+	end
+	notify("FPS", n .. " efeitos desligados", "Success")
+end })
+
+----------------------------------------------------------------------
+-- ABA: Ajustes
+----------------------------------------------------------------------
+local Config = Window:MakeTab({ Name = "Ajustes", Icon = "⚙️" })
+Config:AddSection("Aparência")
+Config:AddDropdown({ Name = "Tema", Options = { "Star", "Ocean", "Rose", "Red", "Mint" }, Default = "Star", Callback = function(v) Window:SetTheme(v) end })
+Config:AddSection("Hub")
+Config:AddButton({ Name = "Descarregar o hub", Desc = "Desliga todas as funções e fecha a interface", Callback = function()
+	if _G.StarHubCleanup then _G.StarHubCleanup() end
+end })
 
 ----------------------------------------------------------------------
 -- Atalhos, status ao vivo e limpeza
 ----------------------------------------------------------------------
-local keyConn
-keyConn = UserInputService.InputBegan:Connect(function(input, gp)
-	if not ScreenGui.Parent then keyConn:Disconnect() return end
-	if not gp and TOGGLE_KEYS[input.KeyCode] then Window:Minimize() end
-end)
+track(UIS.InputBegan:Connect(function(input, gp)
+	if not gp and TOGGLE_KEYS[input.KeyCode] then Window:Toggle() end
+end))
 
 task.spawn(function()
 	local frames, last = 0, os.clock()
 	local hb = RunService.Heartbeat:Connect(function() frames = frames + 1 end)
-	while ScreenGui.Parent do
+	while alive and Window.Gui.Parent do
 		task.wait(1)
 		local now = os.clock()
 		local fps = math.floor(frames / math.max(now - last, 0.001) + 0.5)
 		frames, last = 0, now
 		local ping = "--"
-		pcall(function()
-			ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) .. " ms"
-		end)
-		fpsLbl.Text = tostring(fps)
-		pingLbl.Text = ping
-		loadedLbl.Text = tostring(loadedCount)
+		pcall(function() ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()) .. " ms" end)
+		fpsLbl.Text, pingLbl.Text = tostring(fps), ping
+		activeLbl.Text = tostring(activeCount + loadedCount)
+
+		local since = KA.LastHit > 0 and string.format("%.1fs", os.clock() - KA.LastHit) or "nunca"
+		kaPanel:Set(nil, string.format("%s\nAlvos: %d  •  Acertos: %d  •  Último: %s\nErros: %d  •  Reinícios do loop: %d\nÚltimo erro: %s",
+			KA.Status, KA.Targets, KA.Hits, since, KA.Errors, KA.Restarts, KA.LastErr))
 	end
 	hb:Disconnect()
 end)
 
 _G.StarHubCleanup = function()
-	pcall(function() keyConn:Disconnect() end)
-	pcall(function() ScreenGui:Destroy() end)
+	alive = false
+	for _, f in ipairs(Cleanups) do pcall(f) end
+	for _, c in ipairs(Conns) do pcall(function() c:Disconnect() end) end
+	pcall(function() Window:Destroy() end)
+	_G.StarHubCleanup = nil
 end
 
-redzlib:Notify({ Title = "Star Hub", Description = "Carregado. B ou RightShift mostram/escondem.", Duration = 4, Type = "Success" })
+notify("Star Hub " .. VERSION, "Carregado. B ou RightShift mostram/escondem.", "Success", 4)
